@@ -1,0 +1,15 @@
+package woop;
+
+import net.minecraft.util.ChunkCoordinates;
+import net.minecraft.world.WorldProvider;
+import net.minecraft.world.WorldProviderSurface;
+
+public class BiosphereWorldProvider extends WorldProviderSurface
+{
+	@Override
+	public ChunkCoordinates getRandomizedSpawnPoint()
+	{
+		return super.getRandomizedSpawnPoint();
+	}
+
+}

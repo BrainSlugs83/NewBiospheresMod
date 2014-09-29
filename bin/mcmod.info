@@ -1,0 +1,16 @@
+[
+{
+  "modid": "WoopMod",
+  "name": "Woop",
+  "description": "Woop Woop Woop!",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "http://www.twitter.com/BrainSlugs83",
+  "updateUrl": "",
+  "authorList": ["BrainSlugs83"],
+  "credits": "womp womp",
+  "logoFile": "taco.gif",
+  "screenshots": [],
+  "dependencies": []
+}
+]

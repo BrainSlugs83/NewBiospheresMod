@@ -1,0 +1,19 @@
+package woop;
+
+import net.minecraft.util.WeightedRandom;
+import net.minecraft.world.biome.BiomeGenBase;
+
+public class BiomeEntry extends WeightedRandom {
+
+	public final BiomeGenBase biome = null;
+
+	public BiomeEntry(BiomeGenBase biomegenbase, int i) {
+		
+		
+		
+		super(i);
+		this.biome = biomegenbase;
+		
+	}
+
+}

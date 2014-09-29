@@ -1,0 +1,9 @@
+package woop;
+
+import net.minecraft.world.WorldProvider;
+
+public class BiosphereWorldProvider extends WorldProviderSurface
+{
+	
+
+}

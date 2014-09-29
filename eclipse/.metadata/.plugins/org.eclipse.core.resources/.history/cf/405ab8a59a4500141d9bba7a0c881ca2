@@ -1,0 +1,14 @@
+package woop;
+
+import net.minecraft.entity.EntityLiving;
+import net.minecraft.world.World;
+import cpw.mods.fml.common.Mod.EventHandler;
+
+public class Events {
+	
+	@EventHandler
+	public void SpawnEvent(EntityJoinWorldEvent event) {
+		System.out.println("ENTITY: " + entity.getClass().getName());
+	}
+
+}

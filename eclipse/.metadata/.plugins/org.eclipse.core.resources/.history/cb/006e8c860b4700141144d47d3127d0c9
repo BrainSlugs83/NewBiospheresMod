@@ -1,0 +1,18 @@
+package woop;
+
+import net.minecraft.block.Block;
+import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
+
+public class BiosphereChunk extends Chunk
+{
+
+	public BiosphereChunk(World world, Block[] blocks, int x, int z)
+	{
+		super(world, blocks, x, z);
+	}
+	
+	
+	
+	
+}

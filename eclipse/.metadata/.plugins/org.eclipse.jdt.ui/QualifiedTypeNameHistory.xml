@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<qualifiedTypeNameHistroy>
+<fullyQualifiedTypeName name="cpw.mods.fml.common.registry.GameRegistry"/>
+<fullyQualifiedTypeName name="cpw.mods.fml.common.gameevent.PlayerEvent"/>
+<fullyQualifiedTypeName name="cpw.mods.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent"/>
+<fullyQualifiedTypeName name="net.minecraftforge.event.terraingen.BiomeEvent"/>
+<fullyQualifiedTypeName name="net.minecraftforge.client.event.sound.PlaySoundEvent17"/>
+<fullyQualifiedTypeName name="net.minecraftforge.client.event.sound.PlaySoundEffectSourceEvent"/>
+<fullyQualifiedTypeName name="java.util.HashMap"/>
+<fullyQualifiedTypeName name="net.minecraftforge.event.entity.living.LivingSpawnEvent.CheckSpawn"/>
+<fullyQualifiedTypeName name="net.minecraftforge.event.entity.EntityJoinWorldEvent"/>
+<fullyQualifiedTypeName name="net.minecraft.block.Block"/>
+<fullyQualifiedTypeName name="net.minecraftforge.event.entity.EntityEvent"/>
+<fullyQualifiedTypeName name="net.minecraft.entity.EnumCreatureType"/>
+<fullyQualifiedTypeName name="cpw.mods.fml.common.eventhandler.EventPriority"/>
+<fullyQualifiedTypeName name="net.minecraft.entity.player.EntityPlayerMP"/>
+<fullyQualifiedTypeName name="net.minecraftforge.event.entity.living.LivingSpawnEvent"/>
+<fullyQualifiedTypeName name="java.lang.System"/>
+<fullyQualifiedTypeName name="net.minecraft.entity.EntityLivingBase"/>
+<fullyQualifiedTypeName name="com.sun.java.util.jar.pack.Package.Class.Method"/>
+<fullyQualifiedTypeName name="net.minecraft.entity.player.EntityPlayer"/>
+<fullyQualifiedTypeName name="net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent"/>
+<fullyQualifiedTypeName name="net.minecraftforge.event.entity.living.LivingEvent"/>
+<fullyQualifiedTypeName name="net.minecraft.world.chunk.Chunk"/>
+<fullyQualifiedTypeName name="net.minecraft.world.WorldProvider"/>
+<fullyQualifiedTypeName name="net.minecraft.world.WorldProviderSurface"/>
+<fullyQualifiedTypeName name="net.minecraftforge.common.DimensionManager"/>
+<fullyQualifiedTypeName name="net.minecraft.util.ChunkCoordinates"/>
+<fullyQualifiedTypeName name="net.minecraft.init.Blocks"/>
+<fullyQualifiedTypeName name="woop.BiosphereGen.SphereChunk"/>
+</qualifiedTypeNameHistroy>
