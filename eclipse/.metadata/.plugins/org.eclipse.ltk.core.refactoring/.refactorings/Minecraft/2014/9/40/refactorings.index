@@ -67,3 +67,8 @@
 1411973663716	Rename local variable 'i'
 1411973673286	Rename local variable 'j'
 1411974222040	Rename field 'current'
+1412049241402	Rename local variable 'var20'
+1412049775056	Rename field 'scale'
+1412049782366	Rename field 'scaledGrid'
+1412049790056	Rename field 'scaledSpecial'
+1412049801866	Rename field 'worldHeight'

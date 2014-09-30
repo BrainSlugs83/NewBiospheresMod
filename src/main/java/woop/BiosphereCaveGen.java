@@ -285,7 +285,7 @@ public class BiosphereCaveGen extends MapGenBase
 		for (int j1 = 0; j1 < i1; ++j1)
 		{
 			double x = (double)(chunkX * 16 + this.rand.nextInt(16));
-			double y = (double)this.rand.nextInt(BiosphereGen.worldHeight);
+			double y = (double)this.rand.nextInt(BiosphereGen.WORLD_HEIGHT);
 			double z = (double)(chunkZ * 16 + this.rand.nextInt(16));
 			int k1 = 1;
 
