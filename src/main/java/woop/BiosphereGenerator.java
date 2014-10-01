@@ -32,7 +32,7 @@ public class BiosphereGenerator extends WorldType
 
 	public int getSeaLevel(World world)
 	{
-		return 64;
+		return BiosphereGen.SEA_LEVEL + 1;
 	}
 
 	public double voidFadeMagnitude()

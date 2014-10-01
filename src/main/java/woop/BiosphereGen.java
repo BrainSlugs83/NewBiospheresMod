@@ -54,7 +54,6 @@ public class BiosphereGen implements IChunkProvider
 	public static final boolean ENABLED;
 	public static final boolean TALLGRASS;
 	public static final boolean WATERWORLD;
-	public static final boolean EXPLOITBUG;
 
 	public static final float SCALE = 1.0F;
 	public static final int SCALE_GRID;
@@ -65,10 +64,10 @@ public class BiosphereGen implements IChunkProvider
 	public static final int SEA_LEVEL = 63;
 
 	public static final double MIN_RADIUS = 20;
-	public static final double MAX_RADIUS = 40;
+	public static final double MAX_RADIUS = 50;
 
-	public static final double MIN_LAKE_RATIO = 0.20d;
-	public static final double MAX_LAKE_RATIO = 0.45d;
+	public static final double MIN_LAKE_RATIO = 0.3d;
+	public static final double MAX_LAKE_RATIO = 0.6d;
 
 	/**
 	 * Get whether the map features (e.g. strongholds) generation is enabled or disabled.
@@ -371,10 +370,11 @@ public class BiosphereGen implements IChunkProvider
 
 				for (int rawY = WORLD_MAXY; rawY >= 0; --rawY)
 				{
+					int idx = (xo << xShift) | (zo << zShift) | rawY;
+					Block block = (rawY <= (SEA_LEVEL - 10)) ? Blocks.water : Blocks.air;
+
 					double sphereDistance = chunk.getMainDistance(rawX + xo, rawY, rawZ + zo);
 					double oreDistance = chunk.getOreDistance(rawX + xo, rawY, rawZ + zo);
-					int idx = (xo << xShift) | (zo << zShift) | rawY;
-					Block block = Blocks.air;
 
 					if (rawY > midY)
 					{
@@ -493,7 +493,6 @@ public class BiosphereGen implements IChunkProvider
 						block = Blocks.water;
 					}
 
-					
 					if (oreDistance == (double)this.SCALED_SPECIAL + 1)
 					{
 						block = Blocks.glass;
@@ -580,7 +579,7 @@ public class BiosphereGen implements IChunkProvider
 	public Chunk provideChunk(int x, int z)
 	{
 		// this.setRand(x, z);
-		Block[] blocks = new Block[16 * 16 * WORLD_HEIGHT * (EXPLOITBUG ? 2 : 1)];
+		Block[] blocks = new Block[16 * 16 * WORLD_HEIGHT * 2];
 
 		this.preGenerateChunk(x, z, blocks);
 		this.caveGen.func_151539_a(this, this.world, x, z, blocks); // func_151539_a == generate
@@ -823,7 +822,7 @@ public class BiosphereGen implements IChunkProvider
 			}
 		}
 
-		if (!EXPLOITBUG)
+		//if (!EXPLOITBUG)
 		{
 			SpawnerAnimals.performWorldGenSpawning(this.world, chunk.biome, absX + 8, absZ + 8, 16, 16, rnd);
 		}
@@ -905,7 +904,7 @@ public class BiosphereGen implements IChunkProvider
 		boolean enabled = true;
 		boolean tallGrassEnabled = true;
 		boolean waterWorldEnabled = false;
-		boolean exploitBugEnabled = false;
+		//boolean exploitBugEnabled = false;
 		int grid = 9;
 		int special = 7;
 		int lavaLevel = 24;
@@ -936,9 +935,9 @@ public class BiosphereGen implements IChunkProvider
 						waterWorldEnabled = Boolean.parseBoolean(props.getProperty(
 							"water_world",
 							Boolean.toString(waterWorldEnabled)));
-						exploitBugEnabled = Boolean.parseBoolean(props.getProperty(
-							"exploit_bug",
-							Boolean.toString(exploitBugEnabled)));
+//						exploitBugEnabled = Boolean.parseBoolean(props.getProperty(
+//							"exploit_bug",
+//							Boolean.toString(exploitBugEnabled)));
 						grid = Integer.parseInt(props.getProperty("grid", "9"));
 						special = Integer.parseInt(props.getProperty("special", "7"));
 						lavaLevel = Integer.parseInt(props.getProperty("lavaLevel", "24"));
@@ -1038,7 +1037,7 @@ public class BiosphereGen implements IChunkProvider
 		ENABLED = enabled;
 		TALLGRASS = tallGrassEnabled;
 		WATERWORLD = waterWorldEnabled;
-		EXPLOITBUG = exploitBugEnabled;
+		//EXPLOITBUG = exploitBugEnabled;
 		GRID_SIZE = grid;
 		SPECIAL_RADIUS = special;
 		LAVA_LEVEL = lavaLevel;
