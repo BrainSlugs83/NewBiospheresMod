@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename type &apos;woop.BiosphereGenerator&apos; to &apos;BiosphereWorldType&apos;&#x0D;&#x0A;- Original project: &apos;Minecraft&apos;&#x0D;&#x0A;- Original element: &apos;woop.BiosphereGenerator&apos;&#x0D;&#x0A;- Renamed element: &apos;woop.BiosphereWorldType&apos;&#x0D;&#x0A;- Update references to refactored element&#x0D;&#x0A;- Update textual occurrences in comments and strings" description="Rename type &apos;BiosphereGenerator&apos;" flags="589830" id="org.eclipse.jdt.ui.rename.type" input="/src\/main\/java&lt;woop{BiosphereGenerator.java[BiosphereGenerator" matchStrategy="1" name="BiosphereWorldType" qualified="false" references="true" similarDeclarations="false" stamp="1412314955972" textual="false" version="1.0"/>
+</session>

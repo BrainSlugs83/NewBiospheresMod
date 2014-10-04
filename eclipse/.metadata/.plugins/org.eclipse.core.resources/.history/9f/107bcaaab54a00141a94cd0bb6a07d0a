@@ -1,0 +1,45 @@
+package woop;
+
+import java.util.LinkedList;
+
+import woop.BiosphereGen.SphereChunk;
+
+public class LruCacheList<T>
+{
+	private LinkedList<T> chunks = new LinkedList<T>();
+
+	public synchronized SphereChunk GetSphereChunk(int chunkX, int chunkZ)
+	{
+		boolean first = true;
+		for (SphereChunk chunk: chunks)
+		{
+			if (chunk != null)
+			{
+				if (chunk.chunkX == chunkX && chunk.chunkZ == chunkZ)
+				{
+					if (!first)
+					{
+						// move element to the front of the list
+						chunks.remove(chunk);
+						chunks.push(chunk);
+					}
+
+					return chunk;
+				}
+			}
+
+			first = false;
+		}
+
+		SphereChunk chunk = new SphereChunk(this.world, this.worldSeed, chunkX, chunkZ);
+
+		chunks.push(chunk);
+		while (chunks.size() > 10)
+		{
+			chunks.removeLast();
+		}
+
+		return chunk;
+	}
+	
+}

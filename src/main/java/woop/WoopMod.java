@@ -52,7 +52,7 @@ public class WoopMod
 		// new ItemStack(Blocks.dirt));
 
 		LanguageRegistry.instance().addStringLocalization("generator.biosphere", "Biospheres");
-		Biosphere = new BiosphereGenerator("biosphere");
+		Biosphere = new BiosphereWorldType("biosphere");
 
 		
 		//MinecraftForge.EVENT_BUS.register(this);

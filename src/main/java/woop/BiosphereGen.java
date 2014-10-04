@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Random;
 
+import akka.dispatch.sysmsg.Create;
+import akka.japi.Creator;
+import akka.japi.Predicate;
 import scala.tools.nsc.doc.model.Public;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSand;
@@ -241,41 +244,60 @@ public class BiosphereGen implements IChunkProvider
 		}
 	}
 
-	private LinkedList<SphereChunk> chunks = new LinkedList<SphereChunk>();
+	private LruCacheList<SphereChunk> chunks = new LruCacheList<SphereChunk>(10);
 
-	public synchronized SphereChunk GetSphereChunk(int chunkX, int chunkZ)
+	public synchronized SphereChunk GetSphereChunk(final int chunkX, final int chunkZ)
 	{
-		boolean first = true;
-		for (SphereChunk chunk: chunks)
+		return chunks.FindOrAdd(new Predicate<SphereChunk>()
 		{
-			if (chunk != null)
+			public boolean test(SphereChunk chunk)
 			{
-				if (chunk.chunkX == chunkX && chunk.chunkZ == chunkZ)
-				{
-					if (!first)
-					{
-						// move element to the front of the list
-						chunks.remove(chunk);
-						chunks.push(chunk);
-					}
-
-					return chunk;
-				}
+				return chunk.chunkX == chunkX && chunk.chunkZ == chunkZ;
 			}
-
-			first = false;
-		}
-
-		SphereChunk chunk = new SphereChunk(this.world, this.worldSeed, chunkX, chunkZ);
-
-		chunks.push(chunk);
-		while (chunks.size() > 10)
+		}, new Creator<SphereChunk>()
 		{
-			chunks.removeLast();
-		}
-
-		return chunk;
+			public SphereChunk create()
+			{
+				return new SphereChunk(world, worldSeed, chunkX, chunkZ);
+			}
+		});
 	}
+
+	// private LinkedList<SphereChunk> chunks = new LinkedList<SphereChunk>();
+	//
+	// public synchronized SphereChunk GetSphereChunk(int chunkX, int chunkZ)
+	// {
+	// boolean first = true;
+	// for (SphereChunk chunk: chunks)
+	// {
+	// if (chunk != null)
+	// {
+	// if (chunk.chunkX == chunkX && chunk.chunkZ == chunkZ)
+	// {
+	// if (!first)
+	// {
+	// // move element to the front of the list
+	// chunks.remove(chunk);
+	// chunks.push(chunk);
+	// }
+	//
+	// return chunk;
+	// }
+	// }
+	//
+	// first = false;
+	// }
+	//
+	// SphereChunk chunk = new SphereChunk(this.world, this.worldSeed, chunkX, chunkZ);
+	//
+	// chunks.push(chunk);
+	// while (chunks.size() > 10)
+	// {
+	// chunks.removeLast();
+	// }
+	//
+	// return chunk;
+	// }
 
 	public BiosphereGen(World world)
 	{
@@ -371,7 +393,8 @@ public class BiosphereGen implements IChunkProvider
 				for (int rawY = WORLD_MAXY; rawY >= 0; --rawY)
 				{
 					int idx = (xo << xShift) | (zo << zShift) | rawY;
-					Block block = (rawY <= (SEA_LEVEL - 10)) ? Blocks.water : Blocks.air;
+					// Block block = (rawY <= (SEA_LEVEL - 10)) ? Blocks.water : Blocks.air;
+					Block block = Blocks.air;
 
 					double sphereDistance = chunk.getMainDistance(rawX + xo, rawY, rawZ + zo);
 					double oreDistance = chunk.getOreDistance(rawX + xo, rawY, rawZ + zo);
@@ -579,7 +602,7 @@ public class BiosphereGen implements IChunkProvider
 	public Chunk provideChunk(int x, int z)
 	{
 		// this.setRand(x, z);
-		Block[] blocks = new Block[16 * 16 * WORLD_HEIGHT * 2];
+		Block[] blocks = new Block[16 * 16 * WORLD_HEIGHT];
 
 		this.preGenerateChunk(x, z, blocks);
 		this.caveGen.func_151539_a(this, this.world, x, z, blocks); // func_151539_a == generate
@@ -822,7 +845,7 @@ public class BiosphereGen implements IChunkProvider
 			}
 		}
 
-		//if (!EXPLOITBUG)
+		// if (!EXPLOITBUG)
 		{
 			SpawnerAnimals.performWorldGenSpawning(this.world, chunk.biome, absX + 8, absZ + 8, 16, 16, rnd);
 		}
@@ -904,7 +927,7 @@ public class BiosphereGen implements IChunkProvider
 		boolean enabled = true;
 		boolean tallGrassEnabled = true;
 		boolean waterWorldEnabled = false;
-		//boolean exploitBugEnabled = false;
+		// boolean exploitBugEnabled = false;
 		int grid = 9;
 		int special = 7;
 		int lavaLevel = 24;
@@ -935,9 +958,9 @@ public class BiosphereGen implements IChunkProvider
 						waterWorldEnabled = Boolean.parseBoolean(props.getProperty(
 							"water_world",
 							Boolean.toString(waterWorldEnabled)));
-//						exploitBugEnabled = Boolean.parseBoolean(props.getProperty(
-//							"exploit_bug",
-//							Boolean.toString(exploitBugEnabled)));
+						// exploitBugEnabled = Boolean.parseBoolean(props.getProperty(
+						// "exploit_bug",
+						// Boolean.toString(exploitBugEnabled)));
 						grid = Integer.parseInt(props.getProperty("grid", "9"));
 						special = Integer.parseInt(props.getProperty("special", "7"));
 						lavaLevel = Integer.parseInt(props.getProperty("lavaLevel", "24"));
@@ -1037,7 +1060,7 @@ public class BiosphereGen implements IChunkProvider
 		ENABLED = enabled;
 		TALLGRASS = tallGrassEnabled;
 		WATERWORLD = waterWorldEnabled;
-		//EXPLOITBUG = exploitBugEnabled;
+		// EXPLOITBUG = exploitBugEnabled;
 		GRID_SIZE = grid;
 		SPECIAL_RADIUS = special;
 		LAVA_LEVEL = lavaLevel;

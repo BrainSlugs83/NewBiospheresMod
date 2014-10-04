@@ -1,0 +1,48 @@
+package woop;
+
+import sun.misc.LRUCache;
+import net.minecraft.client.multiplayer.ChunkProviderClient;
+import net.minecraft.entity.EnumCreatureType;
+import net.minecraft.init.Blocks;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldType;
+import net.minecraft.world.biome.WorldChunkManager;
+import net.minecraft.world.chunk.IChunkProvider;
+
+public class BiosphereWorldType extends WorldType
+{
+	private static final LruCacheList<World> BiosphereWorlds = new LruCacheList<World>(3);
+
+	public BiosphereWorldType(String s)
+	{
+		super(s);
+	}
+
+	public WorldChunkManager getChunkManager(World world)
+	{
+		BiosphereWorlds.Push(world);
+		return new BiosphereWeather(world);
+	}
+
+	public IChunkProvider getChunkGenerator(World world, String params)
+	{
+		BiosphereWorlds.Push(world);
+		return new BiosphereGen(world);
+	}
+
+	public boolean hasVoidParticles(boolean flag)
+	{
+		return false;
+	}
+
+	public int getSeaLevel(World world)
+	{
+		BiosphereWorlds.Push(world);
+		return BiosphereGen.SEA_LEVEL + 1;
+	}
+
+	public double voidFadeMagnitude()
+	{
+		return 1.0D;
+	}
+}
