@@ -1,9 +1,15 @@
 *.log
 *.class
 bin
-build
 *.log.gz
 eclipse/config
 eclipse/saves
 eclipse/.metadata/.plugins/org.eclipse.core.resources/.history
 *.snap
+*.gitignore
+build/classes
+build/libs
+build/dependency-cache
+build/resources
+build/sources
+build/tmp
