@@ -3,26 +3,26 @@
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog_dialogBounds">
 		<item value="257" key="DIALOG_WIDTH"/>
 		<item value="222" key="DIALOG_Y_ORIGIN"/>
-		<item value="1582" key="DIALOG_X_ORIGIN"/>
 		<item value="380" key="DIALOG_HEIGHT"/>
+		<item value="1582" key="DIALOG_X_ORIGIN"/>
 		<item value="1|Segoe UI|9.0|0|WINDOWS|1|-12|0|0|0|400|0|0|0|1|0|0|0|0|Segoe UI" key="DIALOG_FONT_NAME"/>
 	</section>
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
 		<item value="true" key="wrap"/>
-		<item value="false" key="casesensitive"/>
 		<item value="false" key="isRegEx"/>
+		<item value="false" key="casesensitive"/>
 		<item value="false" key="incremental"/>
 		<item value="false" key="wholeword"/>
-		<item value="// end" key="selection"/>
+		<item value="cfgFile" key="selection"/>
 		<list key="findhistory">
-			<item value="// end"/>
-			<item value="BLock"/>
-			<item value="lava"/>
-			<item value="LAVA"/>
-			<item value="lavaLevel"/>
-			<item value="noise"/>
-			<item value="biomeList"/>
-			<item value="humid"/>
+			<item value="cfgFile"/>
+			<item value="Float"/>
+			<item value="float"/>
+			<item value="double"/>
+			<item value="block"/>
+			<item value="Props"/>
+			<item value="Alpha"/>
+			<item value="Sort"/>
 		</list>
 		<list key="replacehistory">
 		</list>

@@ -39,7 +39,6 @@ public class ModConfig
 
 	private class ModProps extends java.util.Properties
 	{
-		@Override
 		public Enumeration keys()
 		{
 			Enumeration keysEnum = super.keys();
@@ -456,7 +455,7 @@ public class ModConfig
 	{
 		if (scaledGridSize == 0)
 		{
-			scaledGridSize = (int)(gridSize * scale);
+			scaledGridSize = (int)((float)gridSize * scale);
 		}
 
 		return scaledGridSize;
@@ -509,7 +508,6 @@ public class ModConfig
 	{
 		return new Predicate<BiomeEntry>()
 		{
-			@Override
 			public boolean test(BiomeEntry entry)
 			{
 				return entry.biome == biome;

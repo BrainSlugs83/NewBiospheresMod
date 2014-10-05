@@ -1,6 +1,6 @@
 eclipse.preferences.version=1
 fold.getterSetter=true
 fold.userDefined=true
-user.defined.end=}}
+user.defined.end=\#endregion
 user.defined.entries=<?xml version\="1.0" encoding\="UTF-8" standalone\="no"?><regions/>
-user.defined.start={{
+user.defined.start=\#region
