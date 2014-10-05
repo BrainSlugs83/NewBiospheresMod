@@ -1,0 +1,28 @@
+NOISE
+transparency of blocks set correctly
+generate structures: towns, caves, abandonned mine shafts
+menu options
+store options in World
+weather?
+Remaining Spawn point bug(s)
+
+Lakes need to be half as deep as they are wide (in radius)
+No diamonds, lapis lazuli, clay, emeralds in the spheres.
+No spawners, rivers, 
+
+Make Gold Ore less rare
+
+Questionable:
+Moss Stone?
+Chests?
+Redstone Ore
+
+Coal Ore
+
+
+
+Configure number of orbs per dome,
+Configure orb stairways
+Configure protective glass
+Configure Lava speed
+

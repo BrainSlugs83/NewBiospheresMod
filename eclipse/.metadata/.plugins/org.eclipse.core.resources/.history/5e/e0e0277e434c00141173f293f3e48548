@@ -1,8 +1,0 @@
-package woop;
-
-public class ModConsts
-{
-	public static final int WORLD_HEIGHT = 128;
-	public static final int WORLD_MAXY = WORLD_HEIGHT - 1;
-	public static final int SEA_LEVEL = 63;
-}

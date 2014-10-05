@@ -1,7 +1,0 @@
-package woop;
-
-import net.minecraft.util.*;
-
-public class BiomeEntry extends WeightedRandomItem {
-
-}
