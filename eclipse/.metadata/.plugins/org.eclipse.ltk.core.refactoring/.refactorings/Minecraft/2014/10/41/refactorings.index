@@ -1,0 +1,17 @@
+1412468163381	Rename field '_noiseEnabled'
+1412468235883	Rename field '_scale'
+1412468243373	Rename field '_domeBlock'
+1412472275982	Rename field 'ScaledGridSize'
+1412479303246	Move file
+1412479310221	Delete element
+1412482883176	Rename local variable 'abiomegenbase'
+1412482940232	Rename local variable 'flag'
+1412482967537	Rename local variable 'i'
+1412482973616	Rename local variable 'j'
+1412482979964	Rename local variable 'k'
+1412482985850	Rename local variable 'l'
+1412487146615	Rename field 'oreLocation'
+1412487163272	Rename field 'location'
+1412492027470	Rename local variable 'output'
+1412492698677	Rename local variable 'i'
+1412494442195	Rename method 'ConvertDoubleArrayToString'

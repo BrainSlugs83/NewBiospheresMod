@@ -10,10 +10,10 @@
 	<item value="137" key="org.eclipse.jdt.uiformatter_page.white_space.java_view.option"/>
 	<item value="2" key="org.eclipse.jdt.uiformatter_page.modify_dialog_tab_page.last_focus_index"/>
 	<item value="347" key="org.eclipse.jdt.uiformatter_pagemodify_dialog.preferred_x"/>
-	<item value="29" key="org.eclipse.jdt.uiformatter_page.line_wrapping_tab_page.last_category_index"/>
 	<item value="73" key="org.eclipse.jdt.uiformatter_pagemodify_dialog.preferred_y"/>
-	<item value="1005" key="org.eclipse.jdt.uiformatter_pagemodify_dialog.preferred_width"/>
+	<item value="29" key="org.eclipse.jdt.uiformatter_page.line_wrapping_tab_page.last_category_index"/>
 	<item value="2" key="org.eclipse.jdt.uiformatter_pagemodify_dialog.last_focus"/>
+	<item value="1005" key="org.eclipse.jdt.uiformatter_pagemodify_dialog.preferred_width"/>
 	<section name="OptionalMessageDialog.hide.">
 		<item value="true" key="org.eclipse.jdt.ui.typecomment.deprecated"/>
 	</section>
@@ -27,6 +27,13 @@
 	<section name="completion_proposal_size">
 	</section>
 	<section name="JavaElementSearchActions">
+	</section>
+	<section name="DialogBounds_GetterSetterTreeSelectionDialog">
+		<item value="529" key="DIALOG_WIDTH"/>
+		<item value="65" key="DIALOG_Y_ORIGIN"/>
+		<item value="704" key="DIALOG_X_ORIGIN"/>
+		<item value="695" key="DIALOG_HEIGHT"/>
+		<item value="1|Segoe UI|9.0|0|WINDOWS|1|-12|0|0|0|400|0|0|0|1|0|0|0|0|Segoe UI" key="DIALOG_FONT_NAME"/>
 	</section>
 	<section name="JavaSearchPage">
 		<item value="true" key="CASE_SENSITIVE"/>
@@ -74,5 +81,15 @@
 		<item value="false" key="updateQualifiedNames"/>
 		<item value="false" key="renameSubpackages"/>
 		<item value="false" key="updateTextualMatches"/>
+	</section>
+	<section name="SourceActionDialog.methods">
+		<item value="1" key="VisibilityModifier"/>
+		<item value="false" key="Comments"/>
+		<item value="false" key="SynchronizedModifier"/>
+		<item value="false" key="FinalModifier"/>
+	</section>
+	<section name="AddGetterSetterDialog">
+		<item value="false" key="RemoveFinal"/>
+		<item value="false" key="SortOrdering"/>
 	</section>
 </section>

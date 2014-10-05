@@ -2,14 +2,8 @@ package woop;
 
 import java.util.LinkedList;
 
-import org.apache.commons.io.output.NullWriter;
-
 import akka.japi.Creator;
 import akka.japi.Predicate;
-
-import com.sun.org.apache.bcel.internal.generic.PUSH;
-
-import woop.BiosphereGen.SphereChunk;
 
 public class LruCacheList<T>
 {
@@ -27,12 +21,12 @@ public class LruCacheList<T>
 		_backingList.remove(item);
 		_backingList.push(item);
 	}
-	
+
 	public synchronized boolean Contains(T item)
 	{
 		return _backingList.contains(item);
 	}
-	
+
 	public synchronized T FindOrAdd(Predicate<T> predicate, Creator<T> creator)
 	{
 		boolean first = true;

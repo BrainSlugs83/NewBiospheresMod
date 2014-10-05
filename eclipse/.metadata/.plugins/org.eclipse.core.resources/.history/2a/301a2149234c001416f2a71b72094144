@@ -1,0 +1,214 @@
+package woop;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.Properties;
+
+import net.minecraft.block.Block;
+import net.minecraft.client.Minecraft;
+import net.minecraft.init.Blocks;
+import net.minecraft.world.World;
+import net.minecraft.world.biome.BiomeGenBase;
+
+public class ModConfig
+{
+	public enum WorldCharacteristics
+	{
+		Regular,
+		WaterWorld,
+		LavaWorld
+	}
+	
+	private static final File cfgFile = new File(Minecraft.getMinecraft().mcDataDir, "/config/Biosphere.cfg");
+
+	public final World World;
+
+	private boolean _noiseEnabled = false;
+	private float _scale = 1.0f;
+	
+	private Block _domeBlock = Blocks.glass;
+	private Block _bridgeSupportBlock = Blocks.planks;
+	private Block _bridgeRailSupportBlock = Blocks.fence;
+	
+	private WorldCharacteristics _characteristics = WorldCharacteristics.Regular;
+	private boolean _tallGrass= true;
+	
+	private int _gridSize = 9;
+	private int _bridgeSize = 2;
+	
+	private double _minSphereRadius = 20;
+	private double _maxSphereRadius = 50;
+	private double _orbRadius = 7;
+
+	private double minLakeRatio = 0.3d;
+	private double maxLakeRatio = 0.6d;
+	
+	public int getScaledGridSize()
+	{
+		return (int)((float)_gridSize * _scale);
+	}
+	
+	public int getScaledOrbRadius()
+	{
+		return (int)((float)_orbRadius * _scale);
+	}
+
+	public ModConfig(World world)
+	{
+		this.World = world;		
+	}
+
+//	private void SetupBlocks()
+//	{
+//		BiomeGenBase.hell.topBlock = BiomeGenBase.hell.fillerBlock = Blocks.netherrack;
+//		BiomeGenBase.sky.topBlock = BiomeGenBase.sky.fillerBlock = Blocks.end_stone;
+//		
+//		if (WATERWORLD)
+//		{
+//			Blocks.water.setLightOpacity(0);
+//			Blocks.flowing_water.setLightOpacity(0);
+//		}
+//	}
+
+	public void LoadConfigurationFromFile()
+	{
+		Init();
+
+		try
+		{
+			cfgFile.getParentFile().mkdirs();
+
+			if (cfgFile.exists() || cfgFile.createNewFile())
+			{
+				Properties props = new Properties();
+
+				if (cfgFile.canRead())
+				{
+					FileInputStream fs = null;
+					try
+					{
+						fs = new FileInputStream(cfgFile);
+						props.load(fs);
+
+						domeBlock = Utils.ParseBlock(props.getProperty("dome", Utils.GetNameOrIdForBlock(domeBlock)));
+						_noiseEnabled = Boolean.parseBoolean(props.getProperty("noise", Boolean.toString(_noiseEnabled)));
+						enabled = Boolean.parseBoolean(props.getProperty("enabled", Boolean.toString(enabled)));
+						tallGrassEnabled = Boolean.parseBoolean(props.getProperty(
+							"tall_grass",
+							Boolean.toString(tallGrassEnabled)));
+						waterWorldEnabled = Boolean.parseBoolean(props.getProperty(
+							"water_world",
+							Boolean.toString(waterWorldEnabled)));
+						// exploitBugEnabled = Boolean.parseBoolean(props.getProperty(
+						// "exploit_bug",
+						// Boolean.toString(exploitBugEnabled)));
+						grid = Integer.parseInt(props.getProperty("grid", "9"));
+						special = Integer.parseInt(props.getProperty("special", "7"));
+						lavaLevel = Integer.parseInt(props.getProperty("lavaLevel", "24"));
+						bridgeSize = Integer.parseInt(props.getProperty("bridge_size", "2"));
+						bridgeSupportBlock = Utils.ParseBlock(props.getProperty(
+							"bridge_support",
+							Utils.GetNameOrIdForBlock(bridgeSupportBlock)));
+						bridgeRailBlock = Utils.ParseBlock(props.getProperty(
+							"bridge_rail",
+							Utils.GetNameOrIdForBlock(bridgeRailBlock)));
+
+						for (Object _biome: AllBiomes)
+						{
+							BiomeEntry biome = (BiomeEntry)_biome;
+
+							biome.itemWeight = Integer.parseInt(props.getProperty(
+								"weight_" + biome.biome.biomeName,
+								Integer.toString(biome.itemWeight)));
+						}
+
+						// BiomeEntry iterator1;
+						// for (Iterator biomeentry1 =
+						// BiosphereWeather.biomeList.iterator();
+						// biomeentry1.hasNext(); iterator1.itemWeight =
+						// Integer.parseInt(props.getProperty(
+						// "weight_" + iterator1.biome.biomeName,
+						// Integer.toString(iterator1.itemWeight))))
+						// {
+						// iterator1 = (BiomeEntry)biomeentry1.next();
+						// }
+					}
+					finally
+					{
+						if (fs != null)
+						{
+							fs.close();
+						}
+					}
+				}
+
+				// This works fine, but it's annoying during debugging.
+				// TODO: RE-ENABLE THIS.
+
+				// if (cfgFile.canWrite())
+				// {
+				// FileOutputStream fs = null;
+				// try
+				// {
+				// fs = new FileOutputStream(cfgFile);
+				//
+				// props.setProperty("dome",
+				// WoopMod.GetNameOrIdForBlock(domeBlock));
+				// props.setProperty("noise", Boolean.toString(noiseEnabled));
+				// props.setProperty("enabled", Boolean.toString(flag1));
+				// props.setProperty("tall_grass",
+				// Boolean.toString(tallGrassEnabled));
+				// props.setProperty("water_world",
+				// Boolean.toString(waterWorldEnabled));
+				// props.setProperty("exploit_bug",
+				// Boolean.toString(exploitBugEnabled));
+				// props.setProperty("grid", Integer.toString(grid));
+				// props.setProperty("special", Integer.toString(special));
+				// props.setProperty("lavaLevel", Integer.toString(lavaLevel));
+				// props.setProperty("bridge_size",
+				// Integer.toString(bridgeSize));
+				// props.setProperty("bridge_support",
+				// WoopMod.GetNameOrIdForBlock(bridgeSupportBlock));
+				// props.setProperty("bridge_rail",
+				// WoopMod.GetNameOrIdForBlock(bridgeRailBlock));
+				//
+				//
+				// for(Object _biomeEntry: BiosphereWeather.biomeList)
+				// {
+				// BiomeEntry biomeEntry = (BiomeEntry)_biomeEntry;
+				// props.setProperty("weight_" + biomeEntry.biome.biomeName,
+				// Integer.toString(biomeEntry.itemWeight));
+				// }
+				//
+				// props.store(fs, "Biosphere Config");
+				// }
+				// finally
+				// {
+				// if (fs != null)
+				// {
+				// fs.close();
+				// }
+				// }
+				// }
+			}
+		}
+		catch (Throwable ignore)
+		{ /* do nothing */
+		}
+
+		_domeBlock = domeBlock;
+		_noiseEnabled = noiseEnabled;
+		ENABLED = enabled;
+		TALLGRASS = tallGrassEnabled;
+		WATERWORLD = waterWorldEnabled;
+		// EXPLOITBUG = exploitBugEnabled;
+		GRID_SIZE = grid;
+		SPECIAL_RADIUS = special;
+		LAVA_LEVEL = lavaLevel;
+		BRIDGE_SIZE = bridgeSize;
+		BRIDGE_SUPPORT = bridgeSupportBlock;
+		BRIDGE_RAIL = bridgeRailBlock;
+
+	}
+
+}

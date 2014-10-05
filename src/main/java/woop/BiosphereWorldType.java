@@ -45,13 +45,13 @@ public class BiosphereWorldType extends WorldType
 	public WorldChunkManager getChunkManager(World world)
 	{
 		BiosphereWorlds.Push(world);
-		return new BiosphereWeather(world);
+		return new BiosphereChunkManager(world);
 	}
 
 	public IChunkProvider getChunkGenerator(World world, String params)
 	{
 		BiosphereWorlds.Push(world);
-		return new BiosphereGen(world);
+		return new BiosphereChunkProvider(world);
 	}
 
 	public boolean hasVoidParticles(boolean flag)
@@ -62,7 +62,7 @@ public class BiosphereWorldType extends WorldType
 	public int getSeaLevel(World world)
 	{
 		BiosphereWorlds.Push(world);
-		return BiosphereGen.SEA_LEVEL + 1;
+		return ModConsts.SEA_LEVEL + 1;
 	}
 
 	public double voidFadeMagnitude()

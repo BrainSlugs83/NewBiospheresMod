@@ -1,0 +1,413 @@
+package woop;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.Properties;
+
+import net.minecraft.block.Block;
+import net.minecraft.client.Minecraft;
+import net.minecraft.init.Blocks;
+import net.minecraft.world.World;
+
+public class ModConfig
+{
+	public enum WorldCharacteristics
+	{
+		Regular,
+		WaterWorld,
+		LavaWorld
+	}
+	
+	private static final File cfgFile = new File(Minecraft.getMinecraft().mcDataDir, "/config/Biosphere.cfg");
+
+	// #region Fields & Properties
+	
+	public final World World;
+	
+	// #region Noise Enabled
+	
+	private boolean noiseEnabled = false;
+	
+	public boolean isNoiseEnabled()
+	{
+		return noiseEnabled;
+	}
+	
+	public void setNoiseEnabled(boolean noiseEnabled)
+	{
+		this.noiseEnabled = noiseEnabled;
+	}
+	
+	// #endregion
+
+	// #region Scale
+	
+	public float getScale()
+	{
+		return scale;
+	}
+
+	public void setScale(float scale)
+	{
+		if (scale <= 0) { throw new IllegalArgumentException("scale must be a postivie non-zero number.");}
+		this.scale = scale;
+	}
+	
+	// #endregion
+
+	// #region Dome Block
+	
+	public Block getDomeBlock()
+	{
+		return domeBlock;
+	}
+
+	public void setDomeBlock(Block value)
+	{
+		if (value == null) { value = Blocks.air; }
+		this.domeBlock = value;
+	}
+	
+	// #endregion
+
+	// #region Bridge Block
+	
+	public Block getBridgeSupportBlock()
+	{
+		return bridgeSupportBlock;
+	}
+
+	public void setBridgeSupportBlock(Block value)
+	{
+		if (value == null) { value = Blocks.air; }
+		this.bridgeSupportBlock = value;
+	}
+	
+	// #endregion
+
+	// #region Bridge Rail Support Block
+	
+	public Block getBridgeRailSupportBlock()
+	{
+		return bridgeRailSupportBlock;
+	}
+
+	public void setBridgeRailSupportBlock(Block value)
+	{
+		if (value == null) { value = Blocks.air; }
+		this.bridgeRailSupportBlock = value;
+	}
+	
+	// #endregion
+
+	// #region Characteristics
+	
+	public WorldCharacteristics getCharacteristics()
+	{
+		return characteristics;
+	}
+
+	public void setCharacteristics(WorldCharacteristics characteristics)
+	{
+		this.characteristics = characteristics;
+	}
+	
+	// #endregion
+
+	// #region Tall Grass
+	
+	public boolean getTallGrass()
+	{
+		return tallGrass;
+	}
+
+	public void setTallGrass(boolean tallGrass)
+	{
+		this.tallGrass = tallGrass;
+	}
+	
+	// #endregion
+
+	// #region Grid Size
+	
+	public int getGridSize()
+	{
+		return gridSize;
+	}
+
+	public void setGridSize(int gridSize)
+	{
+		this.gridSize = gridSize;
+	}
+	
+	// #endregion
+	
+	// #region Bridge Size
+
+	public int getBridgeSize()
+	{
+		return bridgeSize;
+	}
+
+	public void setBridgeSize(int bridgeSize)
+	{
+		this.bridgeSize = bridgeSize;
+	}
+	
+	// #endregion
+
+	// #region Min-Sphere Radius 
+	
+	public double getMinSphereRadius()
+	{
+		return minSphereRadius;
+	}
+
+	public void setMinSphereRadius(double minSphereRadius)
+	{
+		this.minSphereRadius = minSphereRadius;
+	}
+	
+	// #endregion
+
+	// #region Max-Sphere Radius
+	
+	public double getMaxSphereRadius()
+	{
+		return maxSphereRadius;
+	}
+
+	public void setMaxSphereRadius(double maxSphereRadius)
+	{
+		this.maxSphereRadius = maxSphereRadius;
+	}
+	
+	// #endregion
+
+	// #region Orb Radius
+	
+	public double getOrbRadius()
+	{
+		return orbRadius;
+	}
+
+	public void setOrbRadius(double orbRadius)
+	{
+		this.orbRadius = orbRadius;
+	}
+	
+	// #endregion
+
+	public double getMinLakeRatio()
+	{
+		return minLakeRatio;
+	}
+
+	public void setMinLakeRatio(double minLakeRatio)
+	{
+		this.minLakeRatio = minLakeRatio;
+	}
+
+	public double getMaxLakeRatio()
+	{
+		return maxLakeRatio;
+	}
+
+	public void setMaxLakeRatio(double maxLakeRatio)
+	{
+		this.maxLakeRatio = maxLakeRatio;
+	}
+
+	
+	private float scale = 1.0f;
+	
+	private Block domeBlock = Blocks.glass;
+	private Block bridgeSupportBlock = Blocks.planks;
+	private Block bridgeRailSupportBlock = Blocks.fence;
+	
+	private WorldCharacteristics characteristics = WorldCharacteristics.Regular;
+	private boolean tallGrass= true;
+	
+	private int gridSize = 9;
+	private int bridgeSize = 2;
+	
+	private double minSphereRadius = 20;
+	private double maxSphereRadius = 50;
+	private double orbRadius = 7;
+
+	private double minLakeRatio = 0.3d;
+	private double maxLakeRatio = 0.6d;
+	
+	public int getScaledGridSize()
+	{
+		return (int)((float)gridSize * scale);
+	}
+	
+	public int getScaledOrbRadius()
+	{
+		return (int)((float)orbRadius * scale);
+	}
+	
+	// #endregion
+
+
+
+	public ModConfig(World world)
+	{
+		this.World = world;		
+	}
+
+//	private void SetupBlocks()
+//	{
+//		BiomeGenBase.hell.topBlock = BiomeGenBase.hell.fillerBlock = Blocks.netherrack;
+//		BiomeGenBase.sky.topBlock = BiomeGenBase.sky.fillerBlock = Blocks.end_stone;
+//		
+//		if (WATERWORLD)
+//		{
+//			Blocks.water.setLightOpacity(0);
+//			Blocks.flowing_water.setLightOpacity(0);
+//		}
+//	}
+
+	public void LoadConfigurationFromFile()
+	{
+		Init();
+
+		try
+		{
+			cfgFile.getParentFile().mkdirs();
+
+			if (cfgFile.exists() || cfgFile.createNewFile())
+			{
+				Properties props = new Properties();
+
+				if (cfgFile.canRead())
+				{
+					FileInputStream fs = null;
+					try
+					{
+						fs = new FileInputStream(cfgFile);
+						props.load(fs);
+
+						domeBlock = Utils.ParseBlock(props.getProperty("dome", Utils.GetNameOrIdForBlock(domeBlock)));
+						noiseEnabled = Boolean.parseBoolean(props.getProperty("noise", Boolean.toString(noiseEnabled)));
+						enabled = Boolean.parseBoolean(props.getProperty("enabled", Boolean.toString(enabled)));
+						tallGrassEnabled = Boolean.parseBoolean(props.getProperty(
+							"tall_grass",
+							Boolean.toString(tallGrassEnabled)));
+						waterWorldEnabled = Boolean.parseBoolean(props.getProperty(
+							"water_world",
+							Boolean.toString(waterWorldEnabled)));
+						// exploitBugEnabled = Boolean.parseBoolean(props.getProperty(
+						// "exploit_bug",
+						// Boolean.toString(exploitBugEnabled)));
+						grid = Integer.parseInt(props.getProperty("grid", "9"));
+						special = Integer.parseInt(props.getProperty("special", "7"));
+						lavaLevel = Integer.parseInt(props.getProperty("lavaLevel", "24"));
+						bridgeSize = Integer.parseInt(props.getProperty("bridge_size", "2"));
+						bridgeSupportBlock = Utils.ParseBlock(props.getProperty(
+							"bridge_support",
+							Utils.GetNameOrIdForBlock(bridgeSupportBlock)));
+						bridgeRailBlock = Utils.ParseBlock(props.getProperty(
+							"bridge_rail",
+							Utils.GetNameOrIdForBlock(bridgeRailBlock)));
+
+						for (Object _biome: AllBiomes)
+						{
+							BiomeEntry biome = (BiomeEntry)_biome;
+
+							biome.itemWeight = Integer.parseInt(props.getProperty(
+								"weight_" + biome.biome.biomeName,
+								Integer.toString(biome.itemWeight)));
+						}
+
+						// BiomeEntry iterator1;
+						// for (Iterator biomeentry1 =
+						// BiosphereWeather.biomeList.iterator();
+						// biomeentry1.hasNext(); iterator1.itemWeight =
+						// Integer.parseInt(props.getProperty(
+						// "weight_" + iterator1.biome.biomeName,
+						// Integer.toString(iterator1.itemWeight))))
+						// {
+						// iterator1 = (BiomeEntry)biomeentry1.next();
+						// }
+					}
+					finally
+					{
+						if (fs != null)
+						{
+							fs.close();
+						}
+					}
+				}
+
+				// This works fine, but it's annoying during debugging.
+				// TODO: RE-ENABLE THIS.
+
+				// if (cfgFile.canWrite())
+				// {
+				// FileOutputStream fs = null;
+				// try
+				// {
+				// fs = new FileOutputStream(cfgFile);
+				//
+				// props.setProperty("dome",
+				// WoopMod.GetNameOrIdForBlock(domeBlock));
+				// props.setProperty("noise", Boolean.toString(noiseEnabled));
+				// props.setProperty("enabled", Boolean.toString(flag1));
+				// props.setProperty("tall_grass",
+				// Boolean.toString(tallGrassEnabled));
+				// props.setProperty("water_world",
+				// Boolean.toString(waterWorldEnabled));
+				// props.setProperty("exploit_bug",
+				// Boolean.toString(exploitBugEnabled));
+				// props.setProperty("grid", Integer.toString(grid));
+				// props.setProperty("special", Integer.toString(special));
+				// props.setProperty("lavaLevel", Integer.toString(lavaLevel));
+				// props.setProperty("bridge_size",
+				// Integer.toString(bridgeSize));
+				// props.setProperty("bridge_support",
+				// WoopMod.GetNameOrIdForBlock(bridgeSupportBlock));
+				// props.setProperty("bridge_rail",
+				// WoopMod.GetNameOrIdForBlock(bridgeRailBlock));
+				//
+				//
+				// for(Object _biomeEntry: BiosphereWeather.biomeList)
+				// {
+				// BiomeEntry biomeEntry = (BiomeEntry)_biomeEntry;
+				// props.setProperty("weight_" + biomeEntry.biome.biomeName,
+				// Integer.toString(biomeEntry.itemWeight));
+				// }
+				//
+				// props.store(fs, "Biosphere Config");
+				// }
+				// finally
+				// {
+				// if (fs != null)
+				// {
+				// fs.close();
+				// }
+				// }
+				// }
+			}
+		}
+		catch (Throwable ignore)
+		{ /* do nothing */
+		}
+
+		domeBlock = domeBlock;
+		noiseEnabled = noiseEnabled;
+		ENABLED = enabled;
+		TALLGRASS = tallGrassEnabled;
+		WATERWORLD = waterWorldEnabled;
+		// EXPLOITBUG = exploitBugEnabled;
+		GRID_SIZE = grid;
+		SPECIAL_RADIUS = special;
+		LAVA_LEVEL = lavaLevel;
+		BRIDGE_SIZE = bridgeSize;
+		BRIDGE_SUPPORT = bridgeSupportBlock;
+		BRIDGE_RAIL = bridgeRailBlock;
+
+	}
+
+}

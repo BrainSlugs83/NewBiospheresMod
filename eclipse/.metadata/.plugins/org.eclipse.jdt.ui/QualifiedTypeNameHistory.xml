@@ -22,10 +22,18 @@
 <fullyQualifiedTypeName name="net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent"/>
 <fullyQualifiedTypeName name="net.minecraftforge.event.entity.living.LivingEvent"/>
 <fullyQualifiedTypeName name="net.minecraft.world.chunk.Chunk"/>
-<fullyQualifiedTypeName name="net.minecraft.world.WorldProvider"/>
 <fullyQualifiedTypeName name="net.minecraft.world.WorldProviderSurface"/>
 <fullyQualifiedTypeName name="net.minecraftforge.common.DimensionManager"/>
-<fullyQualifiedTypeName name="net.minecraft.util.ChunkCoordinates"/>
-<fullyQualifiedTypeName name="net.minecraft.init.Blocks"/>
 <fullyQualifiedTypeName name="woop.BiosphereGen.SphereChunk"/>
+<fullyQualifiedTypeName name="net.minecraft.util.ChunkCoordinates"/>
+<fullyQualifiedTypeName name="org.apache.commons.io.output.NullWriter"/>
+<fullyQualifiedTypeName name="javax.lang.model.type.NullType"/>
+<fullyQualifiedTypeName name="net.minecraft.world.WorldProvider"/>
+<fullyQualifiedTypeName name="net.minecraft.world.biome.BiomeGenBase"/>
+<fullyQualifiedTypeName name="java.util.List"/>
+<fullyQualifiedTypeName name="woop.BiomeEntry"/>
+<fullyQualifiedTypeName name="net.minecraft.world.World"/>
+<fullyQualifiedTypeName name="woop.ModConfig.WorldCharacteristics"/>
+<fullyQualifiedTypeName name="java.lang.IllegalArgumentException"/>
+<fullyQualifiedTypeName name="net.minecraft.init.Blocks"/>
 </qualifiedTypeNameHistroy>

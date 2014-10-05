@@ -1,24 +1,54 @@
 package woop;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.InputVerifier;
+
+import scala.tools.nsc.doc.model.Public;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.util.ChunkCoordinates;
+import akka.japi.Function;
+import akka.japi.Predicate;
+
+import com.infomancers.collections.yield.Yielder;
 
 public class Utils
 {
 	public static Block ParseBlock(String blockNameOrId)
 	{
+		Block returnValue = null;
+		
 		try
 		{
 			int id = Integer.parseInt(blockNameOrId);
-			return Block.getBlockById(id);
+			returnValue = Block.getBlockById(id);
 		}
-		catch (NumberFormatException ignore)
+		catch (Throwable ignore)
 		{
-			return Block.getBlockFromName(blockNameOrId);
+			// do nothing
 		}
+		
+		try
+		{
+			if (returnValue == null)
+			{
+				returnValue = Block.getBlockFromName(blockNameOrId);
+			}
+		}
+		catch (Throwable e)
+		{
+			// do nothing
+		}
+		
+		if (returnValue == null) { returnValue = Blocks.air; }
+		
+		return returnValue;
 	}
 
 	public static String GetNameOrIdForBlock(Block block)
@@ -90,10 +120,10 @@ public class Utils
 
 	public static ChunkCoordinates GetCoords(Entity e)
 	{
-		if (e == null) { return GetCoords(0,0,0); }
+		if (e == null) { return GetCoords(0, 0, 0); }
 		return GetCoords(e.posX, e.posY, e.posZ);
 	}
-	
+
 	public static ChunkCoordinates GetCoords(double x, double y, double z)
 	{
 		return GetCoords((int)Math.round(x), (int)Math.round(y), (int)Math.round(z));
@@ -108,4 +138,256 @@ public class Utils
 
 		return coords;
 	}
+
+	public static boolean FuzzyEquals(String a, String b)
+	{
+		if (a == b) { return true; }
+		if (a == null)
+		{
+			a = "";
+		}
+		if (b == null)
+		{
+			b = "";
+		}
+
+		a = a.trim();
+		b = b.trim();
+
+		return a.equalsIgnoreCase(b);
+	}
+
+	public static <T extends Enum<T>> T ParseEnum(Class<T> _class, String input)
+	{
+		return ParseEnum(_class, input, null);
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T extends Enum<T>> T ParseEnum(Class<T> _class, String input, T fallbackValue)
+	{
+		if (input != null && input.length() > 0)
+		{
+
+			for (Field f: _class.getDeclaredFields())
+			{
+				try
+				{
+					if (f.isEnumConstant())
+					{
+						if (FuzzyEquals(f.getName(), input)) { return (T)f.get(null); }
+					}
+				}
+				catch (Throwable ignoreMe)
+				{ /* do nothing */}
+			}
+		}
+
+		return fallbackValue;
+	}
+
+	public static <T> Iterable<T> Where(final Iterable<T> input, final Predicate<T> predicate)
+	{
+		if (predicate == null && input != null) { return input; }
+
+		// https://stackoverflow.com/questions/1980953/is-there-a-java-equivalent-to-cs-yield-keyword
+		return new Yielder<T>()
+		{
+			@Override
+			protected void yieldNextCore()
+			{
+				if (input != null)
+				{
+					for (T item: input)
+					{
+						if (predicate.test(item))
+						{
+							yieldReturn(item);
+						}
+					}
+				}
+			}
+		};
+	}
+
+	public static <T> boolean Any(final Iterable<T> input)
+	{
+		if (input != null)
+		{
+			for (T obj: input)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	// #region Array Serialization
+
+	private static <T> String __ConvertArrayToString(T[] args, Function<T, String> converter)
+	{
+		StringBuilder sb = new StringBuilder();
+
+		boolean first = true;
+
+		if (args != null && converter != null)
+		{
+			for (T item: args)
+			{
+				try
+				{
+					String value = first ? "" : ", ";
+					value += converter.apply(item);
+					sb.append(value);
+					first = false;
+				}
+				catch (Throwable ignore)
+				{
+					// skip this item!
+				}
+			}
+		}
+
+		return sb.toString();
+	}
+	
+	private static <T> List<T> __ConvertStringToList(String input, Function<String, T> converter)
+	{
+		List<T> output = new ArrayList<T>();
+		if (input != null && input.length() > 0 && converter != null)
+		{
+			String[] results = input.split("\\s*,\\s*");
+			for (String result: results)
+			{
+				try
+				{
+					if (result != null)
+					{
+						output.add(converter.apply(result));
+					}
+				}
+				catch (Throwable ignore)
+				{ /* skip this field */}
+			}
+		}
+		
+		return output;
+	}
+	
+
+	public static String ConvertIntegersToString(Integer... args)
+	{
+		return __ConvertArrayToString(args, new Function<Integer, String>()
+		{
+			@Override
+			public String apply(Integer input)
+			{
+				return Integer.toString(input.intValue());
+			}
+		});
+	}
+
+	public static List<Integer> ConvertStringToIntegers(String input)
+	{
+		return __ConvertStringToList(input, new Function<String, Integer>()
+		{
+			@Override
+			public Integer apply(String input)
+			{
+				return Integer.parseInt(input);
+			}
+		});
+	}
+	
+	public static String ConvertDoublesToString(Double... args)
+	{
+		return __ConvertArrayToString(args, new Function<Double, String>()
+		{
+			@Override
+			public String apply(Double input)
+			{
+				return Double.toString(input.doubleValue());
+			}
+		});
+	}
+
+	public static List<Double> ConvertStringToDoubles(String input)
+	{
+		return __ConvertStringToList(input, new Function<String, Double>()
+		{
+			@Override
+			public Double apply(String input)
+			{
+				return Double.parseDouble(input);
+			}
+		});
+	}
+
+	// #enregion
+
+	// #region GetDistance / GetInverseDistance
+
+	public static int GetInverseDistance(ChunkCoordinates coords1, ChunkCoordinates coords2)
+	{
+		if (coords2 == null)
+		{
+			coords2 = new ChunkCoordinates();
+		}
+		return GetInverseDistance(coords1, coords2.posX, coords2.posY, coords2.posZ);
+	}
+
+	public static int GetDistance(ChunkCoordinates coords1, ChunkCoordinates coords2)
+	{
+		if (coords2 == null)
+		{
+			coords2 = new ChunkCoordinates();
+		}
+		return GetDistance(coords1, coords2.posX, coords2.posY, coords2.posZ);
+	}
+
+	public static int GetInverseDistance(ChunkCoordinates coords, int x, int y, int z)
+	{
+		if (coords == null)
+		{
+			coords = new ChunkCoordinates();
+		}
+		return GetInverseDistance(coords.posX, coords.posY, coords.posZ, x, y, z);
+	}
+
+	public static int GetDistance(ChunkCoordinates coords, int x, int y, int z)
+	{
+		if (coords == null)
+		{
+			coords = new ChunkCoordinates();
+		}
+		return GetDistance(coords.posX, coords.posY, coords.posZ, x, y, z);
+	}
+
+	public static int GetInverseDistance(int x1, int y1, int z1, int x2, int y2, int z2)
+	{
+		return (int)Math.round(GetInverseDistance(
+			(double)x1,
+			(double)y1,
+			(double)z1,
+			(double)x2,
+			(double)y2,
+			(double)z2));
+	}
+
+	public static int GetDistance(int x1, int y1, int z1, int x2, int y2, int z2)
+	{
+		return (int)Math.round(GetDistance((double)x1, (double)y1, (double)z1, (double)x2, (double)y2, (double)z2));
+	}
+
+	public static double GetInverseDistance(double x1, double y1, double z1, double x2, double y2, double z2)
+	{
+		return Math.sqrt(-Math.pow(y2 - y1, 2.0D) + Math.pow(x2 - x1, 2.0D) + Math.pow(z2 - z1, 2.0D));
+	}
+
+	public static double GetDistance(double x1, double y1, double z1, double x2, double y2, double z2)
+	{
+		return Math.sqrt(Math.pow(y2 - y1, 2.0D) + Math.pow(x2 - x1, 2.0D) + Math.pow(z2 - z1, 2.0D));
+	}
+
+	// #endregion
 }

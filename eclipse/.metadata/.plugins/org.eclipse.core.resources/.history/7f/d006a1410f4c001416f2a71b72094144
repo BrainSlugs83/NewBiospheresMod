@@ -1,0 +1,133 @@
+package woop;
+
+import javax.lang.model.type.NullType;
+
+import net.minecraft.block.Block;
+import net.minecraft.entity.Entity;
+import net.minecraft.init.Blocks;
+import net.minecraft.util.ChunkCoordinates;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldProvider;
+import net.minecraft.world.WorldProviderSurface;
+import net.minecraft.world.storage.WorldInfo;
+
+public class BiosphereWorldProvider extends WorldProviderSurface
+{
+	@Override
+	public ChunkCoordinates getRandomizedSpawnPoint()
+	{
+		ChunkCoordinates coords = super.getRandomizedSpawnPoint();
+
+		TryFixSpawnLocation(coords);
+
+		return coords;
+	}
+
+	@Override
+	public ChunkCoordinates getSpawnPoint()
+	{
+		ChunkCoordinates coords = super.getSpawnPoint();
+
+		TryFixSpawnLocation(coords);
+
+		return coords;
+	}
+
+	private boolean SpawnedOnTopOfDome(ChunkCoordinates coords)
+	{
+		// Sanity Checking
+		if (coords == null) { return false; }
+
+		World world = super.worldObj;
+		if (!BiosphereWorldType.IsBiosphereWorld(world)) { return false; }
+
+		int domeBlockCount = 0;
+
+		for (double yo = -10; yo <= 10; yo++)
+		{
+
+			int y = (int)Math.round(coords.posY + yo);
+			Block block = world.getBlock(coords.posX, y, coords.posZ);
+
+			// System.out.println("SPAWN BLOCK [" + x + ", " + y + ", "
+			// + z + "](" + yo + "): " + WoopMod.GetNameOrIdForBlock(block));
+
+			if (block == BiosphereGen.DOME_TYPE)
+			{
+				domeBlockCount++;
+
+				if (domeBlockCount > 3)
+				{
+					// not dome world.
+					return false;
+				}
+			}
+			else if (block != Blocks.air)
+			{
+				if (block != Blocks.water && block != Blocks.flowing_water)
+				{
+					// not dome world.
+					return false;
+				}
+
+				// One of the blocks is water...
+				if (!BiosphereGen.WATERWORLD) { return false; }
+			}
+		}
+
+		return domeBlockCount >= 1; // spawned on top of a dome!!
+	}
+
+	private boolean ValidSpawnLocation(ChunkCoordinates coords)
+	{
+		if (coords == null) { return true; }
+		
+		World world = this.worldObj;
+		if (world == null) { return true; }
+
+		for (int i = 0; i < 3; i++)
+		{
+			Block block = world.getBlock(coords.posX, coords.posY + i, coords.posZ);
+
+			if (block != Blocks.air)
+			{
+				// trying to spawn in the middle of non-empty blocks
+				return false;
+			}
+		}
+
+		Block under = world.getBlock(coords.posX, coords.posY - 1, coords.posZ);
+		return under != Blocks.air && under != BiosphereGen.DOME_TYPE;
+	}
+
+	public boolean TryFixSpawnLocation(ChunkCoordinates coords)
+	{
+		if (coords == null) { return false; }
+		
+		World world = this.worldObj;
+		if (world == null) { return false; }
+
+		boolean locationModified = false;
+
+		while (SpawnedOnTopOfDome(coords))
+		{
+			locationModified = true;
+			coords.posY -= 8;
+
+			while (!ValidSpawnLocation(coords))
+			{
+				coords.posY -= 1;
+			}
+		}
+
+		if (locationModified)
+		{
+			coords.setPosition(coords.posX, coords.posY + .5d, coords.posZ);
+
+			// System.out.printf("    Final Location: [%.2f, %.2f, %.2f]%n",
+			// entity.posX, entity.posY, entity.posZ);
+		}
+
+		return locationModified;
+	}
+}

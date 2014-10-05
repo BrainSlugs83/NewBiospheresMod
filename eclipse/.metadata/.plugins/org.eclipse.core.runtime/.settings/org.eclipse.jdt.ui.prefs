@@ -1,9 +1,10 @@
 content_assist_autoactivation_triggers_java=.abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890_
-content_assist_lru_history=<?xml version\="1.0" encoding\="UTF-8" standalone\="no"?><history maxLHS\="100" maxRHS\="10"><lhs name\="cpw.mods.fml.common.eventhandler.Event"><rhs name\="net.minecraftforge.event.terraingen.BiomeEvent"/><rhs name\="net.minecraftforge.client.event.sound.PlaySoundEvent17"/><rhs name\="net.minecraftforge.client.event.sound.PlaySoundEffectSourceEvent"/><rhs name\="net.minecraftforge.event.entity.living.LivingEvent"/><rhs name\="net.minecraftforge.event.entity.living.LivingEvent$LivingUpdateEvent"/><rhs name\="net.minecraftforge.event.entity.EntityEvent"/></lhs><lhs name\="net.minecraft.block.Block"><rhs name\="net.minecraft.block.Block"/></lhs><lhs name\="java.lang.Enum"><rhs name\="net.minecraft.entity.EnumCreatureType"/><rhs name\="cpw.mods.fml.common.eventhandler.EventPriority"/></lhs><lhs name\="cpw.mods.fml.common.eventhandler.IEventListener"><rhs name\="cpw.mods.fml.common.eventhandler.EventPriority"/></lhs></history>
+content_assist_lru_history=<?xml version\="1.0" encoding\="UTF-8" standalone\="no"?><history maxLHS\="100" maxRHS\="10"><lhs name\="cpw.mods.fml.common.eventhandler.Event"><rhs name\="net.minecraftforge.event.terraingen.BiomeEvent"/><rhs name\="net.minecraftforge.client.event.sound.PlaySoundEvent17"/><rhs name\="net.minecraftforge.client.event.sound.PlaySoundEffectSourceEvent"/><rhs name\="net.minecraftforge.event.entity.living.LivingEvent"/><rhs name\="net.minecraftforge.event.entity.living.LivingEvent$LivingUpdateEvent"/><rhs name\="net.minecraftforge.event.entity.EntityEvent"/></lhs><lhs name\="net.minecraft.block.Block"><rhs name\="net.minecraft.block.Block"/></lhs><lhs name\="java.lang.Enum"><rhs name\="net.minecraft.entity.EnumCreatureType"/><rhs name\="cpw.mods.fml.common.eventhandler.EventPriority"/><rhs name\="woop.ModConfig$WorldCharacteristics"/></lhs><lhs name\="cpw.mods.fml.common.eventhandler.IEventListener"><rhs name\="cpw.mods.fml.common.eventhandler.EventPriority"/></lhs><lhs name\="woop.ModConfig$WorldCharacteristics"><rhs name\="woop.ModConfig$WorldCharacteristics"/></lhs></history>
 content_assist_number_of_computers=13
 content_assist_proposals_background=255,255,255
 content_assist_proposals_foreground=0,0,0
 eclipse.preferences.version=1
+editor_folding_provider=com.cb.eclipse.folding.provider1
 fontPropagated=true
 formatter_profile=_Mikey
 formatter_settings_version=12
@@ -17,7 +18,18 @@ org.eclipse.jdt.ui.text.custom_templates=<?xml version\="1.0" encoding\="UTF-8" 
 org.eclipse.jdt.ui.text.templates_migrated=true
 org.eclipse.jface.textfont=1|Consolas|10.0|0|WINDOWS|1|0|0|0|0|0|0|0|0|1|0|0|0|0|Consolas;
 proposalOrderMigrated=true
+spelling_ignore_ampersand_in_properties=true
+spelling_ignore_digits=true
+spelling_ignore_java_strings=true
+spelling_ignore_mixed=true
+spelling_ignore_non_letters=true
+spelling_ignore_sentence=true
+spelling_ignore_single_letters=true
+spelling_ignore_upper=true
+spelling_ignore_urls=true
 spelling_locale_initialized=true
+spelling_user_dictionary=D\:\\eclipse\\UserDictionary.txt
+spelling_user_dictionary_encoding=
 tabWidthPropagated=true
 useAnnotationsPrefPage=true
 useQuickDiffPrefPage=true

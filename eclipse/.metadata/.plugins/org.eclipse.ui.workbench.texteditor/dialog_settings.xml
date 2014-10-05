@@ -13,16 +13,16 @@
 		<item value="false" key="isRegEx"/>
 		<item value="false" key="incremental"/>
 		<item value="false" key="wholeword"/>
-		<item value="* WORLD_HEIGHT" key="selection"/>
+		<item value="// end" key="selection"/>
 		<list key="findhistory">
-			<item value="* WORLD_HEIGHT"/>
-			<item value="Blocks.air"/>
-			<item value="scaledSpecial"/>
-			<item value="ore"/>
-			<item value="sphereRadius ="/>
-			<item value="sphereRadius"/>
-			<item value="radius"/>
-			<item value="current"/>
+			<item value="// end"/>
+			<item value="BLock"/>
+			<item value="lava"/>
+			<item value="LAVA"/>
+			<item value="lavaLevel"/>
+			<item value="noise"/>
+			<item value="biomeList"/>
+			<item value="humid"/>
 		</list>
 		<list key="replacehistory">
 		</list>

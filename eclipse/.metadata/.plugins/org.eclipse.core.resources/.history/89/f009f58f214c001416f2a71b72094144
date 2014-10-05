@@ -1,0 +1,235 @@
+package woop;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.Properties;
+
+import net.minecraft.block.Block;
+import net.minecraft.client.Minecraft;
+import net.minecraft.init.Blocks;
+import net.minecraft.world.World;
+import net.minecraft.world.biome.BiomeGenBase;
+
+public class ModConfig
+{
+	public enum WorldCharacteristics
+	{
+		Regular,
+		WaterWorld,
+		LavaWorld
+	}
+	
+	private static final File cfgFile = new File(Minecraft.getMinecraft().mcDataDir, "/config/Biosphere.cfg");
+
+	public final int BRIDGE_SIZE;
+	public final int SPECIAL_RADIUS;
+		
+	
+	public final int SCALED_SPECIAL;
+
+	public final int WORLD_HEIGHT = 128;
+	public final int WORLD_MAXY = WORLD_HEIGHT - 1;
+	public final int SEA_LEVEL = 63;
+
+	public final double MIN_RADIUS = 20;
+	public final double MAX_RADIUS = 50;
+
+	public final double MIN_LAKE_RATIO = 0.3d;
+	public final double MAX_LAKE_RATIO = 0.6d;
+	
+	private boolean _noiseEnabled;
+	private Block _domeBlock;
+	private Block _bridgeSupportBlock;
+	private Block _bridgeRailSupportBlock;
+	private WorldCharacteristics _characteristics;
+	private boolean _tallGrass;
+	private float _scale;
+	private int _gridSize;
+	private int _orbSize;
+	
+	public int getScaledGridSize()
+	{
+		return (int)((float)_gridSize * _scale);
+	}
+	
+	public int getScaledOrbSize()
+	{
+		return (int)((float)_orbSize * _scale);
+	}
+	
+	
+	
+	private void Init()
+	{
+		BiomeGenBase.hell.topBlock = BiomeGenBase.hell.fillerBlock = Blocks.netherrack;
+		BiomeGenBase.sky.topBlock = BiomeGenBase.sky.fillerBlock = Blocks.end_stone;
+		
+		_scale = 1.0f;
+		
+		_noiseEnabled = false;
+		_domeBlock = Blocks.glass;
+		_bridgeSupportBlock = Blocks.planks;
+		_bridgeRailSupportBlock = Blocks.fence;
+		_characteristics = WorldCharacteristics.Regular;
+		_tallGrass = true;
+		_gridSize = 9;
+		_orbSize = 7;
+		
+	}
+	
+	
+	public void LoadConfigurationFromFile()
+	{
+		Init();
+
+		int special = 7;
+		int lavaLevel = 24;
+		int bridgeSize = 2;
+
+		try
+		{
+			cfgFile.getParentFile().mkdirs();
+
+			if (cfgFile.exists() || cfgFile.createNewFile())
+			{
+				Properties props = new Properties();
+
+				if (cfgFile.canRead())
+				{
+					FileInputStream fs = null;
+					try
+					{
+						fs = new FileInputStream(cfgFile);
+						props.load(fs);
+
+						domeBlock = Utils.ParseBlock(props.getProperty("dome", Utils.GetNameOrIdForBlock(domeBlock)));
+						_noiseEnabled = Boolean.parseBoolean(props.getProperty("noise", Boolean.toString(_noiseEnabled)));
+						enabled = Boolean.parseBoolean(props.getProperty("enabled", Boolean.toString(enabled)));
+						tallGrassEnabled = Boolean.parseBoolean(props.getProperty(
+							"tall_grass",
+							Boolean.toString(tallGrassEnabled)));
+						waterWorldEnabled = Boolean.parseBoolean(props.getProperty(
+							"water_world",
+							Boolean.toString(waterWorldEnabled)));
+						// exploitBugEnabled = Boolean.parseBoolean(props.getProperty(
+						// "exploit_bug",
+						// Boolean.toString(exploitBugEnabled)));
+						grid = Integer.parseInt(props.getProperty("grid", "9"));
+						special = Integer.parseInt(props.getProperty("special", "7"));
+						lavaLevel = Integer.parseInt(props.getProperty("lavaLevel", "24"));
+						bridgeSize = Integer.parseInt(props.getProperty("bridge_size", "2"));
+						bridgeSupportBlock = Utils.ParseBlock(props.getProperty(
+							"bridge_support",
+							Utils.GetNameOrIdForBlock(bridgeSupportBlock)));
+						bridgeRailBlock = Utils.ParseBlock(props.getProperty(
+							"bridge_rail",
+							Utils.GetNameOrIdForBlock(bridgeRailBlock)));
+
+						for (Object _biome: AllBiomes)
+						{
+							BiomeEntry biome = (BiomeEntry)_biome;
+
+							biome.itemWeight = Integer.parseInt(props.getProperty(
+								"weight_" + biome.biome.biomeName,
+								Integer.toString(biome.itemWeight)));
+						}
+
+						// BiomeEntry iterator1;
+						// for (Iterator biomeentry1 =
+						// BiosphereWeather.biomeList.iterator();
+						// biomeentry1.hasNext(); iterator1.itemWeight =
+						// Integer.parseInt(props.getProperty(
+						// "weight_" + iterator1.biome.biomeName,
+						// Integer.toString(iterator1.itemWeight))))
+						// {
+						// iterator1 = (BiomeEntry)biomeentry1.next();
+						// }
+					}
+					finally
+					{
+						if (fs != null)
+						{
+							fs.close();
+						}
+					}
+				}
+
+				// This works fine, but it's annoying during debugging.
+				// TODO: RE-ENABLE THIS.
+
+				// if (cfgFile.canWrite())
+				// {
+				// FileOutputStream fs = null;
+				// try
+				// {
+				// fs = new FileOutputStream(cfgFile);
+				//
+				// props.setProperty("dome",
+				// WoopMod.GetNameOrIdForBlock(domeBlock));
+				// props.setProperty("noise", Boolean.toString(noiseEnabled));
+				// props.setProperty("enabled", Boolean.toString(flag1));
+				// props.setProperty("tall_grass",
+				// Boolean.toString(tallGrassEnabled));
+				// props.setProperty("water_world",
+				// Boolean.toString(waterWorldEnabled));
+				// props.setProperty("exploit_bug",
+				// Boolean.toString(exploitBugEnabled));
+				// props.setProperty("grid", Integer.toString(grid));
+				// props.setProperty("special", Integer.toString(special));
+				// props.setProperty("lavaLevel", Integer.toString(lavaLevel));
+				// props.setProperty("bridge_size",
+				// Integer.toString(bridgeSize));
+				// props.setProperty("bridge_support",
+				// WoopMod.GetNameOrIdForBlock(bridgeSupportBlock));
+				// props.setProperty("bridge_rail",
+				// WoopMod.GetNameOrIdForBlock(bridgeRailBlock));
+				//
+				//
+				// for(Object _biomeEntry: BiosphereWeather.biomeList)
+				// {
+				// BiomeEntry biomeEntry = (BiomeEntry)_biomeEntry;
+				// props.setProperty("weight_" + biomeEntry.biome.biomeName,
+				// Integer.toString(biomeEntry.itemWeight));
+				// }
+				//
+				// props.store(fs, "Biosphere Config");
+				// }
+				// finally
+				// {
+				// if (fs != null)
+				// {
+				// fs.close();
+				// }
+				// }
+				// }
+			}
+		}
+		catch (Throwable ignore)
+		{ /* do nothing */
+		}
+
+		_domeBlock = domeBlock;
+		_noiseEnabled = noiseEnabled;
+		ENABLED = enabled;
+		TALLGRASS = tallGrassEnabled;
+		WATERWORLD = waterWorldEnabled;
+		// EXPLOITBUG = exploitBugEnabled;
+		GRID_SIZE = grid;
+		SPECIAL_RADIUS = special;
+		LAVA_LEVEL = lavaLevel;
+		BRIDGE_SIZE = bridgeSize;
+		BRIDGE_SUPPORT = bridgeSupportBlock;
+		BRIDGE_RAIL = bridgeRailBlock;
+
+		if (WATERWORLD)
+		{
+			Blocks.water.setLightOpacity(0);
+			Blocks.flowing_water.setLightOpacity(0);
+		}
+
+		
+		SCALED_SPECIAL = (int)((float)SPECIAL_RADIUS * SCALE);
+
+	}
+
+}
