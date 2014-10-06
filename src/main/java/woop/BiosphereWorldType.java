@@ -1,9 +1,5 @@
 package woop;
 
-import sun.misc.LRUCache;
-import net.minecraft.client.multiplayer.ChunkProviderClient;
-import net.minecraft.entity.EnumCreatureType;
-import net.minecraft.init.Blocks;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldType;
@@ -42,18 +38,21 @@ public class BiosphereWorldType extends WorldType
 		super(s);
 	}
 
+	@Override
 	public WorldChunkManager getChunkManager(World world)
 	{
 		BiosphereWorlds.Push(world);
 		return new BiosphereChunkManager(world);
 	}
 
+	@Override
 	public IChunkProvider getChunkGenerator(World world, String params)
 	{
 		BiosphereWorlds.Push(world);
-		return new BiosphereChunkProvider(world);
+		return BiosphereChunkProvider.get(world);
 	}
 
+	@Override
 	public boolean hasVoidParticles(boolean flag)
 	{
 		return false;
@@ -65,6 +64,7 @@ public class BiosphereWorldType extends WorldType
 		return ModConsts.SEA_LEVEL + 1;
 	}
 
+	@Override
 	public double voidFadeMagnitude()
 	{
 		return 1.0D;

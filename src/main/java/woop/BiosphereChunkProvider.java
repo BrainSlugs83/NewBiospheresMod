@@ -7,7 +7,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockSand;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.init.Blocks;
-import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.util.IProgressUpdate;
 import net.minecraft.world.ChunkPosition;
 import net.minecraft.world.SpawnerAnimals;
@@ -32,8 +31,30 @@ import akka.japi.Predicate;
 
 public class BiosphereChunkProvider implements IChunkProvider
 {
+	private static LruCacheList<BiosphereChunkProvider> chunkProviders = new LruCacheList<BiosphereChunkProvider>(3);
+
+	public static BiosphereChunkProvider get(final World world)
+	{
+		return chunkProviders.FindOrAdd(new Predicate<BiosphereChunkProvider>()
+		{
+			@Override
+			public boolean test(BiosphereChunkProvider chunkProvider)
+			{
+				return chunkProvider.world == world;
+			}
+		}, new Creator<BiosphereChunkProvider>()
+		{
+			@Override
+			public BiosphereChunkProvider create()
+			{
+				return new BiosphereChunkProvider(world);
+			}
+		});
+	}
+
 	public final World world;
 	public final ModConfig config;
+	public final NoiseGeneratorOctaves noiseGenerator;
 
 	/**
 	 * Get whether the map features (e.g. strongholds) generation is enabled or disabled.
@@ -44,11 +65,6 @@ public class BiosphereChunkProvider implements IChunkProvider
 	}
 
 	private MapGenBase caveGen = new BiosphereMapGen();
-	//
-	private NoiseGeneratorOctaves noiseGen;
-	// public double noiseMin = Double.MAX_VALUE;
-	// public double noiseMax = Double.MIN_VALUE;
-	// public double[] noise = new double[256];
 
 	public static final int zShift = 7;
 	public static final int xShift = 11;
@@ -59,15 +75,17 @@ public class BiosphereChunkProvider implements IChunkProvider
 	public synchronized SphereChunk GetSphereChunk(final int chunkX, final int chunkZ)
 	{
 		final BiosphereChunkProvider _this = this;
-		
+
 		return chunks.FindOrAdd(new Predicate<SphereChunk>()
 		{
+			@Override
 			public boolean test(SphereChunk chunk)
 			{
 				return chunk.chunkX == chunkX && chunk.chunkZ == chunkZ;
 			}
 		}, new Creator<SphereChunk>()
 		{
+			@Override
 			public SphereChunk create()
 			{
 				return new SphereChunk(_this, chunkX, chunkZ);
@@ -75,82 +93,20 @@ public class BiosphereChunkProvider implements IChunkProvider
 		});
 	}
 
-	public BiosphereChunkProvider(World world)
+	private BiosphereChunkProvider(World world)
 	{
 		this.world = world;
 		this.worldSeed = world.getSeed();
 		this.config = ModConfig.get(world);
 
-		// if (NOISE)
-		// {
-		// this.rndNoise = new Random(seed);
-		// this.noiseGen = new NoiseGeneratorOctaves(this.rndNoise, 4);
-		// }
-		// else
-		// {
-		// this.rndNoise = null;
-		// }
-	}
-
-	// public void setRand(int chunkX, int chunkZ)
-	// {
-	// ChunkCoordinates cc = GetSphereCenter(chunkX, chunkZ);
-	//
-	// this.midX = cc.posX;
-	// this.midZ = cc.posZ;
-	//
-	// this.oreMidX = this.midX + this.scaledGrid / 2 * 16 - this.scaledSpecial;
-	// this.oreMidZ = this.midZ + this.scaledGrid / 2 * 16 - this.scaledSpecial;
-	//
-	// this.rndSphere.setSeed(this.world.getSeed());
-	// long l = this.rndSphere.nextLong() / 2L * 2L + 1L;
-	// long l1 = this.rndSphere.nextLong() / 2L * 2L + 1L;
-	// long l2 = ((long)this.midX * l + (long)this.midZ * l1) * 2512576L ^ this.world.getSeed();
-	// this.rndSphere.setSeed(l2);
-	//
-	// this.sphereRadius = (double)((float)Math.round(16.0D + this.rndSphere.nextDouble() * 32.0D
-	// + this.rndSphere.nextDouble() * 16.0D) * scale);
-	// this.lakeRadius = (double)Math.round(this.sphereRadius / 4.0D);
-	// this.lakeEdgeRadius = this.lakeRadius + 2.0D;
-	// this.biome = this.world.getWorldChunkManager().getBiomeGenAt(chunkX << 4, chunkZ << 4);
-	// this.lavaLake = this.biome == BiomeGenBase.hell || this.biome != BiomeGenBase.swampland
-	// && this.biome != BiomeGenBase.taiga && this.biome != BiomeGenBase.icePlains
-	// && this.biome != BiomeGenBase.sky && this.rndSphere.nextInt(10) == 0;
-	// this.hasLake = this.biome == BiomeGenBase.swampland || this.biome != BiomeGenBase.sky
-	// && this.rndSphere.nextInt(2) == 0;
-	// this.oreMidY = this.scaledSpecial + 1 + this.rndSphere.nextInt(worldMaxY - (this.scaledSpecial + 1));
-	//
-	// if (NOISE)
-	// {
-	// this.setNoise(this.midX >> 4, this.midZ >> 4);
-	// this.noiseMin = Double.MAX_VALUE;
-	//
-	// for (int k = 0; k < this.noise.length; ++k)
-	// {
-	// if (this.noise[k] < this.noiseMin)
-	// {
-	// this.noiseMin = this.noise[k];
-	// }
-	// }
-	//
-	// this.lakeMidY = (int)Math.round(seaLevel + this.noiseMin * 8.0D * 1.0D);
-	// this.setNoise(chunkX, chunkZ);
-	// }
-	// else
-	// {
-	// this.lakeMidY = this.midY;
-	// }
-	// }
-	//
-
-	public void setNoise(int x, int z)
-	{
-		// if (NOISE)
-		// {
-		// double d = 0.0078125D;
-		// this.noise = this.noiseGen.generateNoiseOctaves(this.noise, x * 16, worldHeight, z * 16, 16, 1, 16, d, 1.0D,
-		// d);
-		// }
+		if (this.config.isNoiseEnabled())
+		{
+			noiseGenerator = new NoiseGeneratorOctaves(new Random(this.worldSeed), 4);
+		}
+		else
+		{
+			noiseGenerator = null;
+		}
 	}
 
 	public void preGenerateChunk(int chunkX, int chunkZ, Block[] blocks)
@@ -165,29 +121,30 @@ public class BiosphereChunkProvider implements IChunkProvider
 		{
 			for (int xo = 0; xo < 16; ++xo)
 			{
-				int midY = chunk.getSurfaceLevel(xo, zo);
+				int midY = chunk.getChunkBoundSurfaceLevel(xo, zo);
 
 				for (int rawY = ModConsts.WORLD_MAX_Y; rawY >= ModConsts.WORLD_MIN_Y; rawY--)
 				{
 					int idx = (xo << xShift) | (zo << zShift) | rawY;
-					// Block block = (rawY <= (SEA_LEVEL - 10)) ? Blocks.water : Blocks.air;
 					Block block = Blocks.air;
 
 					int sphereDistance = chunk.getMainDistance(rawX + xo, rawY, rawZ + zo);
-					int oreDistance = chunk.getOrbDistance(rawX + xo, rawY, rawZ + zo);
+					int orbDistance = chunk.getOrbDistance(rawX + xo, rawY, rawZ + zo);
+					int lakeDistance = chunk.getLakeDistance(rawX + xo, rawY, rawZ + zo);
 
 					if (rawY > midY)
 					{
 						if (sphereDistance == chunk.radius)
 						{
-							if (rawY >= midY + 4 || Math.abs(rawX + xo - chunk.sphereLocation.posX) > config.getBridgeWidth()
+							if (rawY >= midY + 4
+									|| Math.abs(rawX + xo - chunk.sphereLocation.posX) > config.getBridgeWidth()
 									&& Math.abs(rawZ + zo - chunk.sphereLocation.posZ) > config.getBridgeWidth())
 							{
 								block = config.getDomeBlock();
 							}
 						}
 						else if (chunk.hasLake && config.getNoiseEnabled() && chunk.biome != BiomeGenBase.desert
-								&& (sphereDistance > chunk.lakeRadius && sphereDistance <= chunk.lakeEdgeRadius))
+								&& (lakeDistance > chunk.lakeRadius && lakeDistance <= chunk.lakeEdgeRadius))
 						{
 							if (rawY == chunk.lakeLocation.posY)
 							{
@@ -199,7 +156,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 							}
 						}
 						else if (chunk.hasLake && config.getNoiseEnabled() && chunk.biome != BiomeGenBase.desert
-								&& sphereDistance <= chunk.lakeRadius)
+								&& lakeDistance <= chunk.lakeRadius)
 						{
 							if (rawY == chunk.lakeLocation.posY && chunk.biome == BiomeGenBase.icePlains)
 							{
@@ -250,7 +207,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 					{
 						block = Blocks.stone;
 					}
-					else if (chunk.hasLake && chunk.biome != BiomeGenBase.desert && sphereDistance <= chunk.lakeRadius)
+					else if (chunk.hasLake && chunk.biome != BiomeGenBase.desert && lakeDistance <= chunk.lakeRadius)
 					{
 						if (rawY == chunk.lakeLocation.posY && chunk.biome == BiomeGenBase.icePlains)
 						{
@@ -262,7 +219,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 						}
 					}
 					else if (chunk.hasLake && rawY < chunk.lakeLocation.posY - 1 && chunk.biome != BiomeGenBase.desert
-							&& sphereDistance <= chunk.lakeEdgeRadius)
+							&& lakeDistance <= chunk.lakeEdgeRadius)
 					{
 						block = (chunk.lavaLake ? Blocks.gravel : Blocks.sand);
 					}
@@ -283,8 +240,8 @@ public class BiosphereChunkProvider implements IChunkProvider
 					}
 					else if (rawY == midY
 							&& sphereDistance > chunk.radius
-							&& (Math.abs(rawX + xo - chunk.sphereLocation.posX) < config.getBridgeWidth() + 1 || Math.abs(rawZ + zo
-									- chunk.sphereLocation.posZ) < config.getBridgeWidth() + 1))
+							&& (Math.abs(rawX + xo - chunk.sphereLocation.posX) < config.getBridgeWidth() + 1 || Math.abs(rawZ
+									+ zo - chunk.sphereLocation.posZ) < config.getBridgeWidth() + 1))
 					{
 						block = config.getBridgeSupportBlock();
 					}
@@ -293,11 +250,11 @@ public class BiosphereChunkProvider implements IChunkProvider
 						block = config.getOutsideFillerBlock();
 					}
 
-					if (oreDistance == config.getScaledOrbRadius())
+					if (orbDistance == config.getScaledOrbRadius())
 					{
 						block = Blocks.glass;
 					}
-					else if (oreDistance < config.getScaledOrbRadius())
+					else if (orbDistance < config.getScaledOrbRadius())
 					{
 						int oreChance = rnd.nextInt(500);
 
@@ -357,6 +314,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 	/**
 	 * loads or generates the chunk at the chunk location specified
 	 */
+	@Override
 	public Chunk loadChunk(int x, int z)
 	{
 		return this.provideChunk(x, z);
@@ -366,6 +324,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 	 * Will return back a chunk, if it doesn't exist and its not a MP client it will generates all the blocks for the
 	 * specified chunk from the map seed and chunk seed
 	 */
+	@Override
 	public Chunk provideChunk(int x, int z)
 	{
 		// this.setRand(x, z);
@@ -383,6 +342,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 	/**
 	 * Checks to see if a chunk exists at x, z
 	 */
+	@Override
 	public boolean chunkExists(int x, int z)
 	{
 		return true;
@@ -391,6 +351,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 	/**
 	 * Populates chunk with ores etc etc
 	 */
+	@Override
 	public void populate(IChunkProvider chunkProvider, int chunkX, int chunkZ)
 	{
 		SphereChunk chunk = GetSphereChunk(chunkX, chunkZ);
@@ -596,7 +557,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 			{
 				for (int xo = 0; xo < 16; xo++)
 				{
-					int midY = chunk.getSurfaceLevel(xo, zo);
+					int midY = chunk.getChunkBoundSurfaceLevel(xo, zo);
 
 					int x = xo + absX;
 					int z = zo + absZ;
@@ -620,6 +581,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 	 * Two modes of operation: if passed true, save all Chunks in one go. If passed false, save up to two chunks. Return
 	 * true if all chunks have been saved.
 	 */
+	@Override
 	public boolean saveChunks(boolean flag, IProgressUpdate iprogressupdate)
 	{
 		return true;
@@ -628,6 +590,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 	/**
 	 * Unloads chunks that are marked to be unloaded. This is not guaranteed to unload every such chunk.
 	 */
+	@Override
 	public boolean unloadQueuedChunks()
 	{
 		return false;
@@ -636,6 +599,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 	/**
 	 * Returns if the IChunkProvider supports saving.
 	 */
+	@Override
 	public boolean canSave()
 	{
 		return true;
@@ -644,6 +608,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 	/**
 	 * Converts the instance data to a readable string.
 	 */
+	@Override
 	public String makeString()
 	{
 		return "RandomLevelSource";
@@ -652,6 +617,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 	/**
 	 * Returns a list of creatures of the specified type that can spawn at the given location.
 	 */
+	@Override
 	public List getPossibleCreatures(EnumCreatureType enumcreaturetype, int i, int j, int k)
 	{
 		BiomeGenBase biomegenbase = this.world.getBiomeGenForCoords(i, k);
@@ -666,22 +632,26 @@ public class BiosphereChunkProvider implements IChunkProvider
 		return null;
 	}
 
+	@Override
 	public int getLoadedChunkCount()
 	{
 		return 0;
 	}
 
+	@Override
 	public void recreateStructures(int var1, int var2)
 	{}
 
 	public void func_104112_b()
 	{}
 
+	@Override
 	public void saveExtraData()
 	{
 		/* do nothing */
 	}
 
+	@Override
 	public ChunkPosition func_147416_a(World p_147416_1_, String p_147416_2_, int p_147416_3_, int p_147416_4_,
 			int p_147416_5_)
 	{

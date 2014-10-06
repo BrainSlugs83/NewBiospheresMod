@@ -13,3 +13,11 @@ build/resources
 build/sources
 build/tmp
 eclipse/.metadata/.plugins
+eclipse/MCEdit-0.1.7.1.win-amd64
+eclipse/mcedit.exe
+eclipse/mcedit.ini
+eclipse/mcedit.log
+eclipse/crash-reports
+eclipse/logs
+eclipse/ServerJarStorage
+eclipse/MCEdit-schematics

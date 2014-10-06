@@ -11,13 +11,14 @@ import net.minecraft.world.gen.MapGenBase;
 
 public class BiosphereMapGen extends MapGenBase
 {
-	BiosphereChunkProvider generator = null;
+	BiosphereChunkProvider chunkProvider = null;
 
+	@Override
 	public void func_151539_a(IChunkProvider chunkProvider, World world, int x, int z, Block[] blocks)
 	{
-		if (this.generator == null && chunkProvider instanceof BiosphereChunkProvider)
+		if (this.chunkProvider == null && chunkProvider instanceof BiosphereChunkProvider)
 		{
-			this.generator = (BiosphereChunkProvider)chunkProvider;
+			this.chunkProvider = (BiosphereChunkProvider)chunkProvider;
 		}
 
 		super.func_151539_a(chunkProvider, world, x, z, blocks);
@@ -33,14 +34,13 @@ public class BiosphereMapGen extends MapGenBase
 	{
 		SphereChunk chunk = null;
 
-		if (this.generator != null)
+		if (this.chunkProvider != null)
 		{
-			this.generator.setNoise(chunkX, chunkZ);
-			chunk = this.generator.GetSphereChunk(chunkX, chunkZ);
+			chunk = this.chunkProvider.GetSphereChunk(chunkX, chunkZ);
 		}
 
-		double ccx = (double)(chunkX * 16 + 8);
-		double ccz = (double)(chunkZ * 16 + 8);
+		double ccx = chunkX * 16 + 8;
+		double ccz = chunkZ * 16 + 8;
 		float f3 = 0.0F;
 		float f4 = 0.0F;
 		Random random = new Random(this.rand.nextLong());
@@ -63,13 +63,13 @@ public class BiosphereMapGen extends MapGenBase
 
 		for (boolean flag1 = random.nextInt(6) == 0; k < l; ++k)
 		{
-			double d6 = 1.5D + (double)(MathHelper.sin((float)k * (float)Math.PI / (float)l) * f * 1.0F);
+			double d6 = 1.5D + MathHelper.sin(k * (float)Math.PI / l) * f * 1.0F;
 			double d7 = d6 * d3;
 			float f5 = MathHelper.cos(f2);
 			float f6 = MathHelper.sin(f2);
-			d += (double)(MathHelper.cos(f1) * f5);
-			d1 += (double)f6;
-			d2 += (double)(MathHelper.sin(f1) * f5);
+			d += MathHelper.cos(f1) * f5;
+			d1 += f6;
+			d2 += MathHelper.sin(f1) * f5;
 
 			if (flag1)
 			{
@@ -89,32 +89,10 @@ public class BiosphereMapGen extends MapGenBase
 
 			if (!var61 && k == j1 && f > 1.0F)
 			{
-				this.a(
-					chunkX,
-					chunkZ,
-					blocks,
-					d,
-					d1,
-					d2,
-					random.nextFloat() * 0.5F + 0.5F,
-					f1 - ((float)Math.PI / 2F),
-					f2 / 3.0F,
-					k,
-					l,
-					1.0D);
-				this.a(
-					chunkX,
-					chunkZ,
-					blocks,
-					d,
-					d1,
-					d2,
-					random.nextFloat() * 0.5F + 0.5F,
-					f1 + ((float)Math.PI / 2F),
-					f2 / 3.0F,
-					k,
-					l,
-					1.0D);
+				this.a(chunkX, chunkZ, blocks, d, d1, d2, random.nextFloat() * 0.5F + 0.5F, f1 - ((float)Math.PI / 2F),
+					f2 / 3.0F, k, l, 1.0D);
+				this.a(chunkX, chunkZ, blocks, d, d1, d2, random.nextFloat() * 0.5F + 0.5F, f1 + ((float)Math.PI / 2F),
+					f2 / 3.0F, k, l, 1.0D);
 				return;
 			}
 
@@ -122,8 +100,8 @@ public class BiosphereMapGen extends MapGenBase
 			{
 				double d8 = d - ccx;
 				double d9 = d2 - ccz;
-				double d10 = (double)(l - k);
-				double d11 = (double)(f + 2.0F + 16.0F);
+				double d10 = l - k;
+				double d11 = f + 2.0F + 16.0F;
 
 				if (d8 * d8 + d9 * d9 - d10 * d10 > d11 * d11) { return; }
 
@@ -200,17 +178,17 @@ public class BiosphereMapGen extends MapGenBase
 					{
 						for (l3 = k1; l3 < l1; ++l3)
 						{
-							double var62 = ((double)(l3 + chunkX * 16) + 0.5D - d) / d6;
+							double var62 = (l3 + chunkX * 16 + 0.5D - d) / d6;
 
 							for (j3 = k2; j3 < l2; ++j3)
 							{
-								int midY = chunk.getSurfaceLevel(l3, j3);
-								double d13 = ((double)(j3 + chunkZ * 16) + 0.5D - d2) / d6;
+								int midY = chunk.getChunkBoundSurfaceLevel(l3, j3);
+								double d13 = (j3 + chunkZ * 16 + 0.5D - d2) / d6;
 								int k4 = (l3 * 16 + j3) * 128 + j2;
 
 								for (int l4 = j2 - 1; l4 >= i2; --l4)
 								{
-									double d14 = ((double)l4 + 0.5D - d1) / d7;
+									double d14 = (l4 + 0.5D - d1) / d7;
 
 									if (d14 > -0.7D && var62 * var62 + d14 * d14 + d13 * d13 < 1.0D)
 									{
@@ -222,12 +200,11 @@ public class BiosphereMapGen extends MapGenBase
 										{
 											if (l4 < ModConsts.LAVA_LEVEL)
 											{
-												if (this.generator != null)
+												if (this.chunkProvider != null)
 												{
 													double d15 = chunk.getMainDistance(
-														(int)Math.round(ccx + (double)l3 - 8.0D),
-														l4 - 1,
-														(int)Math.round(ccz + (double)j3 - 8.0D));
+														(int)Math.round(ccx + l3 - 8.0D), l4 - 1, (int)Math.round(ccz
+																+ j3 - 8.0D));
 
 													if (d15 >= chunk.radius && d15 < chunk.radius + 5.0D)
 													{
@@ -279,9 +256,9 @@ public class BiosphereMapGen extends MapGenBase
 
 		for (int j1 = 0; j1 < i1; ++j1)
 		{
-			double x = (double)(chunkX * 16 + this.rand.nextInt(16));
-			double y = (double)this.rand.nextInt(ModConsts.WORLD_HEIGHT);
-			double z = (double)(chunkZ * 16 + this.rand.nextInt(16));
+			double x = chunkX * 16 + this.rand.nextInt(16);
+			double y = this.rand.nextInt(ModConsts.WORLD_HEIGHT);
+			double z = chunkZ * 16 + this.rand.nextInt(16);
 			int k1 = 1;
 
 			if (this.rand.nextInt(4) == 0)

@@ -25,6 +25,7 @@ public class SphereChunk
 	public final boolean hasLake;
 
 	public final BiomeGenBase biome;
+	public final NoiseChunk noise;
 
 	public SphereChunk(BiosphereChunkProvider chunkProvider, int chunkX, int chunkZ)
 	{
@@ -34,6 +35,16 @@ public class SphereChunk
 		this.chunkProvider = chunkProvider;
 		ModConfig cfg = this.chunkProvider.config;
 
+		if (cfg.isNoiseEnabled())
+		{
+			noise = NoiseChunk.get(this.chunkProvider.world, chunkX, chunkZ, this.chunkProvider.noiseGenerator,
+				cfg.getScale());
+		}
+		else
+		{
+			noise = null;
+		}
+
 		// Set sphere location
 		this.sphereLocation = GetSphereCenter(chunkX, chunkZ);
 
@@ -41,7 +52,7 @@ public class SphereChunk
 		Random rnd = new Random(chunkProvider.worldSeed);
 		long xm = rnd.nextLong() / 2L * 2L + 1L;
 		long zm = rnd.nextLong() / 2L * 2L + 1L;
-		long _seed = ((long)sphereLocation.posX * xm + (long)sphereLocation.posZ * zm) * 2512576L ^ chunkProvider.worldSeed;
+		long _seed = (sphereLocation.posX * xm + sphereLocation.posZ * zm) * 2512576L ^ chunkProvider.worldSeed;
 		rnd.setSeed(_seed);
 
 		double minRad = cfg.getMinSphereRadius() * cfg.getScale();
@@ -53,51 +64,71 @@ public class SphereChunk
 		this.radius = Math.round(minRad + (rnd.nextDouble() * radRange));
 
 		// Get lake radius
-		double lakeRatio = cfg.getMinLakeRatio()
-				+ ((cfg.getMaxLakeRatio() - cfg.getMinLakeRatio()) * rnd.nextDouble());
-		this.lakeRadius = (double)Math.round(this.radius * lakeRatio);
+		double lakeRatio = cfg.getMinLakeRatio() + ((cfg.getMaxLakeRatio() - cfg.getMinLakeRatio()) * rnd.nextDouble());
+		this.lakeRadius = Math.round(this.radius * lakeRatio);
 		this.lakeEdgeRadius = lakeRadius + 2.0d;
 
-		this.biome = this.chunkProvider.world.getWorldChunkManager().getBiomeGenAt(sphereLocation.posX, sphereLocation.posZ);
+		this.biome = this.chunkProvider.world.getWorldChunkManager().getBiomeGenAt(sphereLocation.posX,
+			sphereLocation.posZ);
 
 		this.lavaLake = this.biome == BiomeGenBase.hell || this.biome != BiomeGenBase.swampland
 				&& this.biome != BiomeGenBase.taiga && this.biome != BiomeGenBase.icePlains
 				&& this.biome != BiomeGenBase.sky && rnd.nextInt(10) == 0;
-		this.hasLake = this.biome == BiomeGenBase.swampland || this.biome != BiomeGenBase.sky
-				&& rnd.nextInt(2) == 0;
+		this.hasLake = this.biome == BiomeGenBase.swampland || this.biome != BiomeGenBase.sky && rnd.nextInt(2) == 0;
 
-		orbLocation = new ChunkCoordinates();
-		orbLocation.posY = cfg.getScaledOrbRadius() + 1
-				+ rnd.nextInt(ModConsts.WORLD_MAX_Y - (cfg.getScaledOrbRadius() + 1));
-		orbLocation.posX = this.sphereLocation.posX + cfg.getScaledGridSize() / 2 * 16 - cfg.getScaledOrbRadius();
-		orbLocation.posZ = this.sphereLocation.posZ + cfg.getScaledGridSize() / 2 * 16 - cfg.getScaledOrbRadius();
+		orbLocation = Utils.GetCoords(sphereLocation);
 
-		lakeLocation = new ChunkCoordinates();
-		lakeLocation.posX = sphereLocation.posX;
-		lakeLocation.posY = sphereLocation.posY;
-		lakeLocation.posZ = sphereLocation.posZ;
-
-		// if (NOISE)
-		// {
-		// this.setNoise(this.midX >> 4, this.midZ >> 4);
-		// this.noiseMin = Double.MAX_VALUE;
+		// // int lowY = this.sphereLocation.posY - (int)radius;
+		// // int highY = this.sphereLocation.posY + (int)radius;
 		//
-		// for (int k = 0; k < this.noise.length; ++k)
+		// int orbRange = ((cfg.getScaledGridSize() * 16) / 2) - cfg.getScaledOrbRadius();
+		// int giveUpAfter = 100;
+		// while (!ValidOrbLocation() && giveUpAfter > 0)
 		// {
-		// if (this.noise[k] < this.noiseMin)
-		// {
-		// this.noiseMin = this.noise[k];
-		// }
+		// giveUpAfter--;
+		//
+		// orbLocation.posX = this.sphereLocation.posX + (int)Math.round(rnd.nextDouble() * orbRange);
+		// orbLocation.posY = sphereLocation.posY;
+		// orbLocation.posZ = this.sphereLocation.posZ + (int)Math.round(rnd.nextDouble() * orbRange);
 		// }
 		//
-		// lake.posY = (int)Math.round(seaLevel + this.noiseMin * 8.0D * 1.0D);
-		// this.setNoise(chunkX, chunkZ);
+		// if (!ValidOrbLocation())
+		// {
+		// orbLocation.posY = Integer.MAX_VALUE;
+		// orbLocation.posX = Integer.MAX_VALUE;
+		// orbLocation.posZ = Integer.MAX_VALUE;
 		// }
 
-		// Reseed random generator
+		lakeLocation = Utils.GetCoords(sphereLocation);
+
+		if (this.hasLake && cfg.isNoiseEnabled())
+		{
+			double lakeMin = noise.GetChunkAt(sphereLocation.posX, sphereLocation.posZ).minNoise;
+
+			lakeLocation.posY = (int)Math.round(ModConsts.SEA_LEVEL + lakeMin * 8.0D * cfg.getScale());
+			lakeLocation.posY -= (1 + (int)(Math.round((rnd.nextDouble() * 3d) * cfg.getScale())));
+		}
+
+		// Reseed random generator (specific to the chunk).
 		xm = rnd.nextLong() / 2L * 2L + 1L;
 		zm = rnd.nextLong() / 2L * 2L + 1L;
-		this.seed = ((long)chunkX * xm + (long)chunkZ * zm) * 3168045L ^ this.chunkProvider.worldSeed;
+		this.seed = (chunkX * xm + chunkZ * zm) * 3168045L ^ this.chunkProvider.worldSeed;
+		rnd.setSeed(this.seed);
+
+	}
+
+	private boolean ValidOrbLocation()
+	{
+		final ModConfig cfg = this.chunkProvider.config;
+		final int orbRadius = cfg.getScaledOrbRadius();
+
+		if (orbLocation.posY < (ModConsts.WORLD_MIN_Y + orbRadius)) { return false; }
+		if (orbLocation.posY > (ModConsts.WORLD_MAX_Y - orbRadius)) { return false; }
+
+		int groundLevel = getRawSurfaceLevel(orbLocation.posX, orbLocation.posZ);
+		if (Math.abs(groundLevel - orbLocation.posY) <= (orbRadius + 2)) { return false; }
+
+		return Utils.GetDistance(orbLocation, sphereLocation) > (orbRadius + this.radius);
 	}
 
 	public Random GetPhaseRandom(String phase)
@@ -107,7 +138,7 @@ public class SphereChunk
 		long xm = rnd.nextLong() / 2L * 2L + 1L;
 		long zm = rnd.nextLong() / 2L * 2L + 1L;
 
-		long _seed = ((long)chunkX * xm + (long)chunkZ * zm) * (long)phase.hashCode() ^ this.chunkProvider.worldSeed;
+		long _seed = (chunkX * xm + chunkZ * zm) * phase.hashCode() ^ this.chunkProvider.worldSeed;
 
 		rnd.setSeed(_seed);
 		return rnd;
@@ -116,22 +147,18 @@ public class SphereChunk
 	private ChunkCoordinates GetSphereCenter(int chunkX, int chunkZ)
 	{
 		ModConfig cfg = this.chunkProvider.config;
-		
-		int chunkOffsetToCenterX = -(int)Math.floor(Math.IEEEremainder(
-			(double)chunkX,
-			(double)cfg.getScaledGridSize()));
-		
-		int chunkOffsetToCenterZ = -(int)Math.floor(Math.IEEEremainder(
-			(double)chunkZ,
-			(double)cfg.getScaledGridSize()));
 
-		ChunkCoordinates cc = new ChunkCoordinates();
+		int chunkOffsetToCenterX = -(int)Math.floor(Math.IEEEremainder(chunkX, cfg.getScaledGridSize()));
+		int chunkOffsetToCenterZ = -(int)Math.floor(Math.IEEEremainder(chunkZ, cfg.getScaledGridSize()));
 
-		cc.posX = ((chunkX + chunkOffsetToCenterX) << 4) + 8;
-		cc.posY = ModConsts.SEA_LEVEL; // getSurfaceLevel(8, 8);
-		cc.posZ = ((chunkZ + chunkOffsetToCenterZ) << 4) + 8;
+		chunkX += chunkOffsetToCenterX;
+		chunkZ += chunkOffsetToCenterZ;
 
-		return cc;
+		int x = ((chunkX) << 4) + 8;
+		int z = ((chunkZ) << 4) + 8;
+		int y = this.getRawSurfaceLevel(x, z);
+
+		return Utils.GetCoords(x, y, z);
 	}
 
 	public int getMainDistance(int rawX, int rawY, int rawZ)
@@ -144,9 +171,69 @@ public class SphereChunk
 		return Utils.GetDistance(this.orbLocation, rawX, rawY, rawZ);
 	}
 
-	public int getSurfaceLevel(int x, int z)
+	public int getLakeDistance(int rawX, int rawY, int rawZ)
 	{
-		return ModConsts.SEA_LEVEL;
-		// return NOISE ? (int)Math.round(seaLevel + this.noise[z + (x * 16)] * 8.0D * scale) : seaLevel;
+		if (!hasLake) { return Integer.MAX_VALUE; }
+
+		int lly = lakeLocation.posY;
+
+		// if (this.chunkProvider != null)
+		// {
+		// if (this.chunkProvider.config != null)
+		// {
+		// ModConfig cfg = this.chunkProvider.config;
+		//
+		// if (cfg.isNoiseEnabled())
+		// {
+		// // make the bottom uneven
+		// int offset = getSurfaceLevel(rawX, rawZ, 16, noise, cfg.getScale()) - ModConsts.SEA_LEVEL;
+		// lly -= (offset * 2);
+		// }
+		// }
+		// }
+
+		int dy = rawY - lly;
+		dy = (dy > 0) ? dy : (dy * -2);
+
+		return Utils.GetDistance(lakeLocation.posX, 0, lakeLocation.posZ, rawX, dy, rawZ);
 	}
+
+	public int getChunkBoundSurfaceLevel(int boundX, int boundZ)
+	{
+		if (this.noise != null) { return noise.getChunkBoundSurfaceLevel(boundX, boundZ); }
+		return ModConsts.SEA_LEVEL;
+	}
+
+	public int getRawSurfaceLevel(int rawX, int rawZ)
+	{
+		if (this.noise != null) { return noise.getRawSurfaceLevel(rawX, rawZ); }
+		return ModConsts.SEA_LEVEL;
+	}
+
+	// public int getSurfaceLevel(int x, int z)
+	// {
+	// if (this.noise != null)
+	// {
+	// if (this.chunkProvider != null)
+	// {
+	// int chunkX = this.chunkX;
+	// if (x < 0 || x >= 16)
+	// {
+	// chunkX = (int)Math.floor(x / 16d);
+	// x -= (chunkX * 16);
+	// }
+	//
+	// int chunkZ = this.chunkZ;
+	// if (z < 0 || z >= 16)
+	// {
+	// z -= (((int)Math.floor(z / 16d)) * 16);
+	// }
+	//
+	// ModConfig cfg = this.chunkProvider.config;
+	// if (cfg != null) { return getSurfaceLevel(x, z, this.noise, cfg.getScale()); }
+	// }
+	// }
+	//
+	// return ModConsts.SEA_LEVEL;
+	// }
 }

@@ -3,10 +3,8 @@ package woop;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
-import javax.swing.InputVerifier;
-
-import scala.tools.nsc.doc.model.Public;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -23,7 +21,7 @@ public class Utils
 	public static Block ParseBlock(String blockNameOrId)
 	{
 		Block returnValue = null;
-		
+
 		try
 		{
 			int id = Integer.parseInt(blockNameOrId);
@@ -33,7 +31,7 @@ public class Utils
 		{
 			// do nothing
 		}
-		
+
 		try
 		{
 			if (returnValue == null)
@@ -45,9 +43,12 @@ public class Utils
 		{
 			// do nothing
 		}
-		
-		if (returnValue == null) { returnValue = Blocks.air; }
-		
+
+		if (returnValue == null)
+		{
+			returnValue = Blocks.air;
+		}
+
 		return returnValue;
 	}
 
@@ -118,6 +119,12 @@ public class Utils
 		return false;
 	}
 
+	public static ChunkCoordinates GetCoords(ChunkCoordinates copyMe)
+	{
+		if (copyMe == null) { return GetCoords(0, 0, 0); }
+		return GetCoords(copyMe.posX, copyMe.posY, copyMe.posZ);
+	}
+
 	public static ChunkCoordinates GetCoords(Entity e)
 	{
 		if (e == null) { return GetCoords(0, 0, 0); }
@@ -185,6 +192,26 @@ public class Utils
 		return fallbackValue;
 	}
 
+	public static int RndBetween(Random rnd, int low, int high)
+	{
+		double range = high - low;
+		range *= rnd.nextDouble();
+		range += low;
+		range = Math.round(range);
+		if (range < low)
+		{
+			range = low;
+		}
+		if (range > high)
+		{
+			range = high;
+		}
+
+		return (int)range;
+	}
+
+	// #region LINQ-like helpers
+
 	public static <T> Iterable<T> Where(final Iterable<T> input, final Predicate<T> predicate)
 	{
 		if (predicate == null && input != null) { return input; }
@@ -222,6 +249,40 @@ public class Utils
 		return false;
 	}
 
+	public static double Min(final double[] input)
+	{
+		if (input == null || input.length < 1) { return 0; }
+
+		double output = input[0];
+		for (int i = 1; i < input.length; i++)
+		{
+			if (input[i] < output)
+			{
+				output = input[i];
+			}
+		}
+
+		return output;
+	}
+
+	public static double Max(final double[] input)
+	{
+		if (input == null || input.length < 1) { return 0; }
+
+		double output = input[0];
+		for (int i = 1; i < input.length; i++)
+		{
+			if (input[i] > output)
+			{
+				output = input[i];
+			}
+		}
+
+		return output;
+	}
+
+	// #endregion
+
 	// #region Array Serialization
 
 	private static <T> String __ConvertArrayToString(T[] args, Function<T, String> converter)
@@ -250,7 +311,7 @@ public class Utils
 
 		return sb.toString();
 	}
-	
+
 	private static <T> List<T> __ConvertStringToList(String input, Function<String, T> converter)
 	{
 		List<T> output = new ArrayList<T>();
@@ -270,10 +331,9 @@ public class Utils
 				{ /* skip this field */}
 			}
 		}
-		
+
 		return output;
 	}
-	
 
 	public static String ConvertIntegersToString(Integer... args)
 	{
@@ -298,7 +358,7 @@ public class Utils
 			}
 		});
 	}
-	
+
 	public static String ConvertDoublesToString(Double... args)
 	{
 		return __ConvertArrayToString(args, new Function<Double, String>()
@@ -323,7 +383,7 @@ public class Utils
 		});
 	}
 
-	// #enregion
+	// #endregion
 
 	// #region GetDistance / GetInverseDistance
 
@@ -365,12 +425,7 @@ public class Utils
 
 	public static int GetInverseDistance(int x1, int y1, int z1, int x2, int y2, int z2)
 	{
-		return (int)Math.round(GetInverseDistance(
-			(double)x1,
-			(double)y1,
-			(double)z1,
-			(double)x2,
-			(double)y2,
+		return (int)Math.round(GetInverseDistance((double)x1, (double)y1, (double)z1, (double)x2, (double)y2,
 			(double)z2));
 	}
 

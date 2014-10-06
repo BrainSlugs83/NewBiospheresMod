@@ -149,8 +149,7 @@ public class ModConfig
 
 		public List<Double> getDoubles(String propertyName, Double... fallbackValues)
 		{
-			List<Double> doubles = Utils.ConvertStringToDoubles(getProperty(
-				propertyName,
+			List<Double> doubles = Utils.ConvertStringToDoubles(getProperty(propertyName,
 				Utils.ConvertDoublesToString(fallbackValues)));
 
 			if (doubles == null)
@@ -200,7 +199,7 @@ public class ModConfig
 
 	// #region boolean NoiseEnabled
 
-	private boolean noiseEnabled = false;
+	private boolean noiseEnabled = true;
 
 	public boolean isNoiseEnabled()
 	{
@@ -587,9 +586,7 @@ public class ModConfig
 						this.setNoiseEnabled(props.getProperty("NoiseEnabled", this.isNoiseEnabled()));
 						this.setTallGrassEnabled(props.getProperty("TallGrassEnabled", this.isTallGrassEnabled()));
 
-						this.setCharacteristics(props.getEnumProperty(
-							WorldCharacteristics.class,
-							"Characteristics",
+						this.setCharacteristics(props.getEnumProperty(WorldCharacteristics.class, "Characteristics",
 							this.getCharacteristics()));
 
 						this.setGridSize(props.getProperty("GridSize", this.getGridSize()));
@@ -661,8 +658,7 @@ public class ModConfig
 
 						for (BiomeEntry biome: AllBiomes)
 						{
-							props.setProperty(
-								"biomeWeight_" + biome.biome.biomeName,
+							props.setProperty("biomeWeight_" + biome.biome.biomeName,
 								Integer.toString(biome.itemWeight));
 						}
 

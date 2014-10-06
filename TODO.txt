@@ -1,4 +1,4 @@
-NOISE
+Random Orb Locations
 transparency of blocks set correctly
 generate structures: towns, caves, abandonned mine shafts
 menu options
@@ -10,19 +10,18 @@ Lakes need to be half as deep as they are wide (in radius)
 No diamonds, lapis lazuli, clay, emeralds in the spheres.
 No spawners, rivers, 
 
-Make Gold Ore less rare
+Make Gold Ore, and Redstone Ore less rare
+
 
 Questionable:
 Moss Stone?
 Chests?
-Redstone Ore
-
-Coal Ore
-
 
 
 Configure number of orbs per dome,
 Configure orb stairways
 Configure protective glass
 Configure Lava speed
+
+TODO: RE-ENABLE SAVING OF THE CONFIGURATION OPTIONS
 
