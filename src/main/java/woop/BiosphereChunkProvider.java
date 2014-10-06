@@ -1,5 +1,6 @@
 package woop;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -109,13 +110,39 @@ public class BiosphereChunkProvider implements IChunkProvider
 		}
 	}
 
-	public void preGenerateChunk(int chunkX, int chunkZ, Block[] blocks)
+	private void GenerateChunk(int chunkX, int chunkZ, Block[] blocks)
 	{
 		SphereChunk chunk = GetSphereChunk(chunkX, chunkZ);
-		Random rnd = chunk.GetPhaseRandom("preGenerateChunk");
 
-		int rawX = chunkX << 4;
-		int rawZ = chunkZ << 4;
+		final TopDownBoundingBox chunkBox = TopDownBoundingBox.FromChunk(chunkX, chunkZ);
+
+		if (Utils.Any(Utils.Where(chunk.getBoundingBoxes(), new Predicate<TopDownBoundingBox>()
+		{
+			@Override
+			public boolean test(TopDownBoundingBox box)
+			{
+				return chunkBox.CollidesWith(box);
+			}
+		})))
+		{
+			// we collided with something like a sphere, ore orb, bridge, or other feature.
+			__GenerateChunk(chunkX, chunkZ, blocks, chunk);
+		}
+		else
+		{
+			// this chunk is outside and is not a part of any features
+			Arrays.fill(blocks, config.getOutsideFillerBlock());
+		}
+	}
+
+	private void __GenerateChunk(int chunkX, int chunkZ, Block[] blocks, SphereChunk chunk)
+	{
+		final int baseX = chunkX << 4;
+		final int baseZ = chunkZ << 4;
+		final int bridgeWidth = config.getBridgeWidth();
+		final Block outsideFillerBlock = config.getOutsideFillerBlock();
+
+		Random rnd = chunk.GetPhaseRandom("GenerateChunk");
 
 		for (int zo = 0; zo < 16; ++zo)
 		{
@@ -128,17 +155,19 @@ public class BiosphereChunkProvider implements IChunkProvider
 					int idx = (xo << xShift) | (zo << zShift) | rawY;
 					Block block = Blocks.air;
 
-					int sphereDistance = chunk.getMainDistance(rawX + xo, rawY, rawZ + zo);
-					int orbDistance = chunk.getOrbDistance(rawX + xo, rawY, rawZ + zo);
-					int lakeDistance = chunk.getLakeDistance(rawX + xo, rawY, rawZ + zo);
+					int rawX = baseX + xo;
+					int rawZ = baseZ + zo;
+
+					int sphereDistance = chunk.getMainDistance(rawX, rawY, rawZ);
+					int orbDistance = chunk.getOrbDistance(rawX, rawY, rawZ);
+					int lakeDistance = chunk.getLakeDistance(rawX, rawY, rawZ);
 
 					if (rawY > midY)
 					{
-						if (sphereDistance == chunk.radius)
+						if (sphereDistance == chunk.scaledSphereRadius)
 						{
-							if (rawY >= midY + 4
-									|| Math.abs(rawX + xo - chunk.sphereLocation.posX) > config.getBridgeWidth()
-									&& Math.abs(rawZ + zo - chunk.sphereLocation.posZ) > config.getBridgeWidth())
+							if (rawY >= midY + 4 || Math.abs(rawX - chunk.sphereLocation.posX) > bridgeWidth
+									&& Math.abs(rawZ - chunk.sphereLocation.posZ) > bridgeWidth)
 							{
 								block = config.getDomeBlock();
 							}
@@ -164,46 +193,46 @@ public class BiosphereChunkProvider implements IChunkProvider
 							}
 							else if (rawY <= chunk.lakeLocation.posY)
 							{
-								block = (chunk.lavaLake ? Blocks.flowing_lava : Blocks.flowing_water);
+								block = chunk.GetLakeBlock();
 							}
 						}
 						else if (config.doesNeedProtectionGlass()
 								&& rawY <= midY + 4
-								&& sphereDistance > chunk.radius
-								&& (Math.abs(rawX + xo - chunk.sphereLocation.posX) == config.getBridgeWidth() || Math.abs(rawZ
-										+ zo - chunk.sphereLocation.posZ) == config.getBridgeWidth()))
+								&& sphereDistance > chunk.scaledSphereRadius
+								&& (Math.abs(rawX - chunk.sphereLocation.posX) == bridgeWidth || Math.abs(rawZ
+										- chunk.sphereLocation.posZ) == bridgeWidth))
 						{
 							block = config.getDomeBlock();
 						}
 						else if (config.doesNeedProtectionGlass()
 								&& rawY == midY + 4
-								&& sphereDistance > chunk.radius
-								&& (Math.abs(rawX + xo - chunk.sphereLocation.posX) < config.getBridgeWidth() || Math.abs(rawZ
-										+ zo - chunk.sphereLocation.posZ) < config.getBridgeWidth()))
+								&& sphereDistance > chunk.scaledSphereRadius
+								&& (Math.abs(rawX - chunk.sphereLocation.posX) < bridgeWidth || Math.abs(rawZ
+										- chunk.sphereLocation.posZ) < bridgeWidth))
 						{
 							block = config.getDomeBlock();
 						}
 						else if (config.doesNeedProtectionGlass()
 								&& rawY < midY + 4
-								&& sphereDistance > chunk.radius
-								&& (Math.abs(rawX + xo - chunk.sphereLocation.posX) < config.getBridgeWidth() || Math.abs(rawZ
-										+ zo - chunk.sphereLocation.posZ) < config.getBridgeWidth()))
+								&& sphereDistance > chunk.scaledSphereRadius
+								&& (Math.abs(rawX - chunk.sphereLocation.posX) < bridgeWidth || Math.abs(rawZ
+										- chunk.sphereLocation.posZ) < bridgeWidth))
 						{
 							block = Blocks.air;
 						}
-						else if (config.doesNeedProtectionGlass() && sphereDistance > chunk.radius)
+						else if (config.doesNeedProtectionGlass() && sphereDistance > chunk.scaledSphereRadius)
 						{
-							block = config.getOutsideFillerBlock();
+							block = outsideFillerBlock;
 						}
 						else if (rawY == midY + 1
-								&& sphereDistance > chunk.radius
-								&& (Math.abs(rawX + xo - chunk.sphereLocation.posX) == config.getBridgeWidth() || Math.abs(rawZ
-										+ zo - chunk.sphereLocation.posZ) == config.getBridgeWidth()))
+								&& sphereDistance > chunk.scaledSphereRadius
+								&& (Math.abs(rawX - chunk.sphereLocation.posX) == bridgeWidth || Math.abs(rawZ
+										- chunk.sphereLocation.posZ) == bridgeWidth))
 						{
 							block = config.getBridgeRailBlock();
 						}
 					}
-					else if (sphereDistance == chunk.radius)
+					else if (sphereDistance == chunk.scaledSphereRadius)
 					{
 						block = Blocks.stone;
 					}
@@ -215,15 +244,22 @@ public class BiosphereChunkProvider implements IChunkProvider
 						}
 						else if (rawY <= chunk.lakeLocation.posY)
 						{
-							block = (chunk.lavaLake ? Blocks.flowing_lava : Blocks.flowing_water);
+							block = chunk.GetLakeBlock();
 						}
 					}
 					else if (chunk.hasLake && rawY < chunk.lakeLocation.posY - 1 && chunk.biome != BiomeGenBase.desert
 							&& lakeDistance <= chunk.lakeEdgeRadius)
 					{
-						block = (chunk.lavaLake ? Blocks.gravel : Blocks.sand);
+						if (ModConsts.DEBUG)
+						{
+							block = Blocks.glowstone;
+						}
+						else
+						{
+							block = (chunk.lavaLake ? Blocks.gravel : Blocks.sand);
+						}
 					}
-					else if (sphereDistance < chunk.radius)
+					else if (sphereDistance < chunk.scaledSphereRadius)
 					{
 						if (rawY == midY)
 						{
@@ -239,15 +275,15 @@ public class BiosphereChunkProvider implements IChunkProvider
 						}
 					}
 					else if (rawY == midY
-							&& sphereDistance > chunk.radius
-							&& (Math.abs(rawX + xo - chunk.sphereLocation.posX) < config.getBridgeWidth() + 1 || Math.abs(rawZ
-									+ zo - chunk.sphereLocation.posZ) < config.getBridgeWidth() + 1))
+							&& sphereDistance > chunk.scaledSphereRadius
+							&& (Math.abs(rawX - chunk.sphereLocation.posX) < bridgeWidth + 1 || Math.abs(rawZ
+									- chunk.sphereLocation.posZ) < bridgeWidth + 1))
 					{
 						block = config.getBridgeSupportBlock();
 					}
-					else if (config.doesNeedProtectionGlass() && sphereDistance > chunk.radius)
+					else if (config.doesNeedProtectionGlass() && sphereDistance > chunk.scaledSphereRadius)
 					{
-						block = config.getOutsideFillerBlock();
+						block = outsideFillerBlock;
 					}
 
 					if (orbDistance == config.getScaledOrbRadius())
@@ -327,14 +363,25 @@ public class BiosphereChunkProvider implements IChunkProvider
 	@Override
 	public Chunk provideChunk(int x, int z)
 	{
+		long startedAt = System.currentTimeMillis();
+
 		// this.setRand(x, z);
 		Block[] blocks = new Block[16 * 16 * ModConsts.WORLD_HEIGHT];
 
-		this.preGenerateChunk(x, z, blocks);
+		this.GenerateChunk(x, z, blocks);
 		this.caveGen.func_151539_a(this, this.world, x, z, blocks); // func_151539_a == generate
 
 		Chunk chunk = new Chunk(this.world, blocks, x, z);
 		chunk.generateSkylightMap();
+
+		if (ModConsts.DEBUG)
+		{
+			long elapsed = System.currentTimeMillis() - startedAt;
+			if (elapsed >= 100)
+			{
+				System.out.printf("BIOSPHERE PROVIDE CHUNK TOOK %.3f SECONDS!%n", (elapsed / 1000d));
+			}
+		}
 
 		return chunk;
 	}
@@ -565,7 +612,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 
 					int distance = chunk.getMainDistance(x, midY, z);
 
-					if (distance <= chunk.radius && this.world.isBlockFreezable(x, y, z))
+					if (distance <= chunk.scaledSphereRadius && this.world.isBlockFreezable(x, y, z))
 					{
 						this.world.setBlock(x, y, z, Blocks.snow);
 					}
@@ -640,7 +687,9 @@ public class BiosphereChunkProvider implements IChunkProvider
 
 	@Override
 	public void recreateStructures(int var1, int var2)
-	{}
+	{
+
+	}
 
 	public void func_104112_b()
 	{}

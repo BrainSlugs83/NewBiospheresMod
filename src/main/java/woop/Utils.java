@@ -2,6 +2,7 @@ package woop;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
@@ -13,8 +14,6 @@ import net.minecraft.init.Blocks;
 import net.minecraft.util.ChunkCoordinates;
 import akka.japi.Function;
 import akka.japi.Predicate;
-
-import com.infomancers.collections.yield.Yielder;
 
 public class Utils
 {
@@ -215,24 +214,66 @@ public class Utils
 	public static <T> Iterable<T> Where(final Iterable<T> input, final Predicate<T> predicate)
 	{
 		if (predicate == null && input != null) { return input; }
+		if (input == null) { return new ArrayList<T>(); } // empty collection
 
-		// https://stackoverflow.com/questions/1980953/is-there-a-java-equivalent-to-cs-yield-keyword
-		return new Yielder<T>()
+		final Iterator<T> inner = input.iterator();
+		if (inner == null) { return new ArrayList<T>(); } // empty collection
+
+		return new Iterable<T>()
 		{
 			@Override
-			protected void yieldNextCore()
+			public Iterator<T> iterator()
 			{
-				if (input != null)
+				return new Iterator<T>()
 				{
-					for (T item: input)
+					private boolean hasItem = false;
+					private T _next = null;
+
+					private T GetNext()
 					{
-						if (predicate.test(item))
+						while (!hasItem && inner.hasNext())
 						{
-							yieldReturn(item);
+							T item = inner.next();
+							if (predicate.test(item))
+							{
+								_next = item;
+								hasItem = true;
+							}
 						}
+
+						if (!hasItem)
+						{
+							_next = null;
+							return null;
+						}
+
+						return _next;
 					}
-				}
+
+					@Override
+					public boolean hasNext()
+					{
+						GetNext();
+						return hasItem;
+					}
+
+					@Override
+					public T next()
+					{
+						T next = GetNext();
+						hasItem = false;
+						return next;
+					}
+
+					@Override
+					public void remove()
+					{
+						throw new UnsupportedOperationException("remove not supported");
+					}
+
+				};
 			}
+
 		};
 	}
 

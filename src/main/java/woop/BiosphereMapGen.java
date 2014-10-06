@@ -206,11 +206,11 @@ public class BiosphereMapGen extends MapGenBase
 														(int)Math.round(ccx + l3 - 8.0D), l4 - 1, (int)Math.round(ccz
 																+ j3 - 8.0D));
 
-													if (d15 >= chunk.radius && d15 < chunk.radius + 5.0D)
+													if (d15 >= chunk.scaledSphereRadius && d15 < chunk.scaledSphereRadius + 5.0D)
 													{
 														blocks[k4] = Blocks.obsidian;
 													}
-													else if (d15 < chunk.radius)
+													else if (d15 < chunk.scaledSphereRadius)
 													{
 														blocks[k4] = Blocks.flowing_lava;
 													}
