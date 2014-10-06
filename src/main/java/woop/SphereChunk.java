@@ -78,25 +78,30 @@ public class SphereChunk
 
 		orbLocation = Utils.GetCoords(sphereLocation);
 
-		// // int lowY = this.sphereLocation.posY - (int)radius;
-		// // int highY = this.sphereLocation.posY + (int)radius;
-		//
+		// int lowY = this.sphereLocation.posY - (int)radius;
+		// int highY = this.sphereLocation.posY + (int)radius;
+
+		int orbRange = ((cfg.getScaledGridSize() * 8)) - cfg.getScaledOrbRadius();
+
+		orbLocation.posX = this.sphereLocation.posX + orbRange;
+		orbLocation.posZ = this.sphereLocation.posZ + orbRange;
+		orbLocation.posY = ModConsts.SEA_LEVEL;
+
 		// int orbRange = ((cfg.getScaledGridSize() * 16) / 2) - cfg.getScaledOrbRadius();
 		// int giveUpAfter = 100;
 		// while (!ValidOrbLocation() && giveUpAfter > 0)
 		// {
 		// giveUpAfter--;
-		//
 		// orbLocation.posX = this.sphereLocation.posX + (int)Math.round(rnd.nextDouble() * orbRange);
-		// orbLocation.posY = sphereLocation.posY;
 		// orbLocation.posZ = this.sphereLocation.posZ + (int)Math.round(rnd.nextDouble() * orbRange);
+		// orbLocation.posY = Utils.RndBetween(rnd, lowY, highY);
 		// }
 		//
 		// if (!ValidOrbLocation())
 		// {
-		// orbLocation.posY = Integer.MAX_VALUE;
-		// orbLocation.posX = Integer.MAX_VALUE;
-		// orbLocation.posZ = Integer.MAX_VALUE;
+		// orbLocation.posY = ModConsts.SEA_LEVEL;
+		// orbLocation.posX = sphereLocation.posX + (cfg.getScaledGridSize() * 32);
+		// orbLocation.posZ = sphereLocation.posZ + (cfg.getScaledGridSize() * 32);
 		// }
 
 		lakeLocation = Utils.GetCoords(sphereLocation);
