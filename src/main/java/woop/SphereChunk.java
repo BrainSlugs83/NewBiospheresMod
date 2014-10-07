@@ -24,13 +24,8 @@ public class SphereChunk
 	private final long seed;
 
 	public final int scaledSphereRadius;
-	// public final int scaledSphereRadiusSquared;
-	// public final int scaledSphereRadiusSquaredMinusOne;
-
-	public final int lakeRadius;
-	// public final int lakeRadiusSquared;
-	public final int lakeEdgeRadius;
-	// public final int lakeEdgeRadiusSquared;
+	public final int scaledLakeRadius;
+	public final int scaledLakeEdgeRadius;
 
 	public final boolean lavaLake;
 	public final boolean hasLake;
@@ -39,9 +34,6 @@ public class SphereChunk
 	public final NoiseChunk noise;
 
 	public final int scaledOrbRadius;
-	// public final int scaledOrbRadiusSquared;
-	// public final int scaledOrbRadiusSquaredMinusOne;
-
 	public final boolean isNoiseEnabled;
 	public final int scaledGridSize;
 	public final int bridgeWidth;
@@ -94,9 +86,9 @@ public class SphereChunk
 
 		// Get lake radius
 		double lakeRatio = cfg.getMinLakeRatio() + ((cfg.getMaxLakeRatio() - cfg.getMinLakeRatio()) * rnd.nextDouble());
-		this.lakeRadius = (int)Math.round(this.scaledSphereRadius * lakeRatio);
+		this.scaledLakeRadius = (int)Math.round(this.scaledSphereRadius * lakeRatio);
 		// this.lakeRadiusSquared = this.lakeRadius * this.lakeRadius;
-		this.lakeEdgeRadius = lakeRadius + 2;
+		this.scaledLakeEdgeRadius = scaledLakeRadius + 2;
 		// this.lakeEdgeRadiusSquared = this.lakeEdgeRadius * this.lakeEdgeRadius;
 
 		this.biome = this.chunkProvider.world.getWorldChunkManager().getBiomeGenAt(sphereLocation.posX,
@@ -142,13 +134,12 @@ public class SphereChunk
 
 		if (this.hasLake && this.isNoiseEnabled)
 		{
-			double lakeMin = noise.GetChunkAt(sphereLocation.posX, sphereLocation.posZ).minNoise;
-			lakeLocation.posY = (int)Math.round(ModConsts.SEA_LEVEL + lakeMin * 8.0D * cfg.getScale());
-		}
+			SetLakeHeight();
 
-		if (rnd.nextDouble() > .65d)
-		{
-			lakeLocation.posY -= (int)(Math.round((rnd.nextDouble() * 2d) * cfg.getScale()));
+			if (rnd.nextDouble() > .65d)
+			{
+				lakeLocation.posY -= (int)(Math.round((rnd.nextDouble() * 2d) * cfg.getScale()));
+			}
 		}
 
 		// Reseed random generator (specific to the chunk).
@@ -157,6 +148,38 @@ public class SphereChunk
 		this.seed = (chunkX * xm + chunkZ * zm) * 3168045L ^ this.chunkProvider.worldSeed;
 		rnd.setSeed(this.seed);
 
+	}
+
+	private void SetLakeHeight()
+	{
+		double scale = 1d;
+		if (this.chunkProvider != null && this.chunkProvider.config != null)
+		{
+			scale = this.chunkProvider.config.getScale();
+		}
+
+		int x = lakeLocation.posX - scaledLakeRadius;
+		int z = lakeLocation.posZ - scaledLakeRadius;
+		boolean first = true;
+		double min = 0;
+
+		while (x <= lakeLocation.posX + scaledLakeRadius)
+		{
+			while (z <= lakeLocation.posZ + scaledLakeRadius)
+			{
+				double val = noise.GetChunkAt(x, z).minNoise;
+				if (first || val < min)
+				{
+					min = val;
+					first = false;
+				}
+
+				z += 16;
+			}
+			x += 16;
+		}
+
+		lakeLocation.posY = (int)Math.round(ModConsts.SEA_LEVEL + min * 8.0D * scale);
 	}
 
 	private boolean ValidOrbLocation()
@@ -231,8 +254,10 @@ public class SphereChunk
 				int beforeNoise = (int)Math.round(Utils.GetDistance(lakeLocation.posX, 0, lakeLocation.posZ, rawX, dy,
 					rawZ));
 
-				if (rawX >= (lakeLocation.posX - lakeEdgeRadius) && rawZ >= (lakeLocation.posZ - lakeEdgeRadius)
-						&& rawX <= (lakeLocation.posX + lakeEdgeRadius) && rawZ <= (lakeLocation.posZ + lakeEdgeRadius))
+				if (rawX >= (lakeLocation.posX - scaledLakeEdgeRadius)
+						&& rawZ >= (lakeLocation.posZ - scaledLakeEdgeRadius)
+						&& rawX <= (lakeLocation.posX + scaledLakeEdgeRadius)
+						&& rawZ <= (lakeLocation.posZ + scaledLakeEdgeRadius))
 				{
 					int x = sphereLocation.posX + ((rawX - sphereLocation.posX) * 20);
 					int z = sphereLocation.posZ + ((rawZ - sphereLocation.posZ) * 20);

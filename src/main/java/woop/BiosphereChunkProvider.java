@@ -173,7 +173,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 							}
 						}
 						else if (chunk.hasLake && config.getNoiseEnabled() && chunk.biome != BiomeGenBase.desert
-								&& (lakeDistance > chunk.lakeRadius && lakeDistance <= chunk.lakeEdgeRadius))
+								&& (lakeDistance > chunk.scaledLakeRadius && lakeDistance <= chunk.scaledLakeEdgeRadius))
 						{
 							if (rawY == chunk.lakeLocation.posY)
 							{
@@ -185,7 +185,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 							}
 						}
 						else if (chunk.hasLake && config.getNoiseEnabled() && chunk.biome != BiomeGenBase.desert
-								&& lakeDistance <= chunk.lakeRadius)
+								&& lakeDistance <= chunk.scaledLakeRadius)
 						{
 							if (rawY == chunk.lakeLocation.posY && chunk.biome == BiomeGenBase.icePlains)
 							{
@@ -236,7 +236,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 					{
 						block = Blocks.stone;
 					}
-					else if (chunk.hasLake && chunk.biome != BiomeGenBase.desert && lakeDistance <= chunk.lakeRadius)
+					else if (chunk.hasLake && chunk.biome != BiomeGenBase.desert && lakeDistance <= chunk.scaledLakeRadius)
 					{
 						if (rawY == chunk.lakeLocation.posY && chunk.biome == BiomeGenBase.icePlains)
 						{
@@ -248,7 +248,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 						}
 					}
 					else if (chunk.hasLake && rawY < chunk.lakeLocation.posY - 1 && chunk.biome != BiomeGenBase.desert
-							&& lakeDistance <= chunk.lakeEdgeRadius)
+							&& lakeDistance <= chunk.scaledLakeEdgeRadius)
 					{
 						if (ModConsts.DEBUG)
 						{
@@ -392,7 +392,11 @@ public class BiosphereChunkProvider implements IChunkProvider
 			if (lastPrintedAt == Long.MIN_VALUE || (now - lastPrintedAt) > 2500)
 			{
 				lastPrintedAt = now;
-				System.out.printf("PROVIDE CHUNK ON AVERAGE TAKES %.3f SECONDS.%n", avg.getAverage());
+
+				if (avg.getCount() >= 5)
+				{
+					System.out.printf("PROVIDE CHUNK ON AVERAGE TAKES %.3f SECONDS.%n", avg.getAverage());
+				}
 			}
 		}
 

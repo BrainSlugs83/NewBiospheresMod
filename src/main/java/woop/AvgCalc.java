@@ -5,6 +5,11 @@ public class AvgCalc
 	private double average = 0d;
 	private double count = 0d;
 
+	public int getCount()
+	{
+		return (int)count;
+	}
+
 	public double getAverage()
 	{
 		return average;

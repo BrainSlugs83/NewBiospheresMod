@@ -10,5 +10,5 @@ public class ModConsts
 	public static final int SEA_LEVEL = 63;
 	public static final int LAVA_LEVEL = 50;
 
-	public static final boolean DEBUG = true;
+	public static final boolean DEBUG = false;
 }
