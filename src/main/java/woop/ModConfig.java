@@ -19,19 +19,6 @@ import akka.japi.Predicate;
 
 public class ModConfig
 {
-	// TODO: MOVE THIS SOMEWHERE GOOD.
-	// private void SetupBlocks()
-	// {
-	// BiomeGenBase.hell.topBlock = BiomeGenBase.hell.fillerBlock = Blocks.netherrack;
-	// BiomeGenBase.sky.topBlock = BiomeGenBase.sky.fillerBlock = Blocks.end_stone;
-	//
-	// if (WATERWORLD)
-	// {
-	// Blocks.water.setLightOpacity(0);
-	// Blocks.flowing_water.setLightOpacity(0);
-	// }
-	// }
-
 	public enum WorldCharacteristics
 	{
 		NormalWorld, WaterWorld, LavaWorld

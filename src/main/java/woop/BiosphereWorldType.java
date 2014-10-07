@@ -1,8 +1,10 @@
 package woop;
 
+import net.minecraft.init.Blocks;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldType;
+import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.biome.WorldChunkManager;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.storage.WorldInfo;
@@ -41,6 +43,16 @@ public class BiosphereWorldType extends WorldType
 	@Override
 	public WorldChunkManager getChunkManager(World world)
 	{
+		// TODO: FIND A WAY TO UNREGISTER THIS IF THE PLAYER LOADS ANOTHER WORLD.
+		BiomeGenBase.hell.topBlock = BiomeGenBase.hell.fillerBlock = Blocks.netherrack;
+		BiomeGenBase.sky.topBlock = BiomeGenBase.sky.fillerBlock = Blocks.end_stone;
+
+		Blocks.water.setLightOpacity(0);
+		Blocks.flowing_water.setLightOpacity(0);
+
+		Blocks.lava.setLightOpacity(0);
+		Blocks.flowing_lava.setLightOpacity(0);
+
 		BiosphereWorlds.Push(world);
 		return new BiosphereChunkManager(world);
 	}

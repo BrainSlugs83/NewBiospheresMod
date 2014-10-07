@@ -116,7 +116,7 @@ public class BiosphereWorldProvider extends WorldProviderSurface
 		{
 			locationModified = true;
 			coords.posY -= 8;
-			
+
 			if (coords.posY < 0)
 			{
 				coords.posY = orgPosY;

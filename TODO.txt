@@ -1,12 +1,12 @@
-Random Orb Locations
-transparency of blocks set correctly
+transparency of blocks set correctly -- restored correctly
+
 generate structures: towns, caves, abandonned mine shafts
+
 menu options
 store options in World
 weather?
 Remaining Spawn point bug(s)
 
-Lakes need to be half as deep as they are wide (in radius)
 No diamonds, lapis lazuli, clay, emeralds in the spheres.
 No spawners, rivers, 
 
@@ -17,8 +17,7 @@ Questionable:
 Moss Stone?
 Chests?
 
-
-Configure number of orbs per dome,
+Configure number of orbs per dome...
 Configure orb stairways
 Configure protective glass
 Configure Lava speed
@@ -26,4 +25,5 @@ Configure Lava speed
 TODO: RE-ENABLE SAVING OF THE CONFIGURATION OPTIONS
 
 OPTIMIZE!
-SKIP BLANK CHUNKS!
+	// TOOD: SPLIT THIS INTO A SECOND GRID CHUNK CLASS, SO THAT WE DON'T HAVE TO REDO ALL THE WORK / STORE EVERYTHING
+	// MULTIPLE TIMES FOR EACH CHUNK IN THE GRID
