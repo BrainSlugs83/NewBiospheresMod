@@ -449,39 +449,45 @@ public class Utils
 
 	// #region GetDistance / GetInverseDistance
 
-	public static int GetDistanceSquared(ChunkCoordinates coords1, ChunkCoordinates coords2)
+	public static int GetDistance(ChunkCoordinates coords1, ChunkCoordinates coords2)
 	{
 		if (coords2 == null)
 		{
 			coords2 = new ChunkCoordinates();
 		}
-		return GetDistanceSquared(coords1, coords2.posX, coords2.posY, coords2.posZ);
+		return GetDistance(coords1, coords2.posX, coords2.posY, coords2.posZ);
 	}
 
-	public static int GetDistanceSquared(ChunkCoordinates coords, int x, int y, int z)
+	public static int GetDistance(ChunkCoordinates coords, int x, int y, int z)
 	{
 		if (coords == null)
 		{
 			coords = new ChunkCoordinates();
 		}
-		return GetDistanceSquared(coords.posX, coords.posY, coords.posZ, x, y, z);
+		return GetDistance(coords.posX, coords.posY, coords.posZ, x, y, z);
 	}
 
-	public static int GetDistanceSquared(int x1, int y1, int z1, int x2, int y2, int z2)
+	public static int GetDistance(int x1, int y1, int z1, int x2, int y2, int z2)
 	{
-		return (int)Math.round(GetDistanceSquared((double)x1, (double)y1, (double)z1, (double)x2, (double)y2,
-			(double)z2));
+		return (int)Math.round(GetDistance((double)x1, (double)y1, (double)z1, (double)x2, (double)y2, (double)z2));
 	}
 
-	public static double GetDistanceSquared(double x1, double y1, double z1, double x2, double y2, double z2)
+	public static double GetDistance(double x1, double y1, double z1, double x2, double y2, double z2)
 	{
-		return Math.pow(y2 - y1, 2.0D) + Math.pow(x2 - x1, 2.0D) + Math.pow(z2 - z1, 2.0D);
+		// return FastSqrt(Math.pow(y2 - y1, 2.0D) + Math.pow(x2 - x1, 2.0D) + Math.pow(z2 - z1, 2.0D));
+		return FastSqrt((y2 - y1) * (y2 - y1) + (x2 - x1) * (x2 - x1) + (z2 - z1) * (z2 - z1));
 	}
 
-	public static boolean OnEdgeOfCurve(int curveRadiusSquared, int curveRadiusMinusOneSquared, int distanceSquared)
+	public static double FastSqrt(double d)
 	{
-		return distanceSquared >= curveRadiusMinusOneSquared && distanceSquared < curveRadiusSquared;
+		// https://stackoverflow.com/questions/13263948/fast-sqrt-in-java-at-the-expense-of-accuracy
+		return Double.longBitsToDouble(((Double.doubleToLongBits(d) - (1l << 52)) >> 1) + (1l << 61));
 	}
+
+	// public static boolean OnEdgeOfCurve(int curveRadiusSquared, int curveRadiusMinusOneSquared, int distanceSquared)
+	// {
+	// return distanceSquared >= curveRadiusMinusOneSquared && distanceSquared < curveRadiusSquared;
+	// }
 
 	// #endregion
 }

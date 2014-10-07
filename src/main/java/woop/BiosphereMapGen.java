@@ -202,17 +202,17 @@ public class BiosphereMapGen extends MapGenBase
 											{
 												if (this.chunkProvider != null)
 												{
-													double d15Squared = chunk.getMainDistanceSquared(
+													double d15 = chunk.getMainDistance(
 														(int)Math.round(ccx + l3 - 8.0D), l4 - 1, (int)Math.round(ccz
 																+ j3 - 8.0D));
 
-													if (d15Squared >= chunk.scaledSphereRadiusSquared
-															&& d15Squared < chunk.scaledSphereRadiusSquared
-																	+ (5.0D * 5.0D))
+													if (d15 >= chunk.scaledSphereRadius
+															&& d15 < (chunk.scaledSphereRadius + 5d))
+
 													{
 														blocks[k4] = Blocks.obsidian;
 													}
-													else if (d15Squared < chunk.scaledSphereRadiusSquared)
+													else if (d15 < chunk.scaledSphereRadius)
 													{
 														blocks[k4] = Blocks.flowing_lava;
 													}

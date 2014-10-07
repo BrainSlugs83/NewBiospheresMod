@@ -23,14 +23,14 @@ public class SphereChunk
 
 	private final long seed;
 
-	private final int scaledSphereRadius;
-	public final int scaledSphereRadiusSquared;
-	public final int scaledSphereRadiusSquaredMinusOne;
+	public final int scaledSphereRadius;
+	// public final int scaledSphereRadiusSquared;
+	// public final int scaledSphereRadiusSquaredMinusOne;
 
-	private final int lakeRadius;
-	public final int lakeRadiusSquared;
-	private final int lakeEdgeRadius;
-	public final int lakeEdgeRadiusSquared;
+	public final int lakeRadius;
+	// public final int lakeRadiusSquared;
+	public final int lakeEdgeRadius;
+	// public final int lakeEdgeRadiusSquared;
 
 	public final boolean lavaLake;
 	public final boolean hasLake;
@@ -38,9 +38,9 @@ public class SphereChunk
 	public final BiomeGenBase biome;
 	public final NoiseChunk noise;
 
-	private final int scaledOrbRadius;
-	public final int scaledOrbRadiusSquared;
-	public final int scaledOrbRadiusSquaredMinusOne;
+	public final int scaledOrbRadius;
+	// public final int scaledOrbRadiusSquared;
+	// public final int scaledOrbRadiusSquaredMinusOne;
 
 	public final boolean isNoiseEnabled;
 	public final int scaledGridSize;
@@ -55,8 +55,8 @@ public class SphereChunk
 		ModConfig cfg = this.chunkProvider.config;
 
 		this.scaledOrbRadius = cfg.getScaledOrbRadius();
-		this.scaledOrbRadiusSquared = scaledOrbRadius * scaledOrbRadius;
-		this.scaledOrbRadiusSquaredMinusOne = (this.scaledOrbRadius - 1) * (this.scaledOrbRadius - 1);
+		// this.scaledOrbRadiusSquared = scaledOrbRadius * scaledOrbRadius;
+		// this.scaledOrbRadiusSquaredMinusOne = (this.scaledOrbRadius - 1) * (this.scaledOrbRadius - 1);
 
 		this.isNoiseEnabled = cfg.isNoiseEnabled();
 		this.scaledGridSize = cfg.getScaledGridSize();
@@ -89,15 +89,15 @@ public class SphereChunk
 
 		// Get sphere radius
 		this.scaledSphereRadius = (int)Math.round(minRad + (rnd.nextDouble() * radRange));
-		this.scaledSphereRadiusSquared = scaledSphereRadius * scaledSphereRadius;
-		this.scaledSphereRadiusSquaredMinusOne = (this.scaledSphereRadius - 1) * (this.scaledSphereRadius - 1);
+		// this.scaledSphereRadiusSquared = scaledSphereRadius * scaledSphereRadius;
+		// this.scaledSphereRadiusSquaredMinusOne = (this.scaledSphereRadius - 1) * (this.scaledSphereRadius - 1);
 
 		// Get lake radius
 		double lakeRatio = cfg.getMinLakeRatio() + ((cfg.getMaxLakeRatio() - cfg.getMinLakeRatio()) * rnd.nextDouble());
 		this.lakeRadius = (int)Math.round(this.scaledSphereRadius * lakeRatio);
-		this.lakeRadiusSquared = this.lakeRadius * this.lakeRadius;
+		// this.lakeRadiusSquared = this.lakeRadius * this.lakeRadius;
 		this.lakeEdgeRadius = lakeRadius + 2;
-		this.lakeEdgeRadiusSquared = this.lakeEdgeRadius * this.lakeEdgeRadius;
+		// this.lakeEdgeRadiusSquared = this.lakeEdgeRadius * this.lakeEdgeRadius;
 
 		this.biome = this.chunkProvider.world.getWorldChunkManager().getBiomeGenAt(sphereLocation.posX,
 			sphereLocation.posZ);
@@ -167,7 +167,7 @@ public class SphereChunk
 		int groundLevel = getRawSurfaceLevel(orbLocation.posX, orbLocation.posZ);
 		if (Math.abs(groundLevel - orbLocation.posY) <= (this.scaledOrbRadius + 2)) { return false; }
 
-		return Utils.GetDistanceSquared(orbLocation, sphereLocation) > (this.scaledOrbRadiusSquared + this.scaledSphereRadiusSquared);
+		return Utils.GetDistance(orbLocation, sphereLocation) > (this.scaledOrbRadius + this.scaledSphereRadius);
 	}
 
 	public Random GetPhaseRandom(String phase)
@@ -200,19 +200,19 @@ public class SphereChunk
 		return Utils.GetCoords(x, y, z);
 	}
 
-	public int getMainDistanceSquared(int rawX, int rawY, int rawZ)
+	public int getMainDistance(int rawX, int rawY, int rawZ)
 	{
-		return Utils.GetDistanceSquared(this.sphereLocation, rawX, rawY, rawZ);
+		return Utils.GetDistance(this.sphereLocation, rawX, rawY, rawZ);
 	}
 
-	public int getOrbDistanceSquared(int rawX, int rawY, int rawZ)
+	public int getOrbDistance(int rawX, int rawY, int rawZ)
 	{
-		return Utils.GetDistanceSquared(this.orbLocation, rawX, rawY, rawZ);
+		return Utils.GetDistance(this.orbLocation, rawX, rawY, rawZ);
 	}
 
 	private static double lastOffset = Double.MIN_VALUE;
 
-	public int getLakeDistanceSquared(int rawX, int rawY, int rawZ)
+	public int getLakeDistance(int rawX, int rawY, int rawZ)
 	{
 		if (!hasLake) { return Integer.MAX_VALUE; }
 
@@ -228,8 +228,8 @@ public class SphereChunk
 
 			if (this.isNoiseEnabled)
 			{
-				int beforeNoise = (int)Math.round(Utils.GetDistanceSquared(lakeLocation.posX, 0, lakeLocation.posZ,
-					rawX, dy, rawZ));
+				int beforeNoise = (int)Math.round(Utils.GetDistance(lakeLocation.posX, 0, lakeLocation.posZ, rawX, dy,
+					rawZ));
 
 				if (rawX >= (lakeLocation.posX - lakeEdgeRadius) && rawZ >= (lakeLocation.posZ - lakeEdgeRadius)
 						&& rawX <= (lakeLocation.posX + lakeEdgeRadius) && rawZ <= (lakeLocation.posZ + lakeEdgeRadius))
@@ -241,8 +241,8 @@ public class SphereChunk
 					dy += Math.abs((offset / 4d));
 				}
 
-				int afterNoise = (int)Math.round(Utils.GetDistanceSquared(lakeLocation.posX, 0, lakeLocation.posZ,
-					rawX, dy, rawZ));
+				int afterNoise = (int)Math.round(Utils.GetDistance(lakeLocation.posX, 0, lakeLocation.posZ, rawX, dy,
+					rawZ));
 				if (afterNoise < beforeNoise)
 				{
 					return afterNoise;
@@ -254,7 +254,7 @@ public class SphereChunk
 			}
 		}
 
-		return (int)Math.round(Utils.GetDistanceSquared(lakeLocation.posX, 0, lakeLocation.posZ, rawX, dy, rawZ));
+		return (int)Math.round(Utils.GetDistance(lakeLocation.posX, 0, lakeLocation.posZ, rawX, dy, rawZ));
 	}
 
 	public Block GetLakeBlock()
