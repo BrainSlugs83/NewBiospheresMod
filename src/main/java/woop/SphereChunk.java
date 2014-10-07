@@ -1,13 +1,17 @@
 package woop;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.world.biome.BiomeGenBase;
+import woop.ModConfig.WorldCharacteristics;
+import akka.japi.Function2;
 
 public class SphereChunk
 {
@@ -37,6 +41,10 @@ public class SphereChunk
 	public final boolean isNoiseEnabled;
 	public final int scaledGridSize;
 	public final int bridgeWidth;
+
+	private TopDownBoundingBox orbStairwayBox;
+
+	private Map<ChunkCoordinates, Block> orbStairwayBlocks;
 
 	public SphereChunk(BiosphereChunkProvider chunkProvider, int chunkX, int chunkZ)
 	{
@@ -142,12 +150,117 @@ public class SphereChunk
 			}
 		}
 
+		SetupOrbStairway(rnd);
+
 		// Reseed random generator (specific to the chunk).
 		xm = rnd.nextLong() / 2L * 2L + 1L;
 		zm = rnd.nextLong() / 2L * 2L + 1L;
 		this.seed = (chunkX * xm + chunkZ * zm) * 3168045L ^ this.chunkProvider.worldSeed;
 		rnd.setSeed(this.seed);
+	}
 
+	private void SetupOrbStairway(final Random rnd)
+	{
+		if (chunkProvider.config.getCharacteristics() != WorldCharacteristics.NormalWorld) { return; }
+
+		final Block bridgeBlock = chunkProvider.config.getBridgeSupportBlock();
+		final Block railBlock = chunkProvider.config.getBridgeRailBlock();
+
+		int orbDistX, orbDistZ;
+
+		orbDistX = orbLocation.posX - sphereLocation.posX;
+		orbDistZ = orbLocation.posZ - sphereLocation.posZ;
+
+		if (Math.abs(orbDistX) < Math.abs(orbDistZ))
+		{
+			orbDistZ = 0;
+		}
+		else if (Math.abs(orbDistX) > Math.abs(orbDistZ))
+		{
+			orbDistX = 0;
+		}
+		else
+		{
+			if (rnd.nextBoolean())
+			{
+				orbDistX = 0;
+			}
+			else
+			{
+				orbDistZ = 0;
+			}
+		}
+
+		// bridge intersection point
+		int ix = orbLocation.posX - orbDistX;
+		int iz = orbLocation.posZ - orbDistZ;
+		int iy = getRawSurfaceLevel(ix, iz);
+
+		final int tox = (orbDistX == 0 ? 0 : ((orbDistX > 0) ? 1 : -1));
+		final int toz = (orbDistZ == 0 ? 0 : ((orbDistZ > 0) ? 1 : -1));
+
+		orbStairwayBlocks = new HashMap<ChunkCoordinates, Block>();
+
+		if (orbDistZ == 0)
+		{
+			Utils.DoLine(orbLocation.posX, orbLocation.posY, ix, iy, new Function2<Integer, Integer, Boolean>()
+			{
+				@Override
+				public Boolean apply(Integer x, Integer y)
+				{
+					for (int z = orbLocation.posZ - bridgeWidth; z <= orbLocation.posZ + bridgeWidth; z++)
+					{
+						if (rnd.nextBoolean())
+						{
+							orbStairwayBlocks.put(Utils.GetCoords(x, y, z), bridgeBlock);
+						}
+						if (rnd.nextBoolean())
+						{
+							orbStairwayBlocks.put(Utils.GetCoords(x + tox, y, z + toz), bridgeBlock);
+						}
+					}
+
+					return true;
+				}
+			});
+		}
+		else
+		{
+			Utils.DoLine(orbLocation.posZ, orbLocation.posY, iz, iy, new Function2<Integer, Integer, Boolean>()
+			{
+				@Override
+				public Boolean apply(Integer z, Integer y)
+				{
+					for (int x = orbLocation.posX - bridgeWidth; x <= orbLocation.posX + bridgeWidth; x++)
+					{
+						if (rnd.nextBoolean())
+						{
+							orbStairwayBlocks.put(Utils.GetCoords(x, y, z), bridgeBlock);
+						}
+						if (rnd.nextBoolean())
+						{
+							orbStairwayBlocks.put(Utils.GetCoords(x + tox, y, z + toz), bridgeBlock);
+						}
+					}
+
+					return true;
+				}
+			});
+		}
+
+		orbStairwayBox = TopDownBoundingBox.FromArray(orbStairwayBlocks.keySet());
+	}
+
+	public Block getOrbStairwayBlock(int x, int y, int z)
+	{
+		if (orbStairwayBox == null) { return null; }
+		if (!orbStairwayBox.CollidesWith(x, z)) { return null; }
+
+		ChunkCoordinates key = Utils.GetCoords(x, y, z);
+
+		if (orbStairwayBlocks.containsKey(key)) { return orbStairwayBlocks.get(key); }
+
+		return null;
 	}
 
 	private void SetLakeHeight()
@@ -190,7 +303,15 @@ public class SphereChunk
 		int groundLevel = getRawSurfaceLevel(orbLocation.posX, orbLocation.posZ);
 		if (Math.abs(groundLevel - orbLocation.posY) <= (this.scaledOrbRadius + 2)) { return false; }
 
-		return Utils.GetDistance(orbLocation, sphereLocation) > (this.scaledOrbRadius + this.scaledSphereRadius);
+		TopDownBoundingBox sphereBox = TopDownBoundingBox.FromCircle(sphereLocation.posX, sphereLocation.posZ,
+			this.scaledSphereRadius + 1);
+
+		TopDownBoundingBox orbBox = TopDownBoundingBox.FromCircle(orbLocation.posX, orbLocation.posZ,
+			(scaledOrbRadius + 1));
+
+		return !orbBox.CollidesWith(sphereBox);
+
+		// return Utils.GetDistance(orbLocation, sphereLocation) > (this.scaledOrbRadius + this.scaledSphereRadius);
 	}
 
 	public Random GetPhaseRandom(String phase)
@@ -306,18 +427,14 @@ public class SphereChunk
 	{
 		if (boundingBoxes == null)
 		{
-			final int _sphereRadius = (int)Math.ceil(this.scaledSphereRadius + 1);
-
 			boundingBoxes = new ArrayList<TopDownBoundingBox>();
 
 			// Sphere
-			boundingBoxes.add(new TopDownBoundingBox(sphereLocation.posX - _sphereRadius, sphereLocation.posZ
-					- _sphereRadius, sphereLocation.posX + _sphereRadius, sphereLocation.posZ + _sphereRadius));
+			boundingBoxes.add(TopDownBoundingBox.FromCircle(sphereLocation.posX, sphereLocation.posZ,
+				this.scaledSphereRadius + 1));
 
 			// Ore Orb
-			boundingBoxes.add(new TopDownBoundingBox(orbLocation.posX - (scaledOrbRadius + 1), orbLocation.posZ
-					- (scaledOrbRadius + 1), orbLocation.posX + (scaledOrbRadius + 1), orbLocation.posZ
-					+ (scaledOrbRadius + 1)));
+			boundingBoxes.add(TopDownBoundingBox.FromCircle(orbLocation.posX, orbLocation.posZ, (scaledOrbRadius + 1)));
 
 			// Z-aligned bridge
 			boundingBoxes.add(new TopDownBoundingBox(sphereLocation.posX - (bridgeWidth + 1), Integer.MIN_VALUE,
@@ -326,6 +443,12 @@ public class SphereChunk
 			// X-aligned bridge
 			boundingBoxes.add(new TopDownBoundingBox(Integer.MIN_VALUE, sphereLocation.posZ - (bridgeWidth + 1),
 				Integer.MAX_VALUE, sphereLocation.posZ + (bridgeWidth + 1)));
+
+			// Stairway
+			if (orbStairwayBox != null)
+			{
+				boundingBoxes.add(orbStairwayBox);
+			}
 		}
 
 		return boundingBoxes;

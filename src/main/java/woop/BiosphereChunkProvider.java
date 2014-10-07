@@ -162,6 +162,16 @@ public class BiosphereChunkProvider implements IChunkProvider
 					int orbDistance = chunk.getOrbDistance(rawX, rawY, rawZ);
 					int lakeDistance = chunk.getLakeDistance(rawX, rawY, rawZ);
 
+					if (sphereDistance > chunk.scaledSphereRadius)
+					{
+						Block stairwayBlock = chunk.getOrbStairwayBlock(rawX, rawY, rawZ);
+
+						if (stairwayBlock != null)
+						{
+							block = stairwayBlock;
+						}
+					}
+
 					if (rawY > midY)
 					{
 						if (chunk.scaledSphereRadius == sphereDistance)
@@ -172,7 +182,9 @@ public class BiosphereChunkProvider implements IChunkProvider
 								block = config.getDomeBlock();
 							}
 						}
-						else if (chunk.hasLake && config.getNoiseEnabled() && chunk.biome != BiomeGenBase.desert
+						else if (chunk.hasLake
+								&& config.getNoiseEnabled()
+								&& chunk.biome != BiomeGenBase.desert
 								&& (lakeDistance > chunk.scaledLakeRadius && lakeDistance <= chunk.scaledLakeEdgeRadius))
 						{
 							if (rawY == chunk.lakeLocation.posY)
@@ -236,7 +248,8 @@ public class BiosphereChunkProvider implements IChunkProvider
 					{
 						block = Blocks.stone;
 					}
-					else if (chunk.hasLake && chunk.biome != BiomeGenBase.desert && lakeDistance <= chunk.scaledLakeRadius)
+					else if (chunk.hasLake && chunk.biome != BiomeGenBase.desert
+							&& lakeDistance <= chunk.scaledLakeRadius)
 					{
 						if (rawY == chunk.lakeLocation.posY && chunk.biome == BiomeGenBase.icePlains)
 						{
