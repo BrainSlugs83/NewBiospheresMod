@@ -322,6 +322,27 @@ public class Utils
 		return output;
 	}
 
+	// public static long Avg(Iterable<Long> it)
+	// {
+	// long result = 0;
+	// long count = 0;
+	//
+	// if (it != null)
+	// {
+	// for (long value: it)
+	// {
+	// result += value;
+	// count++;
+	// }
+	// }
+	//
+	// if (count > 0)
+	// {
+	// result /= count;
+	// }
+	// return result;
+	// }
+
 	// #endregion
 
 	// #region Array Serialization

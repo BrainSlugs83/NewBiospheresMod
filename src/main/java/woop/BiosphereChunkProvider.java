@@ -367,6 +367,9 @@ public class BiosphereChunkProvider implements IChunkProvider
 		return this.provideChunk(x, z);
 	}
 
+	AvgCalc avg = new AvgCalc();
+	long lastPrintedAt = Long.MIN_VALUE;
+
 	/**
 	 * Will return back a chunk, if it doesn't exist and its not a MP client it will generates all the blocks for the
 	 * specified chunk from the map seed and chunk seed
@@ -387,10 +390,19 @@ public class BiosphereChunkProvider implements IChunkProvider
 
 		if (ModConsts.DEBUG)
 		{
-			long elapsed = System.currentTimeMillis() - startedAt;
+			long now = System.currentTimeMillis();
+			long elapsed = now - startedAt;
+			avg.addValue(elapsed / 1000d);
+
 			if (elapsed >= 100)
 			{
 				System.out.printf("BIOSPHERE PROVIDE CHUNK TOOK %.3f SECONDS!%n", (elapsed / 1000d));
+			}
+
+			if (lastPrintedAt == Long.MIN_VALUE || (now - lastPrintedAt) > 2500)
+			{
+				lastPrintedAt = now;
+				System.out.printf("PROVIDE CHUNK ON AVERAGE TAKES %.3f SECONDS.%n", avg.getAverage());
 			}
 		}
 
