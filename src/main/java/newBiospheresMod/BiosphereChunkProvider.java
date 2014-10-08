@@ -32,6 +32,8 @@ import akka.japi.Predicate;
 
 public class BiosphereChunkProvider implements IChunkProvider
 {
+	// #region Static Factory / Cache
+
 	private static LruCacheList<BiosphereChunkProvider> chunkProviders = new LruCacheList<BiosphereChunkProvider>(3);
 
 	public static BiosphereChunkProvider get(final World world)
@@ -53,27 +55,31 @@ public class BiosphereChunkProvider implements IChunkProvider
 		});
 	}
 
+	// #endregion
+
+	// #region Fields
+
 	public final World world;
 	public final ModConfig config;
 	public final NoiseGeneratorOctaves noiseGenerator;
-
-	/**
-	 * Get whether the map features (e.g. strongholds) generation is enabled or disabled.
-	 */
-	public boolean getMapFeaturesEnabled()
-	{
-		return world.getWorldInfo().isMapFeaturesEnabled();
-	}
-
-	private MapGenBase caveGen = new BiosphereMapGen();
-
-	public static final int zShift = 7;
-	public static final int xShift = 11;
 	public final long worldSeed;
+	private final MapGenBase caveGen = new BiosphereMapGen();
+
+	// #endregion
+
+	// /**
+	// * Get whether the map features (e.g. strongholds) generation is enabled or disabled.
+	// */
+	// public boolean getMapFeaturesEnabled()
+	// {
+	// return world.getWorldInfo().isMapFeaturesEnabled();
+	// }
+
+	// #region SphereChunk Factory
 
 	private final LruCacheList<SphereChunk> chunks = new LruCacheList<SphereChunk>(10);
 
-	public synchronized SphereChunk GetSphereChunk(final int chunkX, final int chunkZ)
+	public SphereChunk GetSphereChunk(final int chunkX, final int chunkZ)
 	{
 		final BiosphereChunkProvider _this = this;
 
@@ -93,6 +99,8 @@ public class BiosphereChunkProvider implements IChunkProvider
 			}
 		});
 	}
+
+	// #endregion
 
 	private BiosphereChunkProvider(World world)
 	{
@@ -127,7 +135,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 		})))
 		{
 			// we collided with something like a sphere, ore orb, bridge, or other feature.
-			__GenerateChunk(chunkX, chunkZ, blocks, chunk);
+			GenerateChunkInner(chunkX, chunkZ, blocks, chunk);
 		}
 		else
 		{
@@ -136,7 +144,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 		}
 	}
 
-	private void __GenerateChunk(int chunkX, int chunkZ, Block[] blocks, SphereChunk chunk)
+	private void GenerateChunkInner(int chunkX, int chunkZ, Block[] blocks, SphereChunk chunk)
 	{
 		final int baseX = chunkX << 4;
 		final int baseZ = chunkZ << 4;
@@ -153,7 +161,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 
 				for (int rawY = ModConsts.WORLD_MAX_Y; rawY >= ModConsts.WORLD_MIN_Y; rawY--)
 				{
-					int idx = (xo << xShift) | (zo << zShift) | rawY;
+					int idx = (xo << ModConsts.xShift) | (zo << ModConsts.zShift) | rawY;
 					Block block = Blocks.air;
 
 					int rawX = baseX + xo;
@@ -381,7 +389,6 @@ public class BiosphereChunkProvider implements IChunkProvider
 	{
 		long startedAt = System.currentTimeMillis();
 
-		// this.setRand(x, z);
 		Block[] blocks = new Block[16 * 16 * ModConsts.WORLD_HEIGHT];
 
 		this.GenerateChunk(x, z, blocks);
@@ -717,9 +724,6 @@ public class BiosphereChunkProvider implements IChunkProvider
 	{
 
 	}
-
-	public void func_104112_b()
-	{}
 
 	@Override
 	public void saveExtraData()

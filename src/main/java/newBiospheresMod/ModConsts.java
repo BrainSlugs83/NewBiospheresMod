@@ -11,4 +11,11 @@ public class ModConsts
 	public static final int LAVA_LEVEL = 50;
 
 	public static final boolean DEBUG = false;
+
+	// In a chunk array that is [16 * 16 * WORLD_HEIGHT] you can address any block via:
+	// (x << ModConsts.xShift) | (z << ModConsts.zShift) | y
+	// Where (x, and z are between 0 and 15, and y is between 0 and (WORLD_HEIGHT - 1).
+	public static final int xShift = 11;
+	public static final int zShift = 7;
+
 }
