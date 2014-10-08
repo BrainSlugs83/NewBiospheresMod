@@ -1,183 +1,32 @@
 package woop;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.List;
-import java.util.Vector;
 
 import net.minecraft.block.Block;
-import net.minecraft.client.Minecraft;
 import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
+import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.common.config.Property;
 import akka.japi.Creator;
 import akka.japi.Predicate;
 
 public class ModConfig
 {
-	public enum WorldCharacteristics
+	private static Configuration cfgFile = null;
+
+	public static Configuration getConfigFile()
 	{
-		NormalWorld, WaterWorld, LavaWorld
+		return cfgFile;
 	}
 
-	private class ModProps extends java.util.Properties
+	public static void setConfigFile(Configuration value)
 	{
-		@Override
-		public Enumeration keys()
-		{
-			Enumeration keysEnum = super.keys();
-			Vector<String> keyList = new Vector<String>();
-			while (keysEnum.hasMoreElements())
-			{
-				keyList.add((String)keysEnum.nextElement());
-			}
-			Collections.sort(keyList);
-			return keyList.elements();
-		}
-
-		public Block getProperty(String propertyName, Block fallbackValue)
-		{
-			return Utils.ParseBlock(this.getProperty(propertyName, Utils.GetNameOrIdForBlock(fallbackValue)));
-		}
-
-		public void setProperty(String propertyName, Block value)
-		{
-			this.setProperty(propertyName, Utils.GetNameOrIdForBlock(value));
-		}
-
-		public int getProperty(String propertyName, int fallbackValue)
-		{
-			try
-			{
-				return Integer.parseInt(this.getProperty(propertyName, Integer.toString(fallbackValue)));
-			}
-			catch (Throwable ignore)
-			{
-				return fallbackValue;
-			}
-		}
-
-		public void setProperty(String propertyName, int value)
-		{
-			setProperty(propertyName, Integer.toString(value));
-		}
-
-		public float getProperty(String propertyName, float fallbackValue)
-		{
-			try
-			{
-				return Float.parseFloat(this.getProperty(propertyName, Float.toString(fallbackValue)));
-			}
-			catch (Throwable ignore)
-			{
-				return fallbackValue;
-			}
-		}
-
-		public void setProperty(String propertyName, float value)
-		{
-			setProperty(propertyName, Float.toString(value));
-		}
-
-		public double getProperty(String propertyName, double fallbackValue)
-		{
-			try
-			{
-				return Double.parseDouble(this.getProperty(propertyName, Double.toString(fallbackValue)));
-			}
-			catch (Throwable ignore)
-			{
-				return fallbackValue;
-			}
-		}
-
-		public void setProperty(String propertyName, double value)
-		{
-			setProperty(propertyName, Double.toString(value));
-		}
-
-		public boolean getProperty(String propertyName, boolean fallbackValue)
-		{
-			try
-			{
-				return Boolean.parseBoolean(this.getProperty(propertyName, Boolean.toString(fallbackValue)));
-			}
-			catch (Throwable ignore)
-			{
-				return fallbackValue;
-			}
-		}
-
-		public void setProperty(String propertyName, boolean value)
-		{
-			setProperty(propertyName, Boolean.toString(value));
-		}
-
-		public <T extends Enum<T>> T getEnumProperty(Class<T> _class, String propertyName, T fallbackValue)
-		{
-			try
-			{
-				return Utils.ParseEnum(_class, getProperty(propertyName), fallbackValue);
-			}
-			catch (Throwable ignore)
-			{
-				return fallbackValue;
-			}
-		}
-
-		public <T extends Enum<T>> void setEnumProperty(String propertyName, T value)
-		{
-			setProperty(propertyName, value == null ? "" : value.toString());
-		}
-
-		public List<Double> getDoubles(String propertyName, Double... fallbackValues)
-		{
-			List<Double> doubles = Utils.ConvertStringToDoubles(getProperty(propertyName,
-				Utils.ConvertDoublesToString(fallbackValues)));
-
-			if (doubles == null)
-			{
-				doubles = new ArrayList<Double>();
-			}
-
-			if (doubles.size() == 0)
-			{
-				for (Double value: fallbackValues)
-				{
-					doubles.add(value);
-				}
-			}
-			else if (doubles.size() == 1)
-			{
-				Double firstValue = doubles.get(0);
-
-				while (doubles.size() < fallbackValues.length)
-				{
-					doubles.add(firstValue);
-				}
-			}
-			else
-			{
-				while (doubles.size() < fallbackValues.length)
-				{
-					doubles.add(fallbackValues[doubles.size()]);
-				}
-			}
-
-			return doubles;
-		}
-
-		public void setDoubles(String propertyName, Double... values)
-		{
-			setProperty(propertyName, Utils.ConvertDoublesToString(values));
-		}
+		cfgFile = value;
+		ModConfig.get(null).LoadConfigurationFromFile();
 	}
-
-	private static final File cfgFile = new File(Minecraft.getMinecraft().mcDataDir, "/config/Biosphere.cfg");
 
 	// #region Fields & Properties
 
@@ -186,7 +35,8 @@ public class ModConfig
 
 	// #region boolean NoiseEnabled
 
-	private boolean noiseEnabled = true;
+	private static final boolean defaultNoiseEnabled = true;
+	private boolean noiseEnabled = defaultNoiseEnabled;
 
 	public boolean isNoiseEnabled()
 	{
@@ -198,30 +48,52 @@ public class ModConfig
 		this.noiseEnabled = noiseEnabled;
 	}
 
+	private static Property getNoiseEnabledProperty()
+	{
+		if (cfgFile == null) { return null; }
+
+		return cfgFile.get(Configuration.CATEGORY_GENERAL, "Noise Enabled", defaultNoiseEnabled,
+			"Controls whether a noise generator is used to generate terrain heights or if the World should be flat.");
+	}
+
 	// #endregion
 
 	// #region float Scale
 
-	private float scale = 1.0f;
+	private static final float minScale = .2f;
+	private static final float maxScale = 10f;
+	private static final float defaultScale = 1.0f;
+	private float scale = defaultScale;
 
 	public float getScale()
 	{
 		return scale;
 	}
 
-	public void setScale(float scale)
+	public void setScale(float value)
 	{
-		if (scale <= 0) { throw new IllegalArgumentException("scale must be a positive non-zero number."); }
-		this.scale = scale;
+		if (value < minScale) value = minScale;
+		else if (value > maxScale) value = maxScale;
+
+		this.scale = value;
 		this.scaledGridSize = 0;
 		this.scaledOrbRadius = 0;
+	}
+
+	private static Property getScaleProperty()
+	{
+		if (cfgFile == null) { return null; }
+
+		return cfgFile.get(Configuration.CATEGORY_GENERAL, "Scale", defaultScale,
+			"The scale of the world to generate.", minScale, maxScale);
 	}
 
 	// #endregion
 
 	// #region Block DomeBlock
 
-	private Block domeBlock = Blocks.glass;
+	private static final Block defaultDomeBlock = Blocks.glass;
+	private Block domeBlock = defaultDomeBlock;
 
 	public Block getDomeBlock()
 	{
@@ -230,18 +102,25 @@ public class ModConfig
 
 	public void setDomeBlock(Block value)
 	{
-		if (value == null)
-		{
-			value = Blocks.air;
-		}
+		if (value == null) value = defaultDomeBlock;
+
 		this.domeBlock = value;
+	}
+
+	private static Property getDomeBlockProperty()
+	{
+		if (cfgFile == null) { return null; }
+
+		return cfgFile.get(Configuration.CATEGORY_GENERAL, "Dome Block", Utils.GetName(defaultDomeBlock),
+			"The Block to use for the generated bio-domes.");
 	}
 
 	// #endregion
 
 	// #region Block BridgeSupportBlock
 
-	private Block bridgeSupportBlock = Blocks.planks;
+	private static final Block defaultBridgeSupportBlock = Blocks.planks;
+	private Block bridgeSupportBlock = defaultBridgeSupportBlock;
 
 	public Block getBridgeSupportBlock()
 	{
@@ -250,18 +129,26 @@ public class ModConfig
 
 	public void setBridgeSupportBlock(Block value)
 	{
-		if (value == null)
-		{
-			value = Blocks.air;
-		}
+		if (value == null) value = defaultBridgeSupportBlock;
+
 		this.bridgeSupportBlock = value;
+	}
+
+	private static Property getBridgeSupportBlockProperty()
+	{
+		if (cfgFile == null) { return null; }
+
+		return cfgFile.get(Configuration.CATEGORY_GENERAL, "Bridge Support Block",
+			Utils.GetName(defaultBridgeSupportBlock),
+			"The Block to use for bridges between bio-domes and stairways to ore-orbs.");
 	}
 
 	// #endregion
 
 	// #region Block BridgeRailBlock
 
-	private Block bridgeRailBlock = Blocks.fence;
+	private static final Block defaultBridgeRailBlock = Blocks.fence;
+	private Block bridgeRailBlock = defaultBridgeRailBlock;
 
 	public Block getBridgeRailBlock()
 	{
@@ -270,34 +157,56 @@ public class ModConfig
 
 	public void setBridgeRailBlock(Block value)
 	{
-		if (value == null)
-		{
-			value = Blocks.air;
-		}
+		if (value == null) value = defaultBridgeRailBlock;
+
 		this.bridgeRailBlock = value;
+	}
+
+	private static Property getBridgeRailBlockProperty()
+	{
+		if (cfgFile == null) { return null; }
+
+		return cfgFile.get(Configuration.CATEGORY_GENERAL, "Bridge Rail Block", Utils.GetName(defaultBridgeRailBlock),
+			"The Block to use for the rails on the bridges between bio-domes.");
 	}
 
 	// #endregion
 
-	// #region WorldCharacteristics Characteristics
+	// #region Block OutsideFillerBlock
 
-	private WorldCharacteristics characteristics = WorldCharacteristics.NormalWorld;
+	private static final Block defaultOutsideFillerBlock = Blocks.air;
+	private Block outsideFillerBlock = defaultOutsideFillerBlock;
 
-	public WorldCharacteristics getCharacteristics()
+	public Block getOutsideFillerBlock()
 	{
-		return characteristics;
+		return outsideFillerBlock;
 	}
 
-	public void setCharacteristics(WorldCharacteristics characteristics)
+	public void setOutsideFillerBlock(Block value)
 	{
-		this.characteristics = characteristics;
+		if (value == null) value = defaultOutsideFillerBlock;
+
+		if (value == Blocks.lava) value = Blocks.flowing_lava;
+		else if (value == Blocks.water) value = Blocks.flowing_water;
+
+		outsideFillerBlock = value;
+	}
+
+	private static Property getOutsideFillerBlockProperty()
+	{
+		if (cfgFile == null) { return null; }
+
+		return cfgFile.get(Configuration.CATEGORY_GENERAL, "Outside Filler Block",
+			Utils.GetName(defaultOutsideFillerBlock),
+			"The block used to fill the area outside of the domes [air, water, and lava are good choices].");
 	}
 
 	// #endregion
 
 	// #region boolean TallGrassEnabled
 
-	private boolean tallGrassEnabled = true;
+	private static final boolean defaultTallGrassEnabled = true;
+	private boolean tallGrassEnabled = defaultTallGrassEnabled;
 
 	public boolean isTallGrassEnabled()
 	{
@@ -309,127 +218,223 @@ public class ModConfig
 		this.tallGrassEnabled = tallGrass;
 	}
 
+	private static Property getTallGrassEnabled()
+	{
+		if (cfgFile == null) { return null; }
+
+		return cfgFile.get(Configuration.CATEGORY_GENERAL, "Tall Grass Enabled", defaultTallGrassEnabled,
+			"Controls whether tall grass is generated or not.");
+	}
+
 	// #endregion
 
 	// #region int GridSize
 
-	private int gridSize = 9;
+	private static final int minGridSize = 5;
+	private static final int maxGridSize = 25;
+	private static final int defaultGridSize = 9;
+	private int gridSize = defaultGridSize;
 
 	public int getGridSize()
 	{
 		return gridSize;
 	}
 
-	public void setGridSize(int gridSize)
+	public void setGridSize(int value)
 	{
-		if (gridSize <= 0) { throw new IllegalArgumentException("gridSize must be a positive non-zero number."); }
-		this.gridSize = gridSize;
+		if (value < minGridSize) value = minGridSize;
+		else if (value > maxGridSize) value = maxGridSize;
+
+		this.gridSize = value;
 		this.scaledGridSize = 0;
+	}
+
+	private static Property getGridSizeProperty()
+	{
+		if (cfgFile == null) { return null; }
+
+		return cfgFile.get(Configuration.CATEGORY_GENERAL, "Grid Size", defaultGridSize,
+			"The size of the grid (for one sphere and orb) in chunks (pre-scaled)[a 'chunk' is 16 blocks square].",
+			minGridSize, maxGridSize);
 	}
 
 	// #endregion
 
 	// #region int BridgeWidth
 
-	private int bridgeWidth = 2;
+	private static final int minBridgeWidth = 1;
+	private static final int maxBridgeWidth = 15;
+	private static final int defaultBridgeWidth = 2;
+	private int bridgeWidth = defaultBridgeWidth;
 
 	public int getBridgeWidth()
 	{
 		return bridgeWidth;
 	}
 
-	public void setBridgeWidth(int bridgeWidth)
+	public void setBridgeWidth(int value)
 	{
-		if (bridgeWidth <= 0) { throw new IllegalArgumentException("bridgeWidth must be a positive non-zero number."); }
-		this.bridgeWidth = bridgeWidth;
+		if (value < minBridgeWidth) value = minBridgeWidth;
+		else if (value > maxBridgeWidth) value = maxBridgeWidth;
+
+		this.bridgeWidth = value;
+	}
+
+	private static Property getBridgeWidthProperty()
+	{
+		if (cfgFile == null) { return null; }
+
+		return cfgFile.get(Configuration.CATEGORY_GENERAL, "Bridge Width", defaultBridgeWidth,
+			"Bridge Width: the width of the bridge [from the center to the edge].", minBridgeWidth, maxBridgeWidth);
 	}
 
 	// #endregion
 
+	private static final double sphereRadiusMinimumValue = 15d;
+	private static final double sphereRadiusMaximumValue = 80d;
+
 	// #region double MinSphereRadius
 
-	private double minSphereRadius = 20;
+	private static final double defaultMinSphereRadius = 20;
+	private double minSphereRadius = defaultMinSphereRadius;
 
 	public double getMinSphereRadius()
 	{
 		return minSphereRadius;
 	}
 
-	public void setMinSphereRadius(double minSphereRadius)
+	public void setMinSphereRadius(double value)
 	{
-		if (minSphereRadius <= 0) { throw new IllegalArgumentException(
-			"minSphereRadius must be a positive non-zero number."); }
-		this.minSphereRadius = minSphereRadius;
+		if (value < sphereRadiusMinimumValue) value = sphereRadiusMinimumValue;
+		else if (value > sphereRadiusMaximumValue) value = sphereRadiusMaximumValue;
+
+		this.minSphereRadius = value;
+	}
+
+	private static Property getMinSphereRadiusProperty()
+	{
+		if (cfgFile == null) { return null; }
+
+		return cfgFile.get(Configuration.CATEGORY_GENERAL, "Sphere Radius (Minimum)", defaultMinSphereRadius,
+			"The minimum (pre-scaled) sphere radius to generate.", sphereRadiusMinimumValue, sphereRadiusMaximumValue);
 	}
 
 	// #endregion
 
 	// #region double MaxSphereRadius
 
-	private double maxSphereRadius = 50;
+	private static final double defaultMaxSphereRadius = 50;
+	private double maxSphereRadius = defaultMaxSphereRadius;
 
 	public double getMaxSphereRadius()
 	{
 		return maxSphereRadius;
 	}
 
-	public void setMaxSphereRadius(double maxSphereRadius)
+	public void setMaxSphereRadius(double value)
 	{
-		if (maxSphereRadius <= 0) { throw new IllegalArgumentException(
-			"maxSphereRadius must be a positive non-zero number."); }
-		this.maxSphereRadius = maxSphereRadius;
+		if (value < sphereRadiusMinimumValue) value = sphereRadiusMinimumValue;
+		else if (value > sphereRadiusMaximumValue) value = sphereRadiusMaximumValue;
+
+		this.maxSphereRadius = value;
+	}
+
+	private static Property getMaxSphereRadiusProperty()
+	{
+		if (cfgFile == null) { return null; }
+
+		return cfgFile.get(Configuration.CATEGORY_GENERAL, "Sphere Radius (Maximum)", defaultMaxSphereRadius,
+			"The maximum (pre-scaled) sphere radius to generate.", sphereRadiusMinimumValue, sphereRadiusMaximumValue);
 	}
 
 	// #endregion
 
 	// #region double OrbRadius
 
-	private double orbRadius = 7;
+	private static final double minOrbRadius = 1d;
+	private static final double maxOrbRadius = 25d;
+	private static final double defaultOrbRadius = 7;
+	private double orbRadius = defaultOrbRadius;
 
 	public double getOrbRadius()
 	{
 		return orbRadius;
 	}
 
-	public void setOrbRadius(double orbRadius)
+	public void setOrbRadius(double value)
 	{
-		if (orbRadius <= 0) { throw new IllegalArgumentException("orbRadius must be a positive non-zero number."); }
-		this.orbRadius = orbRadius;
+		if (value < minOrbRadius) value = minOrbRadius;
+		else if (value > maxOrbRadius) value = maxOrbRadius;
+
+		this.orbRadius = value;
 		this.scaledOrbRadius = 0;
+	}
+
+	private static Property getOrbRadiusProperty()
+	{
+		if (cfgFile == null) { return null; }
+
+		return cfgFile.get(Configuration.CATEGORY_GENERAL, "Ore Orb Radius", defaultOrbRadius,
+			"The radius (pre-scaled) of the ore orbs to generate.", minOrbRadius, maxOrbRadius);
 	}
 
 	// #endregion
 
+	private static final double lakeRatioMinimumValue = 0.1d;
+	private static final double lakeRatioMaximumValue = 0.75d;
+
 	// #region double MinLakeRatio
 
-	private double minLakeRatio = 0.3d;
+	private static final double defaultMinLakeRatio = 0.3d;
+	private double minLakeRatio = defaultMinLakeRatio;
 
 	public double getMinLakeRatio()
 	{
 		return minLakeRatio;
 	}
 
-	public void setMinLakeRatio(double minLakeRatio)
+	public void setMinLakeRatio(double value)
 	{
-		if (minLakeRatio <= 0) { throw new IllegalArgumentException("minLakeRatio must be a positive non-zero number."); }
-		this.minLakeRatio = minLakeRatio;
+		if (value < lakeRatioMinimumValue) value = lakeRatioMinimumValue;
+		else if (value > lakeRatioMaximumValue) value = lakeRatioMaximumValue;
+
+		this.minLakeRatio = value;
+	}
+
+	private static Property getMinLakeRatioProperty()
+	{
+		if (cfgFile == null) { return null; }
+
+		return cfgFile.get(Configuration.CATEGORY_GENERAL, "Lake Ratio (Minimum)", defaultMinLakeRatio,
+			"The minimum ratio of lake size to sphere size.", lakeRatioMinimumValue, lakeRatioMaximumValue);
 	}
 
 	// #endregion
 
 	// #region double MaxLakeRatio
 
-	private double maxLakeRatio = 0.6d;
+	private static final double defaultMaxLakeRatio = 0.6d;
+	private double maxLakeRatio = defaultMaxLakeRatio;
 
 	public double getMaxLakeRatio()
 	{
 		return maxLakeRatio;
 	}
 
-	public void setMaxLakeRatio(double maxLakeRatio)
+	public void setMaxLakeRatio(double value)
 	{
-		if (maxLakeRatio <= 0) { throw new IllegalArgumentException("maxLakeRatio must be a positive non-zero number."); }
-		this.maxLakeRatio = maxLakeRatio;
+		if (value < lakeRatioMinimumValue) value = lakeRatioMinimumValue;
+		else if (value > lakeRatioMaximumValue) value = lakeRatioMaximumValue;
+
+		this.maxLakeRatio = value;
+	}
+
+	private static Property getMaxLakeRatioProperty()
+	{
+		if (cfgFile == null) { return null; }
+
+		return cfgFile.get(Configuration.CATEGORY_GENERAL, "Lake Ratio (Maximum)", defaultMaxLakeRatio,
+			"The maximum ratio of lake size to sphere size.", lakeRatioMinimumValue, lakeRatioMaximumValue);
 	}
 
 	// #endregion
@@ -469,24 +474,6 @@ public class ModConfig
 	public boolean doesNeedProtectionGlass()
 	{
 		return getOutsideFillerBlock() != Blocks.air;
-	}
-
-	public Block getOutsideFillerBlock()
-	{
-		switch (this.getCharacteristics())
-		{
-		case LavaWorld:
-			return Blocks.lava;
-		case WaterWorld:
-			return Blocks.water;
-		default:
-			return Blocks.air;
-		}
-	}
-
-	public static boolean getNoiseEnabled()
-	{
-		return false;
 	}
 
 	// #endregion
@@ -552,116 +539,192 @@ public class ModConfig
 		LoadConfigurationFromFile();
 	}
 
-	public void LoadConfigurationFromFile()
+	private void LoadConfigurationFromFile()
 	{
-		try
+		if (cfgFile == null) { return; }
+
+		cfgFile.setCategoryComment(
+			Configuration.CATEGORY_GENERAL,
+			WoopMod.MODID
+				+ " "
+				+ WoopMod.VERSION
+				+ ": Note, these settings only affect new Worlds; previously created Worlds will persist with their existing settings.");
+
+		this.setNoiseEnabled(getNoiseEnabledProperty().getBoolean());
+		this.setScale((float)getScaleProperty().getDouble());
+		this.setDomeBlock(Utils.ParseBlock(getDomeBlockProperty().getString(), defaultDomeBlock));
+		this.setBridgeSupportBlock(Utils.ParseBlock(getBridgeSupportBlockProperty().getString(),
+			defaultBridgeSupportBlock));
+		this.setBridgeRailBlock(Utils.ParseBlock(getBridgeRailBlockProperty().getString(), defaultBridgeRailBlock));
+		this.setOutsideFillerBlock(Utils.ParseBlock(getOutsideFillerBlockProperty().getString(),
+			defaultOutsideFillerBlock));
+		this.setTallGrassEnabled(getTallGrassEnabled().getBoolean());
+		this.setGridSize(getGridSizeProperty().getInt());
+		this.setBridgeWidth(getBridgeWidthProperty().getInt());
+		this.setMinSphereRadius(getMinSphereRadiusProperty().getDouble());
+		this.setMaxSphereRadius(getMaxSphereRadiusProperty().getDouble());
+		this.setOrbRadius(getOrbRadiusProperty().getDouble());
+		this.setMinLakeRatio(getMinLakeRatioProperty().getDouble());
+		this.setMaxLakeRatio(getMaxLakeRatioProperty().getDouble());
+
+		if (cfgFile.hasChanged())
 		{
-			cfgFile.getParentFile().mkdirs();
-
-			if (cfgFile.exists() || cfgFile.createNewFile())
-			{
-				if (cfgFile.canRead())
-				{
-					FileInputStream fs = null;
-					try
-					{
-						fs = new FileInputStream(cfgFile);
-						ModProps props = new ModProps();
-						props.load(fs);
-
-						this.setDomeBlock(props.getProperty("DomeBlock", this.getDomeBlock()));
-						this.setNoiseEnabled(props.getProperty("NoiseEnabled", this.isNoiseEnabled()));
-						this.setTallGrassEnabled(props.getProperty("TallGrassEnabled", this.isTallGrassEnabled()));
-
-						this.setCharacteristics(props.getEnumProperty(WorldCharacteristics.class, "Characteristics",
-							this.getCharacteristics()));
-
-						this.setGridSize(props.getProperty("GridSize", this.getGridSize()));
-						this.setOrbRadius(props.getProperty("OrbRadius", this.getOrbRadius()));
-						this.setBridgeWidth(props.getProperty("BridgeWidth", this.getBridgeWidth()));
-						this.setBridgeSupportBlock(props.getProperty("BridgeSupportBlock", this.getBridgeSupportBlock()));
-						this.setBridgeRailBlock(props.getProperty("BridgeRailBlock", this.getBridgeRailBlock()));
-						this.setScale(props.getProperty("Scale", this.getScale()));
-
-						List<Double> doubles;
-						doubles = props.getDoubles("SphereRadius", this.getMinSphereRadius(), this.getMaxSphereRadius());
-						this.setMinSphereRadius(doubles.get(0));
-						this.setMaxSphereRadius(doubles.get(1));
-
-						doubles = props.getDoubles("LakeRatio", this.getMinLakeRatio(), this.getMaxLakeRatio());
-						this.setMinLakeRatio(doubles.get(0));
-						this.setMaxLakeRatio(doubles.get(1));
-
-						for (BiomeEntry biome: AllBiomes)
-						{
-							biome.itemWeight = Integer.parseInt(props.getProperty("biomeWeight_"
-									+ biome.biome.biomeName, Integer.toString(biome.itemWeight)));
-						}
-
-					}
-					finally
-					{
-						if (fs != null)
-						{
-							fs.close();
-						}
-					}
-				}
-			}
-
-			SaveConfigurationToFile();
+			cfgFile.save();
 		}
-		catch (Throwable ignore)
-		{ /* do nothing */}
 	}
 
 	private void SaveConfigurationToFile()
 	{
-		try
-		{
-			cfgFile.getParentFile().mkdirs();
-			if (cfgFile.exists() || cfgFile.createNewFile())
-			{
-				if (cfgFile.canWrite())
-				{
-					FileOutputStream fs = null;
-					try
-					{
-						fs = new FileOutputStream(cfgFile);
-						ModProps props = new ModProps();
+		if (cfgFile == null) { return; }
 
-						props.setProperty("DomeBlock", this.getDomeBlock());
-						props.setProperty("NoiseEnabled", this.isNoiseEnabled());
-						props.setProperty("TallGrassEnabled", this.isTallGrassEnabled());
-						props.setEnumProperty("Characteristics", this.getCharacteristics());
-						props.setProperty("GridSize", this.getGridSize());
-						props.setProperty("OrbRadius", this.getOrbRadius());
-						props.setProperty("BridgeWidth", this.getBridgeWidth());
-						props.setProperty("BridgeSupportBlock", this.getBridgeSupportBlock());
-						props.setProperty("BridgeRailBlock", this.getBridgeRailBlock());
-						props.setProperty("Scale", this.getScale());
-						props.setDoubles("SphereRadius", this.getMinSphereRadius(), this.getMaxSphereRadius());
-						props.setDoubles("LakeRatio", this.getMinLakeRatio(), this.getMaxLakeRatio());
+		cfgFile.setCategoryComment(
+			Configuration.CATEGORY_GENERAL,
+			WoopMod.MODID
+				+ " "
+				+ WoopMod.VERSION
+				+ ": Note, these settings only affect new Worlds; previously created Worlds will persist with their existing settings.");
 
-						for (BiomeEntry biome: AllBiomes)
-						{
-							props.setProperty("biomeWeight_" + biome.biome.biomeName,
-								Integer.toString(biome.itemWeight));
-						}
-
-						props.store(fs, "Biosphere Config");
-					}
-					finally
-					{
-						if (fs != null)
-						{
-							fs.close();
-						}
-					}
-				}
-			}
-		}
-		catch (Throwable ignore)
-		{ /* do nothing */}
 	}
+	// #region Reading and Writing from Config File
+
+	// public Block ReadBlock(String propertyName, Block fallbackValue)
+	// {
+	// return Utils.ParseBlock(cfgFile.get(Configuration.CATEGORY_GENERAL, propertyName,
+	// Utils.GetNameOrIdForBlock(fallbackValue)),
+	// );
+	// }
+	//
+	// public void setProperty(String propertyName, Block value)
+	// {
+	// this.setProperty(propertyName, Utils.GetNameOrIdForBlock(value));
+	// }
+	//
+	// public int getProperty(String propertyName, int fallbackValue)
+	// {
+	// try
+	// {
+	// return Integer.parseInt(this.getProperty(propertyName, Integer.toString(fallbackValue)));
+	// }
+	// catch (Throwable ignore)
+	// {
+	// return fallbackValue;
+	// }
+	// }
+	//
+	// public void setProperty(String propertyName, int value)
+	// {
+	// setProperty(propertyName, Integer.toString(value));
+	// }
+	//
+	// public float getProperty(String propertyName, float fallbackValue)
+	// {
+	// try
+	// {
+	// return Float.parseFloat(this.getProperty(propertyName, Float.toString(fallbackValue)));
+	// }
+	// catch (Throwable ignore)
+	// {
+	// return fallbackValue;
+	// }
+	// }
+	//
+	// public void setProperty(String propertyName, float value)
+	// {
+	// setProperty(propertyName, Float.toString(value));
+	// }
+	//
+	// public double getProperty(String propertyName, double fallbackValue)
+	// {
+	// try
+	// {
+	// return Double.parseDouble(this.getProperty(propertyName, Double.toString(fallbackValue)));
+	// }
+	// catch (Throwable ignore)
+	// {
+	// return fallbackValue;
+	// }
+	// }
+	//
+	// public void setProperty(String propertyName, double value)
+	// {
+	// setProperty(propertyName, Double.toString(value));
+	// }
+	//
+	// public boolean getProperty(String propertyName, boolean fallbackValue)
+	// {
+	// try
+	// {
+	// return Boolean.parseBoolean(this.getProperty(propertyName, Boolean.toString(fallbackValue)));
+	// }
+	// catch (Throwable ignore)
+	// {
+	// return fallbackValue;
+	// }
+	// }
+	//
+	// public void setProperty(String propertyName, boolean value)
+	// {
+	// setProperty(propertyName, Boolean.toString(value));
+	// }
+	//
+	// public <T extends Enum<T>> T getEnumProperty(Class<T> _class, String propertyName, T fallbackValue)
+	// {
+	// try
+	// {
+	// return Utils.ParseEnum(_class, getProperty(propertyName), fallbackValue);
+	// }
+	// catch (Throwable ignore)
+	// {
+	// return fallbackValue;
+	// }
+	// }
+	//
+	// public <T extends Enum<T>> void setEnumProperty(String propertyName, T value)
+	// {
+	// setProperty(propertyName, value == null ? "" : value.toString());
+	// }
+	//
+	// public List<Double> getDoubles(String propertyName, Double... fallbackValues)
+	// {
+	// List<Double> doubles = Utils.ConvertStringToDoubles(getProperty(propertyName,
+	// Utils.ConvertDoublesToString(fallbackValues)));
+	//
+	// if (doubles == null)
+	// {
+	// doubles = new ArrayList<Double>();
+	// }
+	//
+	// if (doubles.size() == 0)
+	// {
+	// for (Double value: fallbackValues)
+	// {
+	// doubles.add(value);
+	// }
+	// }
+	// else if (doubles.size() == 1)
+	// {
+	// Double firstValue = doubles.get(0);
+	//
+	// while (doubles.size() < fallbackValues.length)
+	// {
+	// doubles.add(firstValue);
+	// }
+	// }
+	// else
+	// {
+	// while (doubles.size() < fallbackValues.length)
+	// {
+	// doubles.add(fallbackValues[doubles.size()]);
+	// }
+	// }
+	//
+	// return doubles;
+	// }
+	//
+	// public void setDoubles(String propertyName, Double... values)
+	// {
+	// setProperty(propertyName, Utils.ConvertDoublesToString(values));
+	// }
+
+	// #endregion
 }

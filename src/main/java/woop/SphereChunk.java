@@ -10,7 +10,6 @@ import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.world.biome.BiomeGenBase;
-import woop.ModConfig.WorldCharacteristics;
 import akka.japi.Function2;
 
 public class SphereChunk
@@ -161,7 +160,7 @@ public class SphereChunk
 
 	private void SetupOrbStairway(final Random rnd)
 	{
-		if (chunkProvider.config.getCharacteristics() != WorldCharacteristics.NormalWorld) { return; }
+		if (chunkProvider.config.doesNeedProtectionGlass()) { return; }
 
 		final Block bridgeBlock = chunkProvider.config.getBridgeSupportBlock();
 		final Block railBlock = chunkProvider.config.getBridgeRailBlock();

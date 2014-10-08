@@ -183,7 +183,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 							}
 						}
 						else if (chunk.hasLake
-								&& config.getNoiseEnabled()
+								&& config.isNoiseEnabled()
 								&& chunk.biome != BiomeGenBase.desert
 								&& (lakeDistance > chunk.scaledLakeRadius && lakeDistance <= chunk.scaledLakeEdgeRadius))
 						{
@@ -196,7 +196,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 								block = chunk.biome.fillerBlock;
 							}
 						}
-						else if (chunk.hasLake && config.getNoiseEnabled() && chunk.biome != BiomeGenBase.desert
+						else if (chunk.hasLake && config.isNoiseEnabled() && chunk.biome != BiomeGenBase.desert
 								&& lakeDistance <= chunk.scaledLakeRadius)
 						{
 							if (rawY == chunk.lakeLocation.posY && chunk.biome == BiomeGenBase.icePlains)

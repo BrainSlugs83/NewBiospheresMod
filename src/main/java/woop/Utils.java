@@ -20,6 +20,11 @@ public class Utils
 {
 	public static Block ParseBlock(String blockNameOrId)
 	{
+		return ParseBlock(blockNameOrId, Blocks.air);
+	}
+
+	public static Block ParseBlock(String blockNameOrId, Block fallbackValue)
+	{
 		Block returnValue = null;
 
 		try
@@ -46,7 +51,7 @@ public class Utils
 
 		if (returnValue == null)
 		{
-			returnValue = Blocks.air;
+			returnValue = fallbackValue;
 		}
 
 		return returnValue;
@@ -69,6 +74,11 @@ public class Utils
 		if (ret == null || ret.length() < 1)
 		{
 			ret = Integer.toString(Block.getIdFromBlock(block));
+		}
+
+		if (ret != null && ret.startsWith("minecraft:"))
+		{
+			ret = ret.substring(10);
 		}
 
 		return ret;
