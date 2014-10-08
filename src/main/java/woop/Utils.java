@@ -543,17 +543,14 @@ public class Utils
 
 	public static double GetDistance(double x1, double y1, double z1, double x2, double y2, double z2)
 	{
-		// return FastSqrt(Math.pow(y2 - y1, 2.0D) + Math.pow(x2 - x1, 2.0D) + Math.pow(z2 - z1, 2.0D));
-		return FastSqrt((y2 - y1) * (y2 - y1) + (x2 - x1) * (x2 - x1) + (z2 - z1) * (z2 - z1));
+		return Math.sqrt((y2 - y1) * (y2 - y1) + (x2 - x1) * (x2 - x1) + (z2 - z1) * (z2 - z1));
 	}
 
-	public static double FastSqrt(double d)
-	{
-		return Math.sqrt(d);
-
-		// // https://stackoverflow.com/questions/13263948/fast-sqrt-in-java-at-the-expense-of-accuracy
-		// return Double.longBitsToDouble(((Double.doubleToLongBits(d) - (1l << 52)) >> 1) + (1l << 61));
-	}
+	// public static double FastSqrt(double d)
+	// {
+	// // https://stackoverflow.com/questions/13263948/fast-sqrt-in-java-at-the-expense-of-accuracy
+	// return Double.longBitsToDouble(((Double.doubleToLongBits(d) - (1l << 52)) >> 1) + (1l << 61));
+	// }
 
 	// public static boolean OnEdgeOfCurve(int curveRadiusSquared, int curveRadiusMinusOneSquared, int distanceSquared)
 	// {

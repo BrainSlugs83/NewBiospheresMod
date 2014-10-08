@@ -4,15 +4,9 @@ TUBE CONNECTORS!!!
 
 generate structures: towns, caves, abandonned mine shafts
 
-menu options
-store options in World
 weather?
-Remaining Spawn point bug(s)
 
-No diamonds, lapis lazuli, clay, emeralds in the spheres.
 No spawners, rivers, 
-
-Make Gold Ore, and Redstone Ore less rare
 
 
 Questionable:
