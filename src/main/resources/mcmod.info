@@ -8,9 +8,9 @@
   "url": "http://www.twitter.com/BrainSlugs83",
   "updateUrl": "",
   "authorList": ["BrainSlugs83", "Original Mod: Risugami"],
-  "credits": "Thanks to: GotoLink, CosmicDan, Choonster, Darkhax, Ghosrec35, Jabelar",
-  "logoFile": "taco.gif",
-  "screenshots": [],
-  "dependencies": []
+  "credits": "Thanks to: GotoLink, CosmicDan, Choonster",
+  "logoFile": "logo.png",
+  "screenshots": ["screenshot1.png", "screenshot2.png"],
+  "dependencies": ["mcp"]
 }
 ]

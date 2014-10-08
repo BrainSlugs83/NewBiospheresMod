@@ -104,7 +104,7 @@ public class BiosphereWorldProvider extends WorldProviderSurface
 	}
 
 	private static final double searchGridSize = 4;
-	private static final double searchGridAngles = 18;
+	private static final double searchGridAngles = 12;
 	private static final double toRadians = Math.PI / (searchGridAngles / 2);
 
 	public void FixSpawnLocation(ChunkCoordinates coords)
@@ -127,7 +127,7 @@ public class BiosphereWorldProvider extends WorldProviderSurface
 
 				coords.posY = orgCoords.posY;
 
-				if (power >= 100)
+				if (power >= 20)
 				{
 					coords.posX = orgCoords.posX;
 					coords.posZ = orgCoords.posZ;
