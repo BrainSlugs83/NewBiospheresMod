@@ -7,13 +7,12 @@ import net.minecraft.world.WorldType;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.biome.WorldChunkManager;
 import net.minecraft.world.chunk.IChunkProvider;
-import net.minecraft.world.storage.WorldInfo;
 
 public class BiosphereWorldType extends WorldType
 {
 	private static final LruCacheList<World> BiosphereWorlds = new LruCacheList<World>(3);
 
-	private static final String IsBiosphereWorldKey = "Is Biosphere World {50D04041-9ADB-4F60-95A6-DD7AB56E2F73}";
+	private static final String IsBiosphereWorldKey = WoopMod.MODID + ".Is Biosphere World";
 
 	public static boolean IsBiosphereWorld(World world)
 	{
@@ -21,7 +20,7 @@ public class BiosphereWorldType extends WorldType
 		{
 			if (BiosphereWorlds.Contains(world)) { return true; }
 
-			GameRules rules = GetGameRules(world);
+			GameRules rules = Utils.GetGameRules(world);
 			if (rules != null)
 			{
 				if (rules.getGameRuleBooleanValue(IsBiosphereWorldKey))
@@ -87,21 +86,12 @@ public class BiosphereWorldType extends WorldType
 		if (world != null)
 		{
 			BiosphereWorlds.Push(world);
-			GameRules rules = GetGameRules(world);
+			GameRules rules = Utils.GetGameRules(world);
 			if (rules != null)
 			{
 				rules.addGameRule(IsBiosphereWorldKey, "true");
+				ModConfig.get(world).update();
 			}
 		}
-	}
-
-	private static GameRules GetGameRules(World world)
-	{
-		if (world != null)
-		{
-			WorldInfo info = world.getWorldInfo();
-			if (info != null) { return info.getGameRulesInstance(); }
-		}
-		return null;
 	}
 }

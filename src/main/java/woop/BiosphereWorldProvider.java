@@ -15,7 +15,7 @@ public class BiosphereWorldProvider extends WorldProviderSurface
 	{
 		ChunkCoordinates coords = super.getRandomizedSpawnPoint();
 
-		TryFixSpawnLocation(coords);
+		FixSpawnLocation(coords);
 
 		return coords;
 	}
@@ -25,7 +25,7 @@ public class BiosphereWorldProvider extends WorldProviderSurface
 	{
 		ChunkCoordinates coords = super.getSpawnPoint();
 
-		TryFixSpawnLocation(coords);
+		FixSpawnLocation(coords);
 
 		return coords;
 	}
@@ -43,11 +43,12 @@ public class BiosphereWorldProvider extends WorldProviderSurface
 			config = ModConfig.get(world);
 		}
 
+		if (coords.posY >= ModConsts.WORLD_MAX_Y) { return true; }
+
 		int domeBlockCount = 0;
 
 		for (double yo = -10; yo <= 10; yo++)
 		{
-
 			int y = (int)Math.round(coords.posY + yo);
 			Block block = world.getBlock(coords.posX, y, coords.posZ);
 
@@ -102,7 +103,49 @@ public class BiosphereWorldProvider extends WorldProviderSurface
 		return true;
 	}
 
-	public boolean TryFixSpawnLocation(ChunkCoordinates coords)
+	private static final double searchGridSize = 4;
+	private static final double searchGridAngles = 18;
+	private static final double toRadians = Math.PI / (searchGridAngles / 2);
+
+	public void FixSpawnLocation(ChunkCoordinates coords)
+	{
+		if (SpawnedOnTopOfDome(coords))
+		{
+			ChunkCoordinates orgCoords = Utils.GetCoords(coords);
+
+			double angle = 0;
+			double power = 1;
+
+			while (SpawnedOnTopOfDome(coords) && !__TryFixSpawnLocation(coords))
+			{
+				angle++;
+				if (angle >= searchGridAngles)
+				{
+					angle -= searchGridAngles;
+					power++;
+				}
+
+				coords.posY = orgCoords.posY;
+
+				if (power >= 100)
+				{
+					coords.posX = orgCoords.posX;
+					coords.posZ = orgCoords.posZ;
+					System.out.println("WARNING FAILED TO FIND A VALID SPAWN LOCATION!");
+
+					return;
+				}
+
+				double x = Math.cos(angle * toRadians) * (power * searchGridSize);
+				double z = Math.sin(angle * toRadians) * (power * searchGridSize);
+
+				coords.posX = orgCoords.posX + (int)Math.round(x);
+				coords.posZ = orgCoords.posZ + (int)Math.round(z);
+			}
+		}
+	}
+
+	private boolean __TryFixSpawnLocation(ChunkCoordinates coords)
 	{
 		if (coords == null) { return false; }
 

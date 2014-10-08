@@ -12,6 +12,9 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.ChunkCoordinates;
+import net.minecraft.world.GameRules;
+import net.minecraft.world.World;
+import net.minecraft.world.storage.WorldInfo;
 import akka.japi.Function;
 import akka.japi.Function2;
 import akka.japi.Predicate;
@@ -127,6 +130,16 @@ public class Utils
 		}
 
 		return false;
+	}
+
+	public static GameRules GetGameRules(World world)
+	{
+		if (world != null)
+		{
+			WorldInfo info = world.getWorldInfo();
+			if (info != null) { return info.getGameRulesInstance(); }
+		}
+		return null;
 	}
 
 	public static ChunkCoordinates GetCoords(ChunkCoordinates copyMe)
@@ -536,8 +549,10 @@ public class Utils
 
 	public static double FastSqrt(double d)
 	{
-		// https://stackoverflow.com/questions/13263948/fast-sqrt-in-java-at-the-expense-of-accuracy
-		return Double.longBitsToDouble(((Double.doubleToLongBits(d) - (1l << 52)) >> 1) + (1l << 61));
+		return Math.sqrt(d);
+
+		// // https://stackoverflow.com/questions/13263948/fast-sqrt-in-java-at-the-expense-of-accuracy
+		// return Double.longBitsToDouble(((Double.doubleToLongBits(d) - (1l << 52)) >> 1) + (1l << 61));
 	}
 
 	// public static boolean OnEdgeOfCurve(int curveRadiusSquared, int curveRadiusMinusOneSquared, int distanceSquared)

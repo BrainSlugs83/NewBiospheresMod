@@ -99,6 +99,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 		this.world = world;
 		this.worldSeed = world.getSeed();
 		this.config = ModConfig.get(world);
+		this.config.update();
 
 		if (this.config.isNoiseEnabled())
 		{
@@ -177,15 +178,13 @@ public class BiosphereChunkProvider implements IChunkProvider
 						if (chunk.scaledSphereRadius == sphereDistance)
 						{
 							if (rawY >= midY + 4 || Math.abs(rawX - chunk.sphereLocation.posX) > bridgeWidth
-									&& Math.abs(rawZ - chunk.sphereLocation.posZ) > bridgeWidth)
+								&& Math.abs(rawZ - chunk.sphereLocation.posZ) > bridgeWidth)
 							{
 								block = config.getDomeBlock();
 							}
 						}
-						else if (chunk.hasLake
-								&& config.isNoiseEnabled()
-								&& chunk.biome != BiomeGenBase.desert
-								&& (lakeDistance > chunk.scaledLakeRadius && lakeDistance <= chunk.scaledLakeEdgeRadius))
+						else if (chunk.hasLake && config.isNoiseEnabled() && chunk.biome != BiomeGenBase.desert
+							&& (lakeDistance > chunk.scaledLakeRadius && lakeDistance <= chunk.scaledLakeEdgeRadius))
 						{
 							if (rawY == chunk.lakeLocation.posY)
 							{
@@ -197,7 +196,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 							}
 						}
 						else if (chunk.hasLake && config.isNoiseEnabled() && chunk.biome != BiomeGenBase.desert
-								&& lakeDistance <= chunk.scaledLakeRadius)
+							&& lakeDistance <= chunk.scaledLakeRadius)
 						{
 							if (rawY == chunk.lakeLocation.posY && chunk.biome == BiomeGenBase.icePlains)
 							{
@@ -209,26 +208,26 @@ public class BiosphereChunkProvider implements IChunkProvider
 							}
 						}
 						else if (config.doesNeedProtectionGlass()
-								&& rawY <= midY + 4
-								&& sphereDistance > chunk.scaledSphereRadius
-								&& (Math.abs(rawX - chunk.sphereLocation.posX) == bridgeWidth || Math.abs(rawZ
-										- chunk.sphereLocation.posZ) == bridgeWidth))
+							&& rawY <= midY + 4
+							&& sphereDistance > chunk.scaledSphereRadius
+							&& (Math.abs(rawX - chunk.sphereLocation.posX) == bridgeWidth || Math.abs(rawZ
+								- chunk.sphereLocation.posZ) == bridgeWidth))
 						{
 							block = config.getDomeBlock();
 						}
 						else if (config.doesNeedProtectionGlass()
-								&& rawY == midY + 4
-								&& sphereDistance > chunk.scaledSphereRadius
-								&& (Math.abs(rawX - chunk.sphereLocation.posX) < bridgeWidth || Math.abs(rawZ
-										- chunk.sphereLocation.posZ) < bridgeWidth))
+							&& rawY == midY + 4
+							&& sphereDistance > chunk.scaledSphereRadius
+							&& (Math.abs(rawX - chunk.sphereLocation.posX) < bridgeWidth || Math.abs(rawZ
+								- chunk.sphereLocation.posZ) < bridgeWidth))
 						{
 							block = config.getDomeBlock();
 						}
 						else if (config.doesNeedProtectionGlass()
-								&& rawY < midY + 4
-								&& sphereDistance > chunk.scaledSphereRadius
-								&& (Math.abs(rawX - chunk.sphereLocation.posX) < bridgeWidth || Math.abs(rawZ
-										- chunk.sphereLocation.posZ) < bridgeWidth))
+							&& rawY < midY + 4
+							&& sphereDistance > chunk.scaledSphereRadius
+							&& (Math.abs(rawX - chunk.sphereLocation.posX) < bridgeWidth || Math.abs(rawZ
+								- chunk.sphereLocation.posZ) < bridgeWidth))
 						{
 							block = Blocks.air;
 						}
@@ -237,9 +236,9 @@ public class BiosphereChunkProvider implements IChunkProvider
 							block = outsideFillerBlock;
 						}
 						else if (rawY == midY + 1
-								&& sphereDistance > chunk.scaledSphereRadius
-								&& (Math.abs(rawX - chunk.sphereLocation.posX) == bridgeWidth || Math.abs(rawZ
-										- chunk.sphereLocation.posZ) == bridgeWidth))
+							&& sphereDistance > chunk.scaledSphereRadius
+							&& (Math.abs(rawX - chunk.sphereLocation.posX) == bridgeWidth || Math.abs(rawZ
+								- chunk.sphereLocation.posZ) == bridgeWidth))
 						{
 							block = config.getBridgeRailBlock();
 						}
@@ -249,7 +248,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 						block = Blocks.stone;
 					}
 					else if (chunk.hasLake && chunk.biome != BiomeGenBase.desert
-							&& lakeDistance <= chunk.scaledLakeRadius)
+						&& lakeDistance <= chunk.scaledLakeRadius)
 					{
 						if (rawY == chunk.lakeLocation.posY && chunk.biome == BiomeGenBase.icePlains)
 						{
@@ -261,7 +260,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 						}
 					}
 					else if (chunk.hasLake && rawY < chunk.lakeLocation.posY - 1 && chunk.biome != BiomeGenBase.desert
-							&& lakeDistance <= chunk.scaledLakeEdgeRadius)
+						&& lakeDistance <= chunk.scaledLakeEdgeRadius)
 					{
 						if (ModConsts.DEBUG)
 						{
@@ -288,9 +287,9 @@ public class BiosphereChunkProvider implements IChunkProvider
 						}
 					}
 					else if (rawY == midY
-							&& sphereDistance > chunk.scaledSphereRadius
-							&& (Math.abs(rawX - chunk.sphereLocation.posX) < bridgeWidth + 1 || Math.abs(rawZ
-									- chunk.sphereLocation.posZ) < bridgeWidth + 1))
+						&& sphereDistance > chunk.scaledSphereRadius
+						&& (Math.abs(rawX - chunk.sphereLocation.posX) < bridgeWidth + 1 || Math.abs(rawZ
+							- chunk.sphereLocation.posZ) < bridgeWidth + 1))
 					{
 						block = config.getBridgeSupportBlock();
 					}

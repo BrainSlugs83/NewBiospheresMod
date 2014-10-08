@@ -25,6 +25,7 @@ public class WoopMod
 	public void PreInit(FMLPreInitializationEvent event)
 	{
 		ModConfig.setConfigFile(new Configuration(event.getSuggestedConfigurationFile(), WoopMod.VERSION));
+		ModConfig.updateFile();
 	}
 
 	@EventHandler
@@ -53,7 +54,7 @@ public class WoopMod
 	{
 		if (eventArgs.modID.equalsIgnoreCase(WoopMod.MODID))
 		{
-
+			ModConfig.updateFile();
 		}
 	}
 }

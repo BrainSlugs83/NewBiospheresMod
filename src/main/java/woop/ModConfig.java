@@ -6,6 +6,7 @@ import java.util.List;
 
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.common.config.Configuration;
@@ -25,7 +26,22 @@ public class ModConfig
 	public static void setConfigFile(Configuration value)
 	{
 		cfgFile = value;
-		ModConfig.get(null).LoadConfigurationFromFile();
+
+		if (cfgFile != null)
+		{
+			cfgFile.setCategoryComment(
+				Configuration.CATEGORY_GENERAL,
+				WoopMod.MODID
+					+ " "
+					+ WoopMod.VERSION
+					+ ": Note, these settings only affect new Worlds; previously created Worlds will persist with their existing settings.");
+		}
+	}
+
+	public static void updateFile()
+	{
+		setConfigFile(getConfigFile());
+		ModConfig.get(null).update();
 	}
 
 	// #region Fields & Properties
@@ -186,8 +202,8 @@ public class ModConfig
 	{
 		if (value == null) value = defaultOutsideFillerBlock;
 
-		if (value == Blocks.lava) value = Blocks.flowing_lava;
-		else if (value == Blocks.water) value = Blocks.flowing_water;
+		// if (value == Blocks.lava) value = Blocks.flowing_lava;
+		// else if (value == Blocks.water) value = Blocks.flowing_water;
 
 		outsideFillerBlock = value;
 	}
@@ -218,7 +234,7 @@ public class ModConfig
 		this.tallGrassEnabled = tallGrass;
 	}
 
-	private static Property getTallGrassEnabled()
+	private static Property getTallGrassEnabledProperty()
 	{
 		if (cfgFile == null) { return null; }
 
@@ -494,12 +510,12 @@ public class ModConfig
 
 	public static ModConfig get(final World world)
 	{
-		return modConfigs.FindOrAdd(new Predicate<ModConfig>()
+		ModConfig returnValue = modConfigs.FindOrAdd(new Predicate<ModConfig>()
 		{
 			@Override
 			public boolean test(ModConfig config)
 			{
-				return config.World == world;
+				return config != null && config.World == world;
 			}
 		}, new Creator<ModConfig>()
 		{
@@ -509,6 +525,8 @@ public class ModConfig
 				return new ModConfig(world);
 			}
 		});
+
+		return returnValue;
 	}
 
 	private ModConfig(World world)
@@ -536,19 +554,156 @@ public class ModConfig
 		}
 
 		this.AllBiomes = Collections.unmodifiableList(entries);
+		update();
+	}
+
+	public void update()
+	{
 		LoadConfigurationFromFile();
+		SaveConfigurationToFile();
+
+		LoadConfigurationFromWorld();
+		SaveConfigurationToWorld();
+	}
+
+	private void LoadConfigurationFromWorld()
+	{
+		if (!BiosphereWorldType.IsBiosphereWorld(this.World)) { return; }
+
+		GameRules rules = Utils.GetGameRules(this.World);
+		if (rules != null)
+		{
+			String ruleName = WoopMod.MODID + "." + getNoiseEnabledProperty().getName();
+			if (rules.hasRule(ruleName))
+			{
+				setNoiseEnabled(rules.getGameRuleBooleanValue(ruleName));
+			}
+
+			ruleName = WoopMod.MODID + "." + getScaleProperty().getName();
+			if (rules.hasRule(ruleName))
+			{
+				setScale(Float.parseFloat(rules.getGameRuleStringValue(ruleName)));
+			}
+
+			ruleName = WoopMod.MODID + "." + getDomeBlockProperty().getName();
+			if (rules.hasRule(ruleName))
+			{
+				setDomeBlock(Utils.ParseBlock(rules.getGameRuleStringValue(ruleName)));
+			}
+
+			ruleName = WoopMod.MODID + "." + getBridgeSupportBlockProperty().getName();
+			if (rules.hasRule(ruleName))
+			{
+				setBridgeSupportBlock(Utils.ParseBlock(rules.getGameRuleStringValue(ruleName)));
+			}
+
+			ruleName = WoopMod.MODID + "." + getOutsideFillerBlockProperty().getName();
+			if (rules.hasRule(ruleName))
+			{
+				setOutsideFillerBlock(Utils.ParseBlock(rules.getGameRuleStringValue(ruleName)));
+			}
+
+			ruleName = WoopMod.MODID + "." + getTallGrassEnabledProperty().getName();
+			if (rules.hasRule(ruleName))
+			{
+				setTallGrassEnabled(rules.getGameRuleBooleanValue(ruleName));
+			}
+
+			ruleName = WoopMod.MODID + "." + getGridSizeProperty().getName();
+			if (rules.hasRule(ruleName))
+			{
+				setGridSize(Integer.parseInt(rules.getGameRuleStringValue(ruleName)));
+			}
+
+			ruleName = WoopMod.MODID + "." + getBridgeWidthProperty().getName();
+			if (rules.hasRule(ruleName))
+			{
+				setBridgeWidth(Integer.parseInt(rules.getGameRuleStringValue(ruleName)));
+			}
+
+			ruleName = WoopMod.MODID + "." + getMinSphereRadiusProperty().getName();
+			if (rules.hasRule(ruleName))
+			{
+				setMinSphereRadius(Double.parseDouble(rules.getGameRuleStringValue(ruleName)));
+			}
+
+			ruleName = WoopMod.MODID + "." + getMaxSphereRadiusProperty().getName();
+			if (rules.hasRule(ruleName))
+			{
+				setMaxSphereRadius(Double.parseDouble(rules.getGameRuleStringValue(ruleName)));
+			}
+
+			ruleName = WoopMod.MODID + "." + getOrbRadiusProperty().getName();
+			if (rules.hasRule(ruleName))
+			{
+				setOrbRadius(Double.parseDouble(rules.getGameRuleStringValue(ruleName)));
+			}
+
+			ruleName = WoopMod.MODID + "." + getMinLakeRatioProperty().getName();
+			if (rules.hasRule(ruleName))
+			{
+				setMinLakeRatio(Double.parseDouble(rules.getGameRuleStringValue(ruleName)));
+			}
+
+			ruleName = WoopMod.MODID + "." + getMaxLakeRatioProperty().getName();
+			if (rules.hasRule(ruleName))
+			{
+				setMaxLakeRatio(Double.parseDouble(rules.getGameRuleStringValue(ruleName)));
+			}
+		}
+	}
+
+	private void SaveConfigurationToWorld()
+	{
+		if (!BiosphereWorldType.IsBiosphereWorld(this.World)) { return; }
+
+		GameRules rules = Utils.GetGameRules(this.World);
+		if (rules != null)
+		{
+			String ruleName = WoopMod.MODID + "." + getNoiseEnabledProperty().getName();
+			rules.setOrCreateGameRule(ruleName, Boolean.toString(isNoiseEnabled()));
+
+			ruleName = WoopMod.MODID + "." + getScaleProperty().getName();
+			rules.setOrCreateGameRule(ruleName, Float.toString(getScale()));
+
+			ruleName = WoopMod.MODID + "." + getDomeBlockProperty().getName();
+			rules.setOrCreateGameRule(ruleName, Utils.GetName(getDomeBlock()));
+
+			ruleName = WoopMod.MODID + "." + getBridgeSupportBlockProperty().getName();
+			rules.setOrCreateGameRule(ruleName, Utils.GetName(getBridgeSupportBlock()));
+
+			ruleName = WoopMod.MODID + "." + getOutsideFillerBlockProperty().getName();
+			rules.setOrCreateGameRule(ruleName, Utils.GetName(getOutsideFillerBlock()));
+
+			ruleName = WoopMod.MODID + "." + getTallGrassEnabledProperty().getName();
+			rules.setOrCreateGameRule(ruleName, Boolean.toString(isTallGrassEnabled()));
+
+			ruleName = WoopMod.MODID + "." + getGridSizeProperty().getName();
+			rules.setOrCreateGameRule(ruleName, Integer.toString(getGridSize()));
+
+			ruleName = WoopMod.MODID + "." + getBridgeWidthProperty().getName();
+			rules.setOrCreateGameRule(ruleName, Integer.toString(getBridgeWidth()));
+
+			ruleName = WoopMod.MODID + "." + getMinSphereRadiusProperty().getName();
+			rules.setOrCreateGameRule(ruleName, Double.toString(getMinSphereRadius()));
+
+			ruleName = WoopMod.MODID + "." + getMaxSphereRadiusProperty().getName();
+			rules.setOrCreateGameRule(ruleName, Double.toString(getMaxSphereRadius()));
+
+			ruleName = WoopMod.MODID + "." + getOrbRadiusProperty().getName();
+			rules.setOrCreateGameRule(ruleName, Double.toString(getOrbRadius()));
+
+			ruleName = WoopMod.MODID + "." + getMinLakeRatioProperty().getName();
+			rules.setOrCreateGameRule(ruleName, Double.toString(getMinLakeRatio()));
+
+			ruleName = WoopMod.MODID + "." + getMaxLakeRatioProperty().getName();
+			rules.setOrCreateGameRule(ruleName, Double.toString(getMaxLakeRatio()));
+		}
 	}
 
 	private void LoadConfigurationFromFile()
 	{
 		if (cfgFile == null) { return; }
-
-		cfgFile.setCategoryComment(
-			Configuration.CATEGORY_GENERAL,
-			WoopMod.MODID
-				+ " "
-				+ WoopMod.VERSION
-				+ ": Note, these settings only affect new Worlds; previously created Worlds will persist with their existing settings.");
 
 		this.setNoiseEnabled(getNoiseEnabledProperty().getBoolean());
 		this.setScale((float)getScaleProperty().getDouble());
@@ -558,7 +713,7 @@ public class ModConfig
 		this.setBridgeRailBlock(Utils.ParseBlock(getBridgeRailBlockProperty().getString(), defaultBridgeRailBlock));
 		this.setOutsideFillerBlock(Utils.ParseBlock(getOutsideFillerBlockProperty().getString(),
 			defaultOutsideFillerBlock));
-		this.setTallGrassEnabled(getTallGrassEnabled().getBoolean());
+		this.setTallGrassEnabled(getTallGrassEnabledProperty().getBoolean());
 		this.setGridSize(getGridSizeProperty().getInt());
 		this.setBridgeWidth(getBridgeWidthProperty().getInt());
 		this.setMinSphereRadius(getMinSphereRadiusProperty().getDouble());
@@ -577,14 +732,27 @@ public class ModConfig
 	{
 		if (cfgFile == null) { return; }
 
-		cfgFile.setCategoryComment(
-			Configuration.CATEGORY_GENERAL,
-			WoopMod.MODID
-				+ " "
-				+ WoopMod.VERSION
-				+ ": Note, these settings only affect new Worlds; previously created Worlds will persist with their existing settings.");
+		getNoiseEnabledProperty().set(isNoiseEnabled());
+		getScaleProperty().set(getScale());
+		getDomeBlockProperty().set(Utils.GetName(getDomeBlock()));
+		getBridgeSupportBlockProperty().set(Utils.GetName(getBridgeSupportBlock()));
+		getBridgeRailBlockProperty().set(Utils.GetName(getBridgeRailBlock()));
+		getOutsideFillerBlockProperty().set(Utils.GetName(getOutsideFillerBlock()));
+		getTallGrassEnabledProperty().set(isTallGrassEnabled());
+		getGridSizeProperty().set(getGridSize());
+		getBridgeWidthProperty().set(getBridgeWidth());
+		getMinSphereRadiusProperty().set(getMinSphereRadius());
+		getMaxSphereRadiusProperty().set(getMaxSphereRadius());
+		getOrbRadiusProperty().set(getOrbRadius());
+		getMinLakeRatioProperty().set(getMinLakeRatio());
+		getMaxLakeRatioProperty().set(getMaxLakeRatio());
 
+		if (cfgFile.hasChanged())
+		{
+			cfgFile.save();
+		}
 	}
+
 	// #region Reading and Writing from Config File
 
 	// public Block ReadBlock(String propertyName, Block fallbackValue)
