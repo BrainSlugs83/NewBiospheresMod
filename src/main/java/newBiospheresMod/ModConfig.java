@@ -1,4 +1,4 @@
-package woop;
+package newBiospheresMod;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,9 +31,9 @@ public class ModConfig
 		{
 			cfgFile.setCategoryComment(
 				Configuration.CATEGORY_GENERAL,
-				WoopMod.MODID
+				NewBiospheresMod.MODID
 					+ " "
-					+ WoopMod.VERSION
+					+ NewBiospheresMod.VERSION
 					+ ": Note, these settings only affect new Worlds; previously created Worlds will persist with their existing settings.");
 		}
 	}
@@ -573,79 +573,79 @@ public class ModConfig
 		GameRules rules = Utils.GetGameRules(this.World);
 		if (rules != null)
 		{
-			String ruleName = WoopMod.MODID + "." + getNoiseEnabledProperty().getName();
+			String ruleName = NewBiospheresMod.MODID + "." + getNoiseEnabledProperty().getName();
 			if (rules.hasRule(ruleName))
 			{
 				setNoiseEnabled(rules.getGameRuleBooleanValue(ruleName));
 			}
 
-			ruleName = WoopMod.MODID + "." + getScaleProperty().getName();
+			ruleName = NewBiospheresMod.MODID + "." + getScaleProperty().getName();
 			if (rules.hasRule(ruleName))
 			{
 				setScale(Float.parseFloat(rules.getGameRuleStringValue(ruleName)));
 			}
 
-			ruleName = WoopMod.MODID + "." + getDomeBlockProperty().getName();
+			ruleName = NewBiospheresMod.MODID + "." + getDomeBlockProperty().getName();
 			if (rules.hasRule(ruleName))
 			{
 				setDomeBlock(Utils.ParseBlock(rules.getGameRuleStringValue(ruleName)));
 			}
 
-			ruleName = WoopMod.MODID + "." + getBridgeSupportBlockProperty().getName();
+			ruleName = NewBiospheresMod.MODID + "." + getBridgeSupportBlockProperty().getName();
 			if (rules.hasRule(ruleName))
 			{
 				setBridgeSupportBlock(Utils.ParseBlock(rules.getGameRuleStringValue(ruleName)));
 			}
 
-			ruleName = WoopMod.MODID + "." + getOutsideFillerBlockProperty().getName();
+			ruleName = NewBiospheresMod.MODID + "." + getOutsideFillerBlockProperty().getName();
 			if (rules.hasRule(ruleName))
 			{
 				setOutsideFillerBlock(Utils.ParseBlock(rules.getGameRuleStringValue(ruleName)));
 			}
 
-			ruleName = WoopMod.MODID + "." + getTallGrassEnabledProperty().getName();
+			ruleName = NewBiospheresMod.MODID + "." + getTallGrassEnabledProperty().getName();
 			if (rules.hasRule(ruleName))
 			{
 				setTallGrassEnabled(rules.getGameRuleBooleanValue(ruleName));
 			}
 
-			ruleName = WoopMod.MODID + "." + getGridSizeProperty().getName();
+			ruleName = NewBiospheresMod.MODID + "." + getGridSizeProperty().getName();
 			if (rules.hasRule(ruleName))
 			{
 				setGridSize(Integer.parseInt(rules.getGameRuleStringValue(ruleName)));
 			}
 
-			ruleName = WoopMod.MODID + "." + getBridgeWidthProperty().getName();
+			ruleName = NewBiospheresMod.MODID + "." + getBridgeWidthProperty().getName();
 			if (rules.hasRule(ruleName))
 			{
 				setBridgeWidth(Integer.parseInt(rules.getGameRuleStringValue(ruleName)));
 			}
 
-			ruleName = WoopMod.MODID + "." + getMinSphereRadiusProperty().getName();
+			ruleName = NewBiospheresMod.MODID + "." + getMinSphereRadiusProperty().getName();
 			if (rules.hasRule(ruleName))
 			{
 				setMinSphereRadius(Double.parseDouble(rules.getGameRuleStringValue(ruleName)));
 			}
 
-			ruleName = WoopMod.MODID + "." + getMaxSphereRadiusProperty().getName();
+			ruleName = NewBiospheresMod.MODID + "." + getMaxSphereRadiusProperty().getName();
 			if (rules.hasRule(ruleName))
 			{
 				setMaxSphereRadius(Double.parseDouble(rules.getGameRuleStringValue(ruleName)));
 			}
 
-			ruleName = WoopMod.MODID + "." + getOrbRadiusProperty().getName();
+			ruleName = NewBiospheresMod.MODID + "." + getOrbRadiusProperty().getName();
 			if (rules.hasRule(ruleName))
 			{
 				setOrbRadius(Double.parseDouble(rules.getGameRuleStringValue(ruleName)));
 			}
 
-			ruleName = WoopMod.MODID + "." + getMinLakeRatioProperty().getName();
+			ruleName = NewBiospheresMod.MODID + "." + getMinLakeRatioProperty().getName();
 			if (rules.hasRule(ruleName))
 			{
 				setMinLakeRatio(Double.parseDouble(rules.getGameRuleStringValue(ruleName)));
 			}
 
-			ruleName = WoopMod.MODID + "." + getMaxLakeRatioProperty().getName();
+			ruleName = NewBiospheresMod.MODID + "." + getMaxLakeRatioProperty().getName();
 			if (rules.hasRule(ruleName))
 			{
 				setMaxLakeRatio(Double.parseDouble(rules.getGameRuleStringValue(ruleName)));
@@ -660,43 +660,43 @@ public class ModConfig
 		GameRules rules = Utils.GetGameRules(this.World);
 		if (rules != null)
 		{
-			String ruleName = WoopMod.MODID + "." + getNoiseEnabledProperty().getName();
+			String ruleName = NewBiospheresMod.MODID + "." + getNoiseEnabledProperty().getName();
 			rules.setOrCreateGameRule(ruleName, Boolean.toString(isNoiseEnabled()));
 
-			ruleName = WoopMod.MODID + "." + getScaleProperty().getName();
+			ruleName = NewBiospheresMod.MODID + "." + getScaleProperty().getName();
 			rules.setOrCreateGameRule(ruleName, Float.toString(getScale()));
 
-			ruleName = WoopMod.MODID + "." + getDomeBlockProperty().getName();
+			ruleName = NewBiospheresMod.MODID + "." + getDomeBlockProperty().getName();
 			rules.setOrCreateGameRule(ruleName, Utils.GetName(getDomeBlock()));
 
-			ruleName = WoopMod.MODID + "." + getBridgeSupportBlockProperty().getName();
+			ruleName = NewBiospheresMod.MODID + "." + getBridgeSupportBlockProperty().getName();
 			rules.setOrCreateGameRule(ruleName, Utils.GetName(getBridgeSupportBlock()));
 
-			ruleName = WoopMod.MODID + "." + getOutsideFillerBlockProperty().getName();
+			ruleName = NewBiospheresMod.MODID + "." + getOutsideFillerBlockProperty().getName();
 			rules.setOrCreateGameRule(ruleName, Utils.GetName(getOutsideFillerBlock()));
 
-			ruleName = WoopMod.MODID + "." + getTallGrassEnabledProperty().getName();
+			ruleName = NewBiospheresMod.MODID + "." + getTallGrassEnabledProperty().getName();
 			rules.setOrCreateGameRule(ruleName, Boolean.toString(isTallGrassEnabled()));
 
-			ruleName = WoopMod.MODID + "." + getGridSizeProperty().getName();
+			ruleName = NewBiospheresMod.MODID + "." + getGridSizeProperty().getName();
 			rules.setOrCreateGameRule(ruleName, Integer.toString(getGridSize()));
 
-			ruleName = WoopMod.MODID + "." + getBridgeWidthProperty().getName();
+			ruleName = NewBiospheresMod.MODID + "." + getBridgeWidthProperty().getName();
 			rules.setOrCreateGameRule(ruleName, Integer.toString(getBridgeWidth()));
 
-			ruleName = WoopMod.MODID + "." + getMinSphereRadiusProperty().getName();
+			ruleName = NewBiospheresMod.MODID + "." + getMinSphereRadiusProperty().getName();
 			rules.setOrCreateGameRule(ruleName, Double.toString(getMinSphereRadius()));
 
-			ruleName = WoopMod.MODID + "." + getMaxSphereRadiusProperty().getName();
+			ruleName = NewBiospheresMod.MODID + "." + getMaxSphereRadiusProperty().getName();
 			rules.setOrCreateGameRule(ruleName, Double.toString(getMaxSphereRadius()));
 
-			ruleName = WoopMod.MODID + "." + getOrbRadiusProperty().getName();
+			ruleName = NewBiospheresMod.MODID + "." + getOrbRadiusProperty().getName();
 			rules.setOrCreateGameRule(ruleName, Double.toString(getOrbRadius()));
 
-			ruleName = WoopMod.MODID + "." + getMinLakeRatioProperty().getName();
+			ruleName = NewBiospheresMod.MODID + "." + getMinLakeRatioProperty().getName();
 			rules.setOrCreateGameRule(ruleName, Double.toString(getMinLakeRatio()));
 
-			ruleName = WoopMod.MODID + "." + getMaxLakeRatioProperty().getName();
+			ruleName = NewBiospheresMod.MODID + "." + getMaxLakeRatioProperty().getName();
 			rules.setOrCreateGameRule(ruleName, Double.toString(getMaxLakeRatio()));
 		}
 	}

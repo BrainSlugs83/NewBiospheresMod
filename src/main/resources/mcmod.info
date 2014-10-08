@@ -1,14 +1,14 @@
 [
 {
-  "modid": "WoopMod",
-  "name": "Woop",
-  "description": "Woop Woop Woop!",
-  "version": "${version}",
+  "modid": "New Biospheres Mod",
+  "name": "New Biospheres Mod",
+  "description": "Adds a 'Biospheres' WorldType to Minecraft.  Based on Risugami's original mod for Minecraft 1.6.",
+  "version": "0.9",
   "mcversion": "${mcversion}",
   "url": "http://www.twitter.com/BrainSlugs83",
   "updateUrl": "",
-  "authorList": ["BrainSlugs83"],
-  "credits": "womp womp",
+  "authorList": ["BrainSlugs83", "Original Mod: Risugami"],
+  "credits": "Thanks to: GotoLink, CosmicDan, Choonster, Darkhax, Ghosrec35, Jabelar",
   "logoFile": "taco.gif",
   "screenshots": [],
   "dependencies": []

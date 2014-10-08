@@ -1,4 +1,4 @@
-package woop;
+package newBiospheresMod;
 
 import java.util.ArrayList;
 import java.util.HashMap;

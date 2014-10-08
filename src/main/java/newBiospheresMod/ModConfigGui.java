@@ -1,4 +1,4 @@
-package woop;
+package newBiospheresMod;
 
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraftforge.common.config.ConfigElement;
@@ -12,6 +12,6 @@ public class ModConfigGui extends GuiConfig
 		super(
 			parent,
 			new ConfigElement(ModConfig.getConfigFile().getCategory(Configuration.CATEGORY_GENERAL)).getChildElements(),
-			WoopMod.MODID, false, false, GuiConfig.getAbridgedConfigPath(ModConfig.getConfigFile().toString()));
+			NewBiospheresMod.MODID, false, false, GuiConfig.getAbridgedConfigPath(ModConfig.getConfigFile().toString()));
 	}
 }

@@ -1,4 +1,4 @@
-package woop;
+package newBiospheresMod;
 
 import java.util.List;
 import java.util.Random;
@@ -25,12 +25,12 @@ public class BiosphereChunkManager extends WorldChunkManager
 
 	public BiosphereChunkManager()
 	{
-		this(getNewSeed(), WoopMod.Biosphere);
+		this(getNewSeed(), NewBiospheresMod.Biosphere);
 	}
 
 	public BiosphereChunkManager(World world)
 	{
-		this(world, world.getSeed(), WoopMod.Biosphere);
+		this(world, world.getSeed(), NewBiospheresMod.Biosphere);
 	}
 
 	public BiosphereChunkManager(long worldSeed, WorldType worldType)

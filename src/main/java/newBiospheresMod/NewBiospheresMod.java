@@ -1,4 +1,4 @@
-package woop;
+package newBiospheresMod;
 
 import net.minecraft.world.WorldType;
 import net.minecraftforge.common.DimensionManager;
@@ -12,11 +12,11 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 
-@Mod(modid = WoopMod.MODID, version = WoopMod.VERSION, guiFactory = "woop.ModConfigGuiFactory")
-public class WoopMod
+@Mod(modid = NewBiospheresMod.MODID, version = NewBiospheresMod.VERSION, guiFactory = "newBiospheresMod.ModConfigGuiFactory")
+public class NewBiospheresMod
 {
-	public static final String MODID = "WoopMod";
-	public static final String VERSION = "1.0";
+	public static final String MODID = "New Biospheres Mod";
+	public static final String VERSION = "0.9";
 
 	public static WorldType Biosphere;
 	public static Events Events;
@@ -24,24 +24,15 @@ public class WoopMod
 	@EventHandler
 	public void PreInit(FMLPreInitializationEvent event)
 	{
-		ModConfig.setConfigFile(new Configuration(event.getSuggestedConfigurationFile(), WoopMod.VERSION));
+		ModConfig.setConfigFile(new Configuration(event.getSuggestedConfigurationFile(), NewBiospheresMod.VERSION));
 		ModConfig.updateFile();
 	}
 
 	@EventHandler
 	public void Init(FMLInitializationEvent event)
 	{
-		// some example code
-		// System.out.println("DIRT BLOCK >> " +
-		// Blocks.dirt.getUnlocalizedName());
-
-		// GameRegistry.addShapelessRecipe(new ItemStack(Blocks.diamond_block),
-		// new ItemStack(Blocks.dirt));
-
 		LanguageRegistry.instance().addStringLocalization("generator.biosphere", "Biospheres");
 		Biosphere = new BiosphereWorldType("biosphere");
-
-		// MinecraftForge.EVENT_BUS.register(this);
 
 		DimensionManager.unregisterProviderType(0);
 		DimensionManager.registerProviderType(0, BiosphereWorldProvider.class, true);
@@ -52,7 +43,7 @@ public class WoopMod
 	@SubscribeEvent
 	public void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent eventArgs)
 	{
-		if (eventArgs.modID.equalsIgnoreCase(WoopMod.MODID))
+		if (eventArgs.modID.equalsIgnoreCase(NewBiospheresMod.MODID))
 		{
 			ModConfig.updateFile();
 		}

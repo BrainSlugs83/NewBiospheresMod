@@ -1,4 +1,4 @@
-package woop;
+package newBiospheresMod;
 
 import net.minecraft.util.ChunkCoordinates;
 

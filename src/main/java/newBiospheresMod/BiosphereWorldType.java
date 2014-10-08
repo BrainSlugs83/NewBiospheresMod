@@ -1,4 +1,4 @@
-package woop;
+package newBiospheresMod;
 
 import net.minecraft.init.Blocks;
 import net.minecraft.world.GameRules;
@@ -12,7 +12,7 @@ public class BiosphereWorldType extends WorldType
 {
 	private static final LruCacheList<World> BiosphereWorlds = new LruCacheList<World>(3);
 
-	private static final String IsBiosphereWorldKey = WoopMod.MODID + ".Is Biosphere World";
+	private static final String IsBiosphereWorldKey = NewBiospheresMod.MODID + ".Is Biosphere World";
 
 	public static boolean IsBiosphereWorld(World world)
 	{

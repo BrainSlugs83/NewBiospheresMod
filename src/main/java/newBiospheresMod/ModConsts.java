@@ -1,4 +1,4 @@
-package woop;
+package newBiospheresMod;
 
 public class ModConsts
 {
