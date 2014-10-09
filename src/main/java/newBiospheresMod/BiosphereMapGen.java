@@ -9,6 +9,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.gen.MapGenBase;
 import newBiospheresMod.Helpers.ModConsts;
+import newBiospheresMod.Models.Sphere;
 import newBiospheresMod.Models.SphereChunk;
 
 public class BiosphereMapGen extends MapGenBase
@@ -35,10 +36,15 @@ public class BiosphereMapGen extends MapGenBase
 			float f2, int k, int l, double d3)
 	{
 		SphereChunk chunk = null;
+		Sphere sphere = null;
 
 		if (this.chunkProvider != null)
 		{
 			chunk = this.chunkProvider.GetSphereChunk(chunkX, chunkZ);
+			if (chunk != null)
+			{
+				sphere = chunk.masterSphere;
+			}
 		}
 
 		double ccx = chunkX * 16 + 8;
@@ -108,7 +114,7 @@ public class BiosphereMapGen extends MapGenBase
 				if (d8 * d8 + d9 * d9 - d10 * d10 > d11 * d11) { return; }
 
 				if (d >= ccx - 16.0D - d6 * 2.0D && d2 >= ccz - 16.0D - d6 * 2.0D && d <= ccx + 16.0D + d6 * 2.0D
-						&& d2 <= ccz + 16.0D + d6 * 2.0D)
+					&& d2 <= ccz + 16.0D + d6 * 2.0D)
 				{
 					int k1 = MathHelper.truncateDoubleToInt(d - d6) - chunkX * 16 - 1;
 					int l1 = MathHelper.truncateDoubleToInt(d + d6) - chunkX * 16 + 1;
@@ -162,7 +168,7 @@ public class BiosphereMapGen extends MapGenBase
 								if (j4 >= 0 && j4 < 128)
 								{
 									if (blocks[j3] == Blocks.flowing_water || blocks[j3] == Blocks.water
-											|| blocks[j3] == Blocks.flowing_lava || blocks[j3] == Blocks.lava)
+										|| blocks[j3] == Blocks.flowing_lava || blocks[j3] == Blocks.lava)
 									{
 										flag2 = true;
 									}
@@ -197,24 +203,24 @@ public class BiosphereMapGen extends MapGenBase
 										Block block = blocks[k4];
 
 										if (block == Blocks.stone || block == Blocks.sand || block == Blocks.gravel
-												|| block == Blocks.diamond_ore || block == Blocks.lapis_ore
-												|| block == Blocks.emerald_ore)
+											|| block == Blocks.diamond_ore || block == Blocks.lapis_ore
+											|| block == Blocks.emerald_ore)
 										{
 											if (l4 < ModConsts.LAVA_LEVEL)
 											{
 												if (this.chunkProvider != null)
 												{
-													double d15 = chunk.getMainDistance(
+													double d15 = sphere.getMainDistance(
 														(int)Math.round(ccx + l3 - 8.0D), l4 - 1, (int)Math.round(ccz
-																+ j3 - 8.0D));
+															+ j3 - 8.0D));
 
-													if (d15 >= chunk.scaledSphereRadius
-															&& d15 < (chunk.scaledSphereRadius + 5d))
+													if (d15 >= sphere.scaledSphereRadius
+														&& d15 < (sphere.scaledSphereRadius + 5d))
 
 													{
 														blocks[k4] = Blocks.obsidian;
 													}
-													else if (d15 < chunk.scaledSphereRadius)
+													else if (d15 < sphere.scaledSphereRadius)
 													{
 														blocks[k4] = Blocks.flowing_lava;
 													}
