@@ -2,6 +2,7 @@
 SET ERRORLEVEL=
 VERIFY OTHER 2>nul
 SETLOCAL ENABLEDELAYEDEXPANSION
+IF ERRORLEVEL 1 EXIT /B %ERRORLEVEL%
 
 set /A startedAt=(%time:~0,2% * 3600) + (%time:~3,2% * 60) + (%time:~6,2%)
 
@@ -25,6 +26,19 @@ for /F %%f in ('dir "%outputFolder%*.jar" /b') do (
 
     zip -9 -m "%%f" %zipName%
     if ERRORLEVEL 1 EXIT /B %ERRORLEVEL%
+
+    call include.bat "%%f" "lib\concurrentlinkedhashmap-lru-1.4.jar"
+
+    rd /s /q temp 2>nul 1>nul
+    md temp
+    copy "%%f" temp
+    cd temp
+    unzip "%%~nxf"
+    del "%%~nxf"
+    jar cvf "%%~nxf" *
+    copy /y "%%~nxf" ..
+    cd ..
+    rd /s /q temp
 )
 
 set /A endedAt=(%time:~0,2% * 3600) + (%time:~3,2% * 60) + (%time:~6,2%)

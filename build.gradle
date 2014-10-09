@@ -39,7 +39,11 @@ dependencies {
     // for more info...
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
-
+    
+    compile files {
+        "lib/concurrentlinkedhashmap-lru-1.4.jar"
+    }
+    
 }
 
 processResources
