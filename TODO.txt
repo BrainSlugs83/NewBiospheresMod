@@ -1,3 +1,6 @@
+
+*** SAVE & LOAD THE BIOME WEIGHTED RANDOM SETTINGS ***
+
 transparency of blocks set correctly -- restored correctly
 
 TUBE CONNECTORS!!!

@@ -28,6 +28,7 @@ import net.minecraft.world.gen.feature.WorldGenReed;
 import net.minecraft.world.gen.feature.WorldGenTallGrass;
 import net.minecraft.world.gen.feature.WorldGenerator;
 import newBiospheresMod.Helpers.AvgCalc;
+import newBiospheresMod.Helpers.IKeyProvider;
 import newBiospheresMod.Helpers.LruCacheList;
 import newBiospheresMod.Helpers.ModConsts;
 import newBiospheresMod.Helpers.TopDownBoundingBox;
@@ -46,14 +47,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 
 	public static BiosphereChunkProvider get(final World world)
 	{
-		return chunkProviders.FindOrAdd(new Predicate<BiosphereChunkProvider>()
-		{
-			@Override
-			public boolean test(BiosphereChunkProvider chunkProvider)
-			{
-				return chunkProvider.world == world;
-			}
-		}, new Creator<BiosphereChunkProvider>()
+		return chunkProviders.FindOrAdd(getKey(world), new Creator<BiosphereChunkProvider>()
 		{
 			@Override
 			public BiosphereChunkProvider create()
@@ -83,33 +77,6 @@ public class BiosphereChunkProvider implements IChunkProvider
 	// return world.getWorldInfo().isMapFeaturesEnabled();
 	// }
 
-	// #region SphereChunk Factory
-
-	private final LruCacheList<SphereChunk> chunks = new LruCacheList<SphereChunk>(10);
-
-	public SphereChunk GetSphereChunk(final int chunkX, final int chunkZ)
-	{
-		final BiosphereChunkProvider _this = this;
-
-		return chunks.FindOrAdd(new Predicate<SphereChunk>()
-		{
-			@Override
-			public boolean test(SphereChunk chunk)
-			{
-				return chunk.chunkX == chunkX && chunk.chunkZ == chunkZ;
-			}
-		}, new Creator<SphereChunk>()
-		{
-			@Override
-			public SphereChunk create()
-			{
-				return new SphereChunk(_this, chunkX, chunkZ);
-			}
-		});
-	}
-
-	// #endregion
-
 	private BiosphereChunkProvider(World world)
 	{
 		this.world = world;
@@ -129,7 +96,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 
 	private void GenerateChunk(int chunkX, int chunkZ, Block[] blocks)
 	{
-		SphereChunk chunk = GetSphereChunk(chunkX, chunkZ);
+		SphereChunk chunk = SphereChunk.get(this, chunkX, chunkZ);
 
 		if (chunk != null && chunk.masterSphere != null)
 		{
@@ -390,15 +357,53 @@ public class BiosphereChunkProvider implements IChunkProvider
 		return this.provideChunk(x, z);
 	}
 
-	private static final AvgCalc avg = new AvgCalc();
-	private static long lastPrintedAt = Long.MIN_VALUE;
+	public static int getChunkKey(final BiosphereChunkProvider chunkProvider, final int chunkX, final int chunkZ)
+	{
+		int chunkProviderHash = 0;
+		if (chunkProvider != null)
+		{
+			chunkProviderHash = chunkProvider.hashCode();
+		}
+
+		return ((chunkX & 0xFFFF) | ((chunkZ & 0xFFFF) << 16)) ^ chunkProviderHash ^ 319023957;
+	}
+
+	private int getChunkKey(final int chunkX, final int chunkZ)
+	{
+		return getChunkKey(this, chunkX, chunkZ);
+	}
+
+	LruCacheList<Chunk> ChunkCache = new LruCacheList(15, new IKeyProvider<Chunk>()
+	{
+		@Override
+		public int provideKey(Chunk item)
+		{
+			if (item == null) { return 0; }
+			return getChunkKey(item.xPosition, item.zPosition);
+		}
+	});
 
 	/**
 	 * Will return back a chunk, if it doesn't exist and its not a MP client it will generates all the blocks for the
 	 * specified chunk from the map seed and chunk seed
 	 */
 	@Override
-	public Chunk provideChunk(int x, int z)
+	public Chunk provideChunk(final int x, final int z)
+	{
+		return ChunkCache.FindOrAdd(getChunkKey(x, z), new Creator<Chunk>()
+		{
+			@Override
+			public Chunk create()
+			{
+				return GenerateNewChunk(x, z);
+			}
+		});
+	}
+
+	private static final AvgCalc avg = new AvgCalc();
+	private static long lastPrintedAt = Long.MIN_VALUE;
+
+	private Chunk GenerateNewChunk(int x, int z)
 	{
 		long startedAt = System.currentTimeMillis();
 
@@ -408,6 +413,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 		this.caveGen.func_151539_a(this, this.world, x, z, blocks); // func_151539_a == generate
 
 		Chunk chunk = new Chunk(this.world, blocks, x, z);
+
 		chunk.generateSkylightMap();
 
 		// It's normal to see performance warnings for a few chunks at start-up and maybe every once in a while after
@@ -419,7 +425,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 
 		if (elapsed >= 100)
 		{
-			System.out.printf("WARNING: BIOSPHERE PROVIDE CHUNK @ [%d, %d] TOOK %.3f SECONDS!%n", x, z,
+			System.out.printf("WARNING: BIOSPHERE GENERATE NEW CHUNK @ [%d, %d] TOOK %.3f SECONDS!%n", x, z,
 				(elapsed / 1000d));
 		}
 
@@ -432,7 +438,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 				double av = avg.getAverage();
 				if (av >= .001D)
 				{
-					System.out.printf("PROVIDE CHUNK ON AVERAGE TAKES %.3f SECONDS.%n", av);
+					System.out.printf("INFO: BIOSPHERE GENERATE NEW CHUNK ON AVERAGE TAKES %.3f SECONDS.%n", av);
 				}
 			}
 		}
@@ -455,7 +461,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 	@Override
 	public void populate(IChunkProvider chunkProvider, int chunkX, int chunkZ)
 	{
-		SphereChunk chunk = GetSphereChunk(chunkX, chunkZ);
+		SphereChunk chunk = SphereChunk.get(this, chunkX, chunkZ);
 		Sphere sphere = chunk.masterSphere;
 		Random rnd = chunk.GetPhaseRandom("populate");
 
@@ -756,5 +762,17 @@ public class BiosphereChunkProvider implements IChunkProvider
 	{
 
 		return null;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return getKey(this.world);
+	}
+
+	public static int getKey(final World world)
+	{
+		int hash = (world == null) ? 0 : world.hashCode();
+		return hash ^ 1753489021;
 	}
 }

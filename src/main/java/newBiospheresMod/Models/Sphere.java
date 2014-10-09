@@ -17,10 +17,46 @@ import newBiospheresMod.Helpers.TopDownBoundingBox;
 import newBiospheresMod.Helpers.Utils;
 import akka.japi.Creator;
 import akka.japi.Function2;
-import akka.japi.Predicate;
 
 public class Sphere
 {
+	private static LruCacheList<Sphere> sphereCache = new LruCacheList<Sphere>(12);
+
+	public static int getKey(final BiosphereChunkProvider chunkProvider, int centerChunkX, int centerChunkZ)
+	{
+		int scaledGridSize = 9;
+		int chunkProviderHash = 0;
+
+		if (chunkProvider != null)
+		{
+			if (chunkProvider.config != null)
+			{
+				scaledGridSize = chunkProvider.config.getScaledGridSize();
+			}
+
+			chunkProviderHash = chunkProvider.hashCode();
+		}
+
+		centerChunkX /= scaledGridSize;
+		centerChunkZ /= scaledGridSize;
+
+		return ((centerChunkX & 0xFFFF) | ((centerChunkZ & 0xFFFF) << 16)) ^ chunkProviderHash ^ 438129048;
+	}
+
+	public static Sphere get(final BiosphereChunkProvider chunkProvider, final int chunkX, final int chunkZ)
+	{
+		int key = getKey(chunkProvider, chunkX, chunkZ);
+
+		return sphereCache.FindOrAdd(key, new Creator<Sphere>()
+		{
+			@Override
+			public Sphere create()
+			{
+				return new Sphere(chunkProvider, chunkX, chunkZ);
+			}
+		});
+	}
+
 	// #region Fields
 
 	private final int centerChunkX, centerChunkZ;
@@ -53,34 +89,6 @@ public class Sphere
 	private List<TopDownBoundingBox> boundingBoxes = null;
 
 	// #endregion
-
-	private static LruCacheList<Sphere> sphereCache = new LruCacheList<Sphere>(12);
-
-	public static Sphere get(final BiosphereChunkProvider chunkProvider, final int chunkX, final int chunkZ)
-	{
-		return sphereCache.FindOrAdd(new Predicate<Sphere>()
-		{
-			@Override
-			public boolean test(Sphere sphere)
-			{
-				if (sphere != null)
-				{
-					ChunkCoordinates coords = GetSphereCenter(chunkX, chunkZ, chunkProvider.config);
-					return sphere.sphereLocation.posX == coords.posX && sphere.sphereLocation.posZ == coords.posZ
-						&& sphere.chunkProvider == chunkProvider;
-				}
-
-				return false;
-			}
-		}, new Creator<Sphere>()
-		{
-			@Override
-			public Sphere create()
-			{
-				return new Sphere(chunkProvider, chunkX, chunkZ);
-			}
-		});
-	}
 
 	private Sphere(BiosphereChunkProvider chunkProvider, int chunkX, int chunkZ)
 	{
@@ -318,6 +326,12 @@ public class Sphere
 
 		rnd.setSeed(_seed);
 		return rnd;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return getKey(chunkProvider, centerChunkX, centerChunkZ);
 	}
 
 	// #endregion

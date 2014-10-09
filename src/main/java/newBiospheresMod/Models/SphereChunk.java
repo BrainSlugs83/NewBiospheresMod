@@ -3,12 +3,30 @@ package newBiospheresMod.Models;
 import java.util.Random;
 
 import newBiospheresMod.BiosphereChunkProvider;
+import newBiospheresMod.Helpers.LruCacheList;
 import newBiospheresMod.Helpers.ModConsts;
+import akka.japi.Creator;
 
 public class SphereChunk
 {
-	// TODO: SPLIT THIS INTO A SECOND GRID CHUNK CLASS, SO THAT WE DON'T HAVE TO REDO ALL THE WORK / STORE EVERYTHING
-	// MULTIPLE TIMES FOR EACH CHUNK IN THE GRID
+	private static LruCacheList<SphereChunk> sphereChunkCache = new LruCacheList<SphereChunk>(15);
+
+	public static SphereChunk get(final BiosphereChunkProvider chunkProvider, final int chunkX, final int chunkZ)
+	{
+		return sphereChunkCache.FindOrAdd(getKey(chunkProvider, chunkX, chunkZ), new Creator<SphereChunk>()
+		{
+			@Override
+			public SphereChunk create()
+			{
+				return new SphereChunk(chunkProvider, chunkX, chunkZ);
+			}
+		});
+	}
+
+	public static int getKey(final BiosphereChunkProvider chunkProvider, int chunkX, int chunkZ)
+	{
+		return BiosphereChunkProvider.getChunkKey(chunkProvider, chunkX, chunkZ) ^ 1890321837;
+	}
 
 	public final int chunkX, chunkZ;
 
@@ -42,5 +60,11 @@ public class SphereChunk
 	{
 		if (this.noise != null) { return noise.getChunkBoundSurfaceLevel(boundX, boundZ); }
 		return ModConsts.SEA_LEVEL;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return getKey(chunkProvider, chunkX, chunkZ);
 	}
 }

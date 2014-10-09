@@ -107,7 +107,7 @@ public class BiosphereWorldProvider extends WorldProviderSurface
 		return true;
 	}
 
-	private static final double searchGridSize = 4;
+	private static final double searchGridSize = 3.5d;
 	private static final double searchGridAngles = 12;
 	private static final double toRadians = Math.PI / (searchGridAngles / 2);
 
@@ -140,9 +140,9 @@ public class BiosphereWorldProvider extends WorldProviderSurface
 				{
 					coords.posX = orgCoords.posX;
 					coords.posZ = orgCoords.posZ;
-					System.out.println("WARNING FAILED TO FIND A VALID SPAWN LOCATION!");
+					System.out.println("WARNING: BIOSPHERE FIX SPAWN LOCATION FAILED!!");
 
-					return;
+					break;
 				}
 
 				double x = Math.cos(angle * toRadians) * (power * searchGridSize);
@@ -158,7 +158,7 @@ public class BiosphereWorldProvider extends WorldProviderSurface
 
 			if (elapsed >= 100)
 			{
-				System.out.printf("BIOSPHERE FIX SPAWN LOCATION TOOK %.3f SECONDS!%n", (elapsed / 1000d));
+				System.out.printf("WARNING: BIOSPHERE FIX SPAWN LOCATION TOOK %.3f SECONDS!%n", (elapsed / 1000d));
 			}
 
 			if (lastPrintedAt == Long.MIN_VALUE || (now - lastPrintedAt) > 2500)
@@ -170,7 +170,7 @@ public class BiosphereWorldProvider extends WorldProviderSurface
 					double av = avg.getAverage();
 					if (av >= .001D)
 					{
-						System.out.printf("BIOSPHERE FIX SPAWN LOCATION ON AVERAGE TAKES %.3f SECONDS.%n", av);
+						System.out.printf("INFO: BIOSPHERE FIX SPAWN LOCATION ON AVERAGE TAKES %.3f SECONDS.%n", av);
 					}
 				}
 			}

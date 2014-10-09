@@ -6,7 +6,6 @@ import newBiospheresMod.Helpers.LruCacheList;
 import newBiospheresMod.Helpers.ModConsts;
 import newBiospheresMod.Helpers.Utils;
 import akka.japi.Creator;
-import akka.japi.Predicate;
 
 public class NoiseChunk
 {
@@ -15,14 +14,9 @@ public class NoiseChunk
 	public static NoiseChunk get(final World world, final int chunkX, final int chunkZ,
 			final NoiseGeneratorOctaves noiseGen, final double scale)
 	{
-		return noiseChunks.FindOrAdd(new Predicate<NoiseChunk>()
-		{
-			@Override
-			public boolean test(NoiseChunk chunk)
-			{
-				return chunk.world == world && chunk.chunkX == chunkX && chunk.chunkZ == chunkZ;
-			}
-		}, new Creator<NoiseChunk>()
+		int key = getKey(world, chunkX, chunkZ);
+
+		return noiseChunks.FindOrAdd(key, new Creator<NoiseChunk>()
 		{
 			@Override
 			public NoiseChunk create()
@@ -30,6 +24,17 @@ public class NoiseChunk
 				return new NoiseChunk(world, chunkX, chunkZ, noiseGen, scale);
 			}
 		});
+	}
+
+	public static int getKey(final World world, final int chunkX, final int chunkZ)
+	{
+		int worldHash = 0;
+		if (world != null)
+		{
+			worldHash = world.hashCode();
+		}
+
+		return ((chunkX & 0xFFFF) | ((chunkZ & 0xFFFF) << 16)) ^ worldHash ^ 949032852;
 	}
 
 	public final int chunkX;
@@ -100,4 +105,9 @@ public class NoiseChunk
 		return get(world, chunkX, chunkZ, noiseGenerator, scale);
 	}
 
+	@Override
+	public int hashCode()
+	{
+		return getKey(this.world, this.chunkX, this.chunkZ);
+	}
 }

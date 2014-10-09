@@ -515,14 +515,7 @@ public class ModConfig
 
 	public static ModConfig get(final World world)
 	{
-		ModConfig returnValue = modConfigs.FindOrAdd(new Predicate<ModConfig>()
-		{
-			@Override
-			public boolean test(ModConfig config)
-			{
-				return config != null && config.World == world;
-			}
-		}, new Creator<ModConfig>()
+		return modConfigs.FindOrAdd(getKey(world), new Creator<ModConfig>()
 		{
 			@Override
 			public ModConfig create()
@@ -530,8 +523,17 @@ public class ModConfig
 				return new ModConfig(world);
 			}
 		});
+	}
 
-		return returnValue;
+	public static int getKey(World world)
+	{
+		int worldHash = 0;
+		if (world != null)
+		{
+			worldHash = world.hashCode();
+		}
+
+		return worldHash ^ 813938752;
 	}
 
 	private ModConfig(World world)
@@ -758,146 +760,9 @@ public class ModConfig
 		}
 	}
 
-	// #region Reading and Writing from Config File
-
-	// public Block ReadBlock(String propertyName, Block fallbackValue)
-	// {
-	// return Utils.ParseBlock(cfgFile.get(Configuration.CATEGORY_GENERAL, propertyName,
-	// Utils.GetNameOrIdForBlock(fallbackValue)),
-	// );
-	// }
-	//
-	// public void setProperty(String propertyName, Block value)
-	// {
-	// this.setProperty(propertyName, Utils.GetNameOrIdForBlock(value));
-	// }
-	//
-	// public int getProperty(String propertyName, int fallbackValue)
-	// {
-	// try
-	// {
-	// return Integer.parseInt(this.getProperty(propertyName, Integer.toString(fallbackValue)));
-	// }
-	// catch (Throwable ignore)
-	// {
-	// return fallbackValue;
-	// }
-	// }
-	//
-	// public void setProperty(String propertyName, int value)
-	// {
-	// setProperty(propertyName, Integer.toString(value));
-	// }
-	//
-	// public float getProperty(String propertyName, float fallbackValue)
-	// {
-	// try
-	// {
-	// return Float.parseFloat(this.getProperty(propertyName, Float.toString(fallbackValue)));
-	// }
-	// catch (Throwable ignore)
-	// {
-	// return fallbackValue;
-	// }
-	// }
-	//
-	// public void setProperty(String propertyName, float value)
-	// {
-	// setProperty(propertyName, Float.toString(value));
-	// }
-	//
-	// public double getProperty(String propertyName, double fallbackValue)
-	// {
-	// try
-	// {
-	// return Double.parseDouble(this.getProperty(propertyName, Double.toString(fallbackValue)));
-	// }
-	// catch (Throwable ignore)
-	// {
-	// return fallbackValue;
-	// }
-	// }
-	//
-	// public void setProperty(String propertyName, double value)
-	// {
-	// setProperty(propertyName, Double.toString(value));
-	// }
-	//
-	// public boolean getProperty(String propertyName, boolean fallbackValue)
-	// {
-	// try
-	// {
-	// return Boolean.parseBoolean(this.getProperty(propertyName, Boolean.toString(fallbackValue)));
-	// }
-	// catch (Throwable ignore)
-	// {
-	// return fallbackValue;
-	// }
-	// }
-	//
-	// public void setProperty(String propertyName, boolean value)
-	// {
-	// setProperty(propertyName, Boolean.toString(value));
-	// }
-	//
-	// public <T extends Enum<T>> T getEnumProperty(Class<T> _class, String propertyName, T fallbackValue)
-	// {
-	// try
-	// {
-	// return Utils.ParseEnum(_class, getProperty(propertyName), fallbackValue);
-	// }
-	// catch (Throwable ignore)
-	// {
-	// return fallbackValue;
-	// }
-	// }
-	//
-	// public <T extends Enum<T>> void setEnumProperty(String propertyName, T value)
-	// {
-	// setProperty(propertyName, value == null ? "" : value.toString());
-	// }
-	//
-	// public List<Double> getDoubles(String propertyName, Double... fallbackValues)
-	// {
-	// List<Double> doubles = Utils.ConvertStringToDoubles(getProperty(propertyName,
-	// Utils.ConvertDoublesToString(fallbackValues)));
-	//
-	// if (doubles == null)
-	// {
-	// doubles = new ArrayList<Double>();
-	// }
-	//
-	// if (doubles.size() == 0)
-	// {
-	// for (Double value: fallbackValues)
-	// {
-	// doubles.add(value);
-	// }
-	// }
-	// else if (doubles.size() == 1)
-	// {
-	// Double firstValue = doubles.get(0);
-	//
-	// while (doubles.size() < fallbackValues.length)
-	// {
-	// doubles.add(firstValue);
-	// }
-	// }
-	// else
-	// {
-	// while (doubles.size() < fallbackValues.length)
-	// {
-	// doubles.add(fallbackValues[doubles.size()]);
-	// }
-	// }
-	//
-	// return doubles;
-	// }
-	//
-	// public void setDoubles(String propertyName, Double... values)
-	// {
-	// setProperty(propertyName, Utils.ConvertDoublesToString(values));
-	// }
-
-	// #endregion
+	@Override
+	public int hashCode()
+	{
+		return getKey(this.World);
+	}
 }

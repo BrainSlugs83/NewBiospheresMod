@@ -213,5 +213,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry exported="true" kind="lib" path="D:/Google Drive/Computers/Stompy/.gradle/caches/minecraft/net/minecraftforge/forge/1.7.10-10.13.1.1217/start"/>
+	<classpathentry kind="lib" path="lib/concurrentlinkedhashmap-lru-1.4.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -40,7 +40,7 @@ public class BiosphereMapGen extends MapGenBase
 
 		if (this.chunkProvider != null)
 		{
-			chunk = this.chunkProvider.GetSphereChunk(chunkX, chunkZ);
+			chunk = SphereChunk.get(chunkProvider, chunkX, chunkZ);
 			if (chunk != null)
 			{
 				sphere = chunk.masterSphere;
