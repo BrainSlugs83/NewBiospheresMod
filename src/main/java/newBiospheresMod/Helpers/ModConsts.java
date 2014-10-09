@@ -1,7 +1,10 @@
-package newBiospheresMod;
+package newBiospheresMod.Helpers;
 
 public class ModConsts
 {
+	public static final String ModId = "New Biospheres Mod";
+	public static final String ModVersion = "0.7";
+
 	public static final int WORLD_HEIGHT = 128;
 
 	public static final int WORLD_MAX_Y = WORLD_HEIGHT - 1;

@@ -8,6 +8,8 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.gen.MapGenBase;
+import newBiospheresMod.Helpers.ModConsts;
+import newBiospheresMod.Models.SphereChunk;
 
 public class BiosphereMapGen extends MapGenBase
 {

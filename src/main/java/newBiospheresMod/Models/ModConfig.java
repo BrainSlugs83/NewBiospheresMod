@@ -1,4 +1,4 @@
-package newBiospheresMod;
+package newBiospheresMod.Models;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,6 +11,11 @@ import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
+import newBiospheresMod.BiomeEntry;
+import newBiospheresMod.BiosphereWorldType;
+import newBiospheresMod.Helpers.LruCacheList;
+import newBiospheresMod.Helpers.ModConsts;
+import newBiospheresMod.Helpers.Utils;
 import akka.japi.Creator;
 import akka.japi.Predicate;
 
@@ -31,9 +36,9 @@ public class ModConfig
 		{
 			cfgFile.setCategoryComment(
 				Configuration.CATEGORY_GENERAL,
-				NewBiospheresMod.MODID
+				ModConsts.ModId
 					+ " "
-					+ NewBiospheresMod.VERSION
+					+ ModConsts.ModVersion
 					+ ": Note, these settings only affect new Worlds; previously created Worlds will persist with their existing settings.");
 		}
 	}
@@ -573,79 +578,79 @@ public class ModConfig
 		GameRules rules = Utils.GetGameRules(this.World);
 		if (rules != null)
 		{
-			String ruleName = NewBiospheresMod.MODID + "." + getNoiseEnabledProperty().getName();
+			String ruleName = ModConsts.ModId + "." + getNoiseEnabledProperty().getName();
 			if (rules.hasRule(ruleName))
 			{
 				setNoiseEnabled(rules.getGameRuleBooleanValue(ruleName));
 			}
 
-			ruleName = NewBiospheresMod.MODID + "." + getScaleProperty().getName();
+			ruleName = ModConsts.ModId + "." + getScaleProperty().getName();
 			if (rules.hasRule(ruleName))
 			{
 				setScale(Float.parseFloat(rules.getGameRuleStringValue(ruleName)));
 			}
 
-			ruleName = NewBiospheresMod.MODID + "." + getDomeBlockProperty().getName();
+			ruleName = ModConsts.ModId + "." + getDomeBlockProperty().getName();
 			if (rules.hasRule(ruleName))
 			{
 				setDomeBlock(Utils.ParseBlock(rules.getGameRuleStringValue(ruleName)));
 			}
 
-			ruleName = NewBiospheresMod.MODID + "." + getBridgeSupportBlockProperty().getName();
+			ruleName = ModConsts.ModId + "." + getBridgeSupportBlockProperty().getName();
 			if (rules.hasRule(ruleName))
 			{
 				setBridgeSupportBlock(Utils.ParseBlock(rules.getGameRuleStringValue(ruleName)));
 			}
 
-			ruleName = NewBiospheresMod.MODID + "." + getOutsideFillerBlockProperty().getName();
+			ruleName = ModConsts.ModId + "." + getOutsideFillerBlockProperty().getName();
 			if (rules.hasRule(ruleName))
 			{
 				setOutsideFillerBlock(Utils.ParseBlock(rules.getGameRuleStringValue(ruleName)));
 			}
 
-			ruleName = NewBiospheresMod.MODID + "." + getTallGrassEnabledProperty().getName();
+			ruleName = ModConsts.ModId + "." + getTallGrassEnabledProperty().getName();
 			if (rules.hasRule(ruleName))
 			{
 				setTallGrassEnabled(rules.getGameRuleBooleanValue(ruleName));
 			}
 
-			ruleName = NewBiospheresMod.MODID + "." + getGridSizeProperty().getName();
+			ruleName = ModConsts.ModId + "." + getGridSizeProperty().getName();
 			if (rules.hasRule(ruleName))
 			{
 				setGridSize(Integer.parseInt(rules.getGameRuleStringValue(ruleName)));
 			}
 
-			ruleName = NewBiospheresMod.MODID + "." + getBridgeWidthProperty().getName();
+			ruleName = ModConsts.ModId + "." + getBridgeWidthProperty().getName();
 			if (rules.hasRule(ruleName))
 			{
 				setBridgeWidth(Integer.parseInt(rules.getGameRuleStringValue(ruleName)));
 			}
 
-			ruleName = NewBiospheresMod.MODID + "." + getMinSphereRadiusProperty().getName();
+			ruleName = ModConsts.ModId + "." + getMinSphereRadiusProperty().getName();
 			if (rules.hasRule(ruleName))
 			{
 				setMinSphereRadius(Double.parseDouble(rules.getGameRuleStringValue(ruleName)));
 			}
 
-			ruleName = NewBiospheresMod.MODID + "." + getMaxSphereRadiusProperty().getName();
+			ruleName = ModConsts.ModId + "." + getMaxSphereRadiusProperty().getName();
 			if (rules.hasRule(ruleName))
 			{
 				setMaxSphereRadius(Double.parseDouble(rules.getGameRuleStringValue(ruleName)));
 			}
 
-			ruleName = NewBiospheresMod.MODID + "." + getOrbRadiusProperty().getName();
+			ruleName = ModConsts.ModId + "." + getOrbRadiusProperty().getName();
 			if (rules.hasRule(ruleName))
 			{
 				setOrbRadius(Double.parseDouble(rules.getGameRuleStringValue(ruleName)));
 			}
 
-			ruleName = NewBiospheresMod.MODID + "." + getMinLakeRatioProperty().getName();
+			ruleName = ModConsts.ModId + "." + getMinLakeRatioProperty().getName();
 			if (rules.hasRule(ruleName))
 			{
 				setMinLakeRatio(Double.parseDouble(rules.getGameRuleStringValue(ruleName)));
 			}
 
-			ruleName = NewBiospheresMod.MODID + "." + getMaxLakeRatioProperty().getName();
+			ruleName = ModConsts.ModId + "." + getMaxLakeRatioProperty().getName();
 			if (rules.hasRule(ruleName))
 			{
 				setMaxLakeRatio(Double.parseDouble(rules.getGameRuleStringValue(ruleName)));
@@ -660,43 +665,43 @@ public class ModConfig
 		GameRules rules = Utils.GetGameRules(this.World);
 		if (rules != null)
 		{
-			String ruleName = NewBiospheresMod.MODID + "." + getNoiseEnabledProperty().getName();
+			String ruleName = ModConsts.ModId + "." + getNoiseEnabledProperty().getName();
 			rules.setOrCreateGameRule(ruleName, Boolean.toString(isNoiseEnabled()));
 
-			ruleName = NewBiospheresMod.MODID + "." + getScaleProperty().getName();
+			ruleName = ModConsts.ModId + "." + getScaleProperty().getName();
 			rules.setOrCreateGameRule(ruleName, Float.toString(getScale()));
 
-			ruleName = NewBiospheresMod.MODID + "." + getDomeBlockProperty().getName();
+			ruleName = ModConsts.ModId + "." + getDomeBlockProperty().getName();
 			rules.setOrCreateGameRule(ruleName, Utils.GetName(getDomeBlock()));
 
-			ruleName = NewBiospheresMod.MODID + "." + getBridgeSupportBlockProperty().getName();
+			ruleName = ModConsts.ModId + "." + getBridgeSupportBlockProperty().getName();
 			rules.setOrCreateGameRule(ruleName, Utils.GetName(getBridgeSupportBlock()));
 
-			ruleName = NewBiospheresMod.MODID + "." + getOutsideFillerBlockProperty().getName();
+			ruleName = ModConsts.ModId + "." + getOutsideFillerBlockProperty().getName();
 			rules.setOrCreateGameRule(ruleName, Utils.GetName(getOutsideFillerBlock()));
 
-			ruleName = NewBiospheresMod.MODID + "." + getTallGrassEnabledProperty().getName();
+			ruleName = ModConsts.ModId + "." + getTallGrassEnabledProperty().getName();
 			rules.setOrCreateGameRule(ruleName, Boolean.toString(isTallGrassEnabled()));
 
-			ruleName = NewBiospheresMod.MODID + "." + getGridSizeProperty().getName();
+			ruleName = ModConsts.ModId + "." + getGridSizeProperty().getName();
 			rules.setOrCreateGameRule(ruleName, Integer.toString(getGridSize()));
 
-			ruleName = NewBiospheresMod.MODID + "." + getBridgeWidthProperty().getName();
+			ruleName = ModConsts.ModId + "." + getBridgeWidthProperty().getName();
 			rules.setOrCreateGameRule(ruleName, Integer.toString(getBridgeWidth()));
 
-			ruleName = NewBiospheresMod.MODID + "." + getMinSphereRadiusProperty().getName();
+			ruleName = ModConsts.ModId + "." + getMinSphereRadiusProperty().getName();
 			rules.setOrCreateGameRule(ruleName, Double.toString(getMinSphereRadius()));
 
-			ruleName = NewBiospheresMod.MODID + "." + getMaxSphereRadiusProperty().getName();
+			ruleName = ModConsts.ModId + "." + getMaxSphereRadiusProperty().getName();
 			rules.setOrCreateGameRule(ruleName, Double.toString(getMaxSphereRadius()));
 
-			ruleName = NewBiospheresMod.MODID + "." + getOrbRadiusProperty().getName();
+			ruleName = ModConsts.ModId + "." + getOrbRadiusProperty().getName();
 			rules.setOrCreateGameRule(ruleName, Double.toString(getOrbRadius()));
 
-			ruleName = NewBiospheresMod.MODID + "." + getMinLakeRatioProperty().getName();
+			ruleName = ModConsts.ModId + "." + getMinLakeRatioProperty().getName();
 			rules.setOrCreateGameRule(ruleName, Double.toString(getMinLakeRatio()));
 
-			ruleName = NewBiospheresMod.MODID + "." + getMaxLakeRatioProperty().getName();
+			ruleName = ModConsts.ModId + "." + getMaxLakeRatioProperty().getName();
 			rules.setOrCreateGameRule(ruleName, Double.toString(getMaxLakeRatio()));
 		}
 	}

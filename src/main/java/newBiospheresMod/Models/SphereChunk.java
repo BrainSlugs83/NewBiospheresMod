@@ -1,4 +1,4 @@
-package newBiospheresMod;
+package newBiospheresMod.Models;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,6 +10,10 @@ import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.world.biome.BiomeGenBase;
+import newBiospheresMod.BiosphereChunkProvider;
+import newBiospheresMod.Helpers.ModConsts;
+import newBiospheresMod.Helpers.TopDownBoundingBox;
+import newBiospheresMod.Helpers.Utils;
 import akka.japi.Function2;
 
 public class SphereChunk

@@ -3,6 +3,8 @@ package newBiospheresMod;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraftforge.common.config.ConfigElement;
 import net.minecraftforge.common.config.Configuration;
+import newBiospheresMod.Helpers.ModConsts;
+import newBiospheresMod.Models.ModConfig;
 import cpw.mods.fml.client.config.GuiConfig;
 
 public class ModConfigGui extends GuiConfig
@@ -12,6 +14,6 @@ public class ModConfigGui extends GuiConfig
 		super(
 			parent,
 			new ConfigElement(ModConfig.getConfigFile().getCategory(Configuration.CATEGORY_GENERAL)).getChildElements(),
-			NewBiospheresMod.MODID, false, false, GuiConfig.getAbridgedConfigPath(ModConfig.getConfigFile().toString()));
+			ModConsts.ModId, false, false, GuiConfig.getAbridgedConfigPath(ModConfig.getConfigFile().toString()));
 	}
 }

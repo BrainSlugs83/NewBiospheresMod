@@ -1,4 +1,4 @@
-package newBiospheresMod;
+package newBiospheresMod.Helpers;
 
 public class AvgCalc
 {

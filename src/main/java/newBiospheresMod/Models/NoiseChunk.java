@@ -1,7 +1,10 @@
-package newBiospheresMod;
+package newBiospheresMod.Models;
 
 import net.minecraft.world.World;
 import net.minecraft.world.gen.NoiseGeneratorOctaves;
+import newBiospheresMod.Helpers.LruCacheList;
+import newBiospheresMod.Helpers.ModConsts;
+import newBiospheresMod.Helpers.Utils;
 import akka.japi.Creator;
 import akka.japi.Predicate;
 

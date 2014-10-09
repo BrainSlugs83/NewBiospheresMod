@@ -3,6 +3,8 @@ package newBiospheresMod;
 import net.minecraft.world.WorldType;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.config.Configuration;
+import newBiospheresMod.Helpers.ModConsts;
+import newBiospheresMod.Models.ModConfig;
 import cpw.mods.fml.client.event.ConfigChangedEvent;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
@@ -12,27 +14,25 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 
-@Mod(modid = NewBiospheresMod.MODID, version = NewBiospheresMod.VERSION, guiFactory = "newBiospheresMod.ModConfigGuiFactory")
+@Mod(modid = ModConsts.ModId, version = ModConsts.ModVersion, guiFactory = "newBiospheresMod.ModConfigGuiFactory")
 public class NewBiospheresMod
 {
-	public static final String MODID = "New Biospheres Mod";
-	public static final String VERSION = "0.9";
-
-	public static WorldType Biosphere;
-	public static Events Events;
+	public static WorldType biosphereWorldType;
 
 	@EventHandler
 	public void PreInit(FMLPreInitializationEvent event)
 	{
-		ModConfig.setConfigFile(new Configuration(event.getSuggestedConfigurationFile(), NewBiospheresMod.VERSION));
+		ModConfig.setConfigFile(new Configuration(event.getSuggestedConfigurationFile(), ModConsts.ModVersion));
 		ModConfig.updateFile();
 	}
 
 	@EventHandler
 	public void Init(FMLInitializationEvent event)
 	{
+		// TODO: Update this to use the new resource localization crap
 		LanguageRegistry.instance().addStringLocalization("generator.biosphere", "Biospheres");
-		Biosphere = new BiosphereWorldType("biosphere");
+
+		biosphereWorldType = new BiosphereWorldType("biosphere");
 
 		DimensionManager.unregisterProviderType(0);
 		DimensionManager.registerProviderType(0, BiosphereWorldProvider.class, true);
@@ -43,7 +43,7 @@ public class NewBiospheresMod
 	@SubscribeEvent
 	public void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent eventArgs)
 	{
-		if (eventArgs.modID.equalsIgnoreCase(NewBiospheresMod.MODID))
+		if (eventArgs.modID.equalsIgnoreCase(ModConsts.ModId))
 		{
 			ModConfig.updateFile();
 		}

@@ -5,6 +5,10 @@ import net.minecraft.init.Blocks;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldProviderSurface;
+import newBiospheresMod.Helpers.AvgCalc;
+import newBiospheresMod.Helpers.ModConsts;
+import newBiospheresMod.Helpers.Utils;
+import newBiospheresMod.Models.ModConfig;
 
 public class BiosphereWorldProvider extends WorldProviderSurface
 {

@@ -9,6 +9,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldType;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.biome.WorldChunkManager;
+import newBiospheresMod.Models.ModConfig;
 
 public class BiosphereChunkManager extends WorldChunkManager
 {
@@ -25,12 +26,12 @@ public class BiosphereChunkManager extends WorldChunkManager
 
 	public BiosphereChunkManager()
 	{
-		this(getNewSeed(), NewBiospheresMod.Biosphere);
+		this(getNewSeed(), NewBiospheresMod.biosphereWorldType);
 	}
 
 	public BiosphereChunkManager(World world)
 	{
-		this(world, world.getSeed(), NewBiospheresMod.Biosphere);
+		this(world, world.getSeed(), NewBiospheresMod.biosphereWorldType);
 	}
 
 	public BiosphereChunkManager(long worldSeed, WorldType worldType)

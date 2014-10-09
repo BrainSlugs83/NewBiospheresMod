@@ -27,6 +27,13 @@ import net.minecraft.world.gen.feature.WorldGenPumpkin;
 import net.minecraft.world.gen.feature.WorldGenReed;
 import net.minecraft.world.gen.feature.WorldGenTallGrass;
 import net.minecraft.world.gen.feature.WorldGenerator;
+import newBiospheresMod.Helpers.AvgCalc;
+import newBiospheresMod.Helpers.LruCacheList;
+import newBiospheresMod.Helpers.ModConsts;
+import newBiospheresMod.Helpers.TopDownBoundingBox;
+import newBiospheresMod.Helpers.Utils;
+import newBiospheresMod.Models.ModConfig;
+import newBiospheresMod.Models.SphereChunk;
 import akka.japi.Creator;
 import akka.japi.Predicate;
 
