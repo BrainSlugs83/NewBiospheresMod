@@ -8,7 +8,6 @@ import java.util.Random;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.ChunkCoordinates;
@@ -108,26 +107,27 @@ public class Utils
 
 		if (e instanceof EntityPlayer) { return true; }
 
-		if (e instanceof EntityLivingBase)
-		{
-			Class c = e.getClass();
-
-			while (c != null)
-			{
-				try
-				{
-					java.lang.reflect.Method m = c.getDeclaredMethod("isPlayer");
-					m.setAccessible(true);
-
-					boolean result = ((Boolean)m.invoke(e)).booleanValue();
-					return result;
-				}
-				catch (Throwable ignore)
-				{
-					c = c.getSuperclass();
-				}
-			}
-		}
+		// NOTE: This works, but I'm guessing it won't work on the obfuscated code, so, whatever.
+		// if (e instanceof EntityLivingBase)
+		// {
+		// Class c = e.getClass();
+		//
+		// while (c != null)
+		// {
+		// try
+		// {
+		// java.lang.reflect.Method m = c.getDeclaredMethod("isPlayer");
+		// m.setAccessible(true);
+		//
+		// boolean result = ((Boolean)m.invoke(e)).booleanValue();
+		// return result;
+		// }
+		// catch (Throwable ignore)
+		// {
+		// c = c.getSuperclass();
+		// }
+		// }
+		// }
 
 		return false;
 	}
@@ -545,17 +545,6 @@ public class Utils
 	{
 		return Math.sqrt((y2 - y1) * (y2 - y1) + (x2 - x1) * (x2 - x1) + (z2 - z1) * (z2 - z1));
 	}
-
-	// public static double FastSqrt(double d)
-	// {
-	// // https://stackoverflow.com/questions/13263948/fast-sqrt-in-java-at-the-expense-of-accuracy
-	// return Double.longBitsToDouble(((Double.doubleToLongBits(d) - (1l << 52)) >> 1) + (1l << 61));
-	// }
-
-	// public static boolean OnEdgeOfCurve(int curveRadiusSquared, int curveRadiusMinusOneSquared, int distanceSquared)
-	// {
-	// return distanceSquared >= curveRadiusMinusOneSquared && distanceSquared < curveRadiusSquared;
-	// }
 
 	// #endregion
 }

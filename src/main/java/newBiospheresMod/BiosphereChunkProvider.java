@@ -377,8 +377,8 @@ public class BiosphereChunkProvider implements IChunkProvider
 		return this.provideChunk(x, z);
 	}
 
-	AvgCalc avg = new AvgCalc();
-	long lastPrintedAt = Long.MIN_VALUE;
+	private static final AvgCalc avg = new AvgCalc();
+	private static long lastPrintedAt = Long.MIN_VALUE;
 
 	/**
 	 * Will return back a chunk, if it doesn't exist and its not a MP client it will generates all the blocks for the
@@ -397,24 +397,29 @@ public class BiosphereChunkProvider implements IChunkProvider
 		Chunk chunk = new Chunk(this.world, blocks, x, z);
 		chunk.generateSkylightMap();
 
-		if (ModConsts.DEBUG)
+		// It's normal to see performance warnings for a few chunks at start-up and maybe every once in a while after
+		// that, but the average should drop down to less than a millisecond within a minute or so.
+
+		long now = System.currentTimeMillis();
+		long elapsed = now - startedAt;
+		avg.addValue(elapsed / 1000d);
+
+		if (elapsed >= 100)
 		{
-			long now = System.currentTimeMillis();
-			long elapsed = now - startedAt;
-			avg.addValue(elapsed / 1000d);
+			System.out.printf("WARNING: BIOSPHERE PROVIDE CHUNK @ [%d, %d] TOOK %.3f SECONDS!%n", x, z,
+				(elapsed / 1000d));
+		}
 
-			if (elapsed >= 100)
+		if (lastPrintedAt == Long.MIN_VALUE || (now - lastPrintedAt) > 2500)
+		{
+			lastPrintedAt = now;
+
+			if (avg.getCount() >= 5)
 			{
-				System.out.printf("BIOSPHERE PROVIDE CHUNK TOOK %.3f SECONDS!%n", (elapsed / 1000d));
-			}
-
-			if (lastPrintedAt == Long.MIN_VALUE || (now - lastPrintedAt) > 2500)
-			{
-				lastPrintedAt = now;
-
-				if (avg.getCount() >= 5)
+				double av = avg.getAverage();
+				if (av >= .001D)
 				{
-					System.out.printf("PROVIDE CHUNK ON AVERAGE TAKES %.3f SECONDS.%n", avg.getAverage());
+					System.out.printf("PROVIDE CHUNK ON AVERAGE TAKES %.3f SECONDS.%n", av);
 				}
 			}
 		}

@@ -107,9 +107,14 @@ public class BiosphereWorldProvider extends WorldProviderSurface
 	private static final double searchGridAngles = 12;
 	private static final double toRadians = Math.PI / (searchGridAngles / 2);
 
+	private static final AvgCalc avg = new AvgCalc();
+	private static long lastPrintedAt = Long.MIN_VALUE;
+
 	public void FixSpawnLocation(ChunkCoordinates coords)
 	{
-		if (SpawnedOnTopOfDome(coords))
+		long startedAt = System.currentTimeMillis();
+
+		if (BiosphereWorldType.IsBiosphereWorld(super.worldObj))
 		{
 			ChunkCoordinates orgCoords = Utils.GetCoords(coords);
 
@@ -141,6 +146,29 @@ public class BiosphereWorldProvider extends WorldProviderSurface
 
 				coords.posX = orgCoords.posX + (int)Math.round(x);
 				coords.posZ = orgCoords.posZ + (int)Math.round(z);
+			}
+
+			long now = System.currentTimeMillis();
+			long elapsed = now - startedAt;
+			avg.addValue(elapsed / 1000d);
+
+			if (elapsed >= 100)
+			{
+				System.out.printf("BIOSPHERE FIX SPAWN LOCATION TOOK %.3f SECONDS!%n", (elapsed / 1000d));
+			}
+
+			if (lastPrintedAt == Long.MIN_VALUE || (now - lastPrintedAt) > 2500)
+			{
+				lastPrintedAt = now;
+
+				if (avg.getCount() >= 5)
+				{
+					double av = avg.getAverage();
+					if (av >= .001D)
+					{
+						System.out.printf("BIOSPHERE FIX SPAWN LOCATION ON AVERAGE TAKES %.3f SECONDS.%n", av);
+					}
+				}
 			}
 		}
 	}
