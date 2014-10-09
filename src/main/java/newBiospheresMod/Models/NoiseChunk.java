@@ -2,6 +2,7 @@ package newBiospheresMod.Models;
 
 import net.minecraft.world.World;
 import net.minecraft.world.gen.NoiseGeneratorOctaves;
+import newBiospheresMod.Helpers.IKeyProvider;
 import newBiospheresMod.Helpers.LruCacheList;
 import newBiospheresMod.Helpers.ModConsts;
 import newBiospheresMod.Helpers.Utils;
@@ -9,12 +10,56 @@ import akka.japi.Creator;
 
 public class NoiseChunk
 {
-	private static LruCacheList<NoiseChunk> noiseChunks = new LruCacheList<NoiseChunk>(25);
+	// #region Caching
+
+	private static class CacheKey
+	{
+		public final int x;
+		public final int z;
+		public final World world;
+
+		public CacheKey(final World world, final int x, final int z)
+		{
+			this.world = world;
+			this.x = x;
+			this.z = z;
+		}
+
+		@Override
+		public boolean equals(Object obj)
+		{
+			if (obj == null) { return false; }
+			if (this == obj) { return true; }
+			if (!(obj instanceof CacheKey)) { return false; }
+			CacheKey other = (CacheKey)obj;
+
+			return this.x == other.x && this.z == other.z && this.world == other.world;
+		}
+
+		@Override
+		public int hashCode()
+		{
+			int worldHash = (world == null) ? 0 : world.hashCode();
+			return ((x & 0xFFFF) | ((z & 0xFFFF) << 16)) ^ worldHash ^ 949032852;
+		}
+	}
+
+	private static LruCacheList<NoiseChunk> noiseChunks = new LruCacheList<NoiseChunk>(25,
+		new IKeyProvider<NoiseChunk>()
+		{
+			@Override
+			public Object provideKey(NoiseChunk item)
+			{
+				if (item == null) { return null; }
+
+				return new CacheKey(item.world, item.chunkX, item.chunkZ);
+			}
+		});
 
 	public static NoiseChunk get(final World world, final int chunkX, final int chunkZ,
 			final NoiseGeneratorOctaves noiseGen, final double scale)
 	{
-		int key = getKey(world, chunkX, chunkZ);
+		Object key = new CacheKey(world, chunkX, chunkZ);
 
 		return noiseChunks.FindOrAdd(key, new Creator<NoiseChunk>()
 		{
@@ -26,16 +71,7 @@ public class NoiseChunk
 		});
 	}
 
-	public static int getKey(final World world, final int chunkX, final int chunkZ)
-	{
-		int worldHash = 0;
-		if (world != null)
-		{
-			worldHash = world.hashCode();
-		}
-
-		return ((chunkX & 0xFFFF) | ((chunkZ & 0xFFFF) << 16)) ^ worldHash ^ 949032852;
-	}
+	// #endregion
 
 	public final int chunkX;
 	public final int chunkZ;
@@ -103,11 +139,5 @@ public class NoiseChunk
 		if (this.chunkX == chunkX && this.chunkZ == chunkZ) { return this; }
 
 		return get(world, chunkX, chunkZ, noiseGenerator, scale);
-	}
-
-	@Override
-	public int hashCode()
-	{
-		return getKey(this.world, this.chunkX, this.chunkZ);
 	}
 }

@@ -3,17 +3,61 @@ package newBiospheresMod.Models;
 import java.util.Random;
 
 import newBiospheresMod.BiosphereChunkProvider;
+import newBiospheresMod.Helpers.IKeyProvider;
 import newBiospheresMod.Helpers.LruCacheList;
 import newBiospheresMod.Helpers.ModConsts;
 import akka.japi.Creator;
 
 public class SphereChunk
 {
-	private static LruCacheList<SphereChunk> sphereChunkCache = new LruCacheList<SphereChunk>(15);
+	// #region Caching
+
+	private static class CacheKey
+	{
+		public final int x;
+		public final int z;
+		public final BiosphereChunkProvider chunkProvider;
+
+		public CacheKey(final BiosphereChunkProvider chunkProvider, final int x, final int z)
+		{
+			this.chunkProvider = chunkProvider;
+			this.x = x;
+			this.z = z;
+		}
+
+		@Override
+		public boolean equals(Object obj)
+		{
+			if (obj == null) { return false; }
+			if (this == obj) { return true; }
+			if (!(obj instanceof CacheKey)) { return false; }
+			CacheKey other = (CacheKey)obj;
+
+			return this.x == other.x && this.z == other.z && this.chunkProvider == other.chunkProvider;
+		}
+
+		@Override
+		public int hashCode()
+		{
+			int chunkProviderHash = (chunkProvider == null) ? 0 : chunkProvider.hashCode();
+			return ((x & 0xFFFF) | ((z & 0xFFFF) << 16)) ^ chunkProviderHash ^ 1890321837;
+		}
+	}
+
+	private static LruCacheList<SphereChunk> sphereChunksCache = new LruCacheList<SphereChunk>(15,
+		new IKeyProvider<SphereChunk>()
+		{
+			@Override
+			public Object provideKey(SphereChunk item)
+			{
+				if (item == null) { return null; }
+				return new CacheKey(item.chunkProvider, item.chunkX, item.chunkZ);
+			}
+		});
 
 	public static SphereChunk get(final BiosphereChunkProvider chunkProvider, final int chunkX, final int chunkZ)
 	{
-		return sphereChunkCache.FindOrAdd(getKey(chunkProvider, chunkX, chunkZ), new Creator<SphereChunk>()
+		return sphereChunksCache.FindOrAdd(new CacheKey(chunkProvider, chunkX, chunkZ), new Creator<SphereChunk>()
 		{
 			@Override
 			public SphereChunk create()
@@ -23,10 +67,7 @@ public class SphereChunk
 		});
 	}
 
-	public static int getKey(final BiosphereChunkProvider chunkProvider, int chunkX, int chunkZ)
-	{
-		return BiosphereChunkProvider.getChunkKey(chunkProvider, chunkX, chunkZ) ^ 1890321837;
-	}
+	// #endregion
 
 	public final int chunkX, chunkZ;
 
@@ -60,11 +101,5 @@ public class SphereChunk
 	{
 		if (this.noise != null) { return noise.getChunkBoundSurfaceLevel(boundX, boundZ); }
 		return ModConsts.SEA_LEVEL;
-	}
-
-	@Override
-	public int hashCode()
-	{
-		return getKey(chunkProvider, chunkX, chunkZ);
 	}
 }

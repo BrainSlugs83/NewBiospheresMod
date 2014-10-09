@@ -7,6 +7,7 @@ import net.minecraft.world.WorldType;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.biome.WorldChunkManager;
 import net.minecraft.world.chunk.IChunkProvider;
+import newBiospheresMod.Helpers.IKeyProvider;
 import newBiospheresMod.Helpers.LruCacheList;
 import newBiospheresMod.Helpers.ModConsts;
 import newBiospheresMod.Helpers.Utils;
@@ -14,7 +15,16 @@ import newBiospheresMod.Models.ModConfig;
 
 public class BiosphereWorldType extends WorldType
 {
-	private static final LruCacheList<World> BiosphereWorlds = new LruCacheList<World>(3);
+	// #region Ownership Tracking
+
+	private static final LruCacheList<World> BiosphereWorlds = new LruCacheList<World>(3, new IKeyProvider<World>()
+	{
+		@Override
+		public Object provideKey(World item)
+		{
+			return item;
+		}
+	});
 
 	private static final String IsBiosphereWorldKey = ModConsts.ModId + ".Is Biosphere World";
 
@@ -37,6 +47,8 @@ public class BiosphereWorldType extends WorldType
 
 		return false;
 	}
+
+	// #endregion
 
 	public BiosphereWorldType(String s)
 	{

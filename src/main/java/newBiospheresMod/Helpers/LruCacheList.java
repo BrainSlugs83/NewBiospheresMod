@@ -8,46 +8,43 @@ import com.googlecode.concurrentlinkedhashmap.ConcurrentLinkedHashMap;
 
 public class LruCacheList<T>
 {
+	// apparently this library doesn't like using "null" as a key, which is stupid. So, let's use this random object
+	// instead.
+	private static final Object nullKeySubstitute = new Object();
+
 	public final int TotalItems;
 	public final IKeyProvider<T> KeyProvider;
 
-	private final ConcurrentMap<Integer, T> _backingMap;
-
-	public LruCacheList(int totalItems)
-	{
-		this(totalItems, null);
-	}
+	private final ConcurrentMap<Object, T> _backingMap;
 
 	public LruCacheList(int totalItems, IKeyProvider<T> keyProvider)
 	{
 		this.TotalItems = totalItems;
-		this.KeyProvider = keyProvider != null ? keyProvider : new IKeyProvider<T>()
-		{
-			@Override
-			public int provideKey(T item)
-			{
-				if (item == null) { return 0; }
-				return item.hashCode();
-			}
-		};
+		this.KeyProvider = keyProvider;
 
-		_backingMap = new ConcurrentLinkedHashMap.Builder<Integer, T>().maximumWeightedCapacity(totalItems).build();
+		_backingMap = new ConcurrentLinkedHashMap.Builder<Object, T>().maximumWeightedCapacity(totalItems).build();
 	}
 
 	public void Push(T item)
 	{
-		int key = KeyProvider.provideKey(item);
+		Object key = KeyProvider.provideKey(item);
+		if (key == null) key = nullKeySubstitute;
+
 		_backingMap.put(key, item);
 	}
 
 	public boolean Contains(T item)
 	{
-		int key = KeyProvider.provideKey(item);
+		Object key = KeyProvider.provideKey(item);
+		if (key == null) key = nullKeySubstitute;
+
 		return _backingMap.containsKey(key);
 	}
 
-	public T FindOrAdd(int key, Creator<T> factory)
+	public T FindOrAdd(Object key, Creator<T> factory)
 	{
+		if (key == null) key = nullKeySubstitute;
+
 		T returnValue = _backingMap.get(key);
 		if (returnValue == null)
 		{

@@ -41,13 +41,22 @@ import akka.japi.Predicate;
 
 public class BiosphereChunkProvider implements IChunkProvider
 {
-	// #region Static Factory / Cache
+	// #region Caching
 
-	private static LruCacheList<BiosphereChunkProvider> chunkProviders = new LruCacheList<BiosphereChunkProvider>(3);
+	private static LruCacheList<BiosphereChunkProvider> chunkProviders = new LruCacheList<BiosphereChunkProvider>(3,
+		new IKeyProvider<BiosphereChunkProvider>()
+		{
+			@Override
+			public Object provideKey(BiosphereChunkProvider item)
+			{
+				if (item == null) { return null; }
+				return item.world;
+			}
+		});
 
 	public static BiosphereChunkProvider get(final World world)
 	{
-		return chunkProviders.FindOrAdd(getKey(world), new Creator<BiosphereChunkProvider>()
+		return chunkProviders.FindOrAdd(world, new Creator<BiosphereChunkProvider>()
 		{
 			@Override
 			public BiosphereChunkProvider create()
@@ -56,6 +65,52 @@ public class BiosphereChunkProvider implements IChunkProvider
 			}
 		});
 	}
+
+	// #endregion
+
+	// #region Chunk Caching
+
+	private static class ChunkCacheKey
+	{
+		public final int x;
+		public final int z;
+		public final World world;
+
+		public ChunkCacheKey(final World world, final int x, final int z)
+		{
+			this.world = world;
+			this.x = x;
+			this.z = z;
+		}
+
+		@Override
+		public boolean equals(Object obj)
+		{
+			if (obj == null) { return false; }
+			if (this == obj) { return true; }
+			if (!(obj instanceof ChunkCacheKey)) { return false; }
+			ChunkCacheKey other = (ChunkCacheKey)obj;
+
+			return this.x == other.x && this.z == other.z && this.world == other.world;
+		}
+
+		@Override
+		public int hashCode()
+		{
+			int worldHash = (world == null) ? 0 : world.hashCode();
+			return ((x & 0xFFFF) | ((z & 0xFFFF) << 16)) ^ worldHash ^ 319023957;
+		}
+	}
+
+	LruCacheList<Chunk> ChunksCache = new LruCacheList(15, new IKeyProvider<Chunk>()
+	{
+		@Override
+		public Object provideKey(Chunk item)
+		{
+			if (item == null) { return 0; }
+			return new ChunkCacheKey(item.worldObj, item.xPosition, item.zPosition);
+		}
+	});
 
 	// #endregion
 
@@ -357,32 +412,6 @@ public class BiosphereChunkProvider implements IChunkProvider
 		return this.provideChunk(x, z);
 	}
 
-	public static int getChunkKey(final BiosphereChunkProvider chunkProvider, final int chunkX, final int chunkZ)
-	{
-		int chunkProviderHash = 0;
-		if (chunkProvider != null)
-		{
-			chunkProviderHash = chunkProvider.hashCode();
-		}
-
-		return ((chunkX & 0xFFFF) | ((chunkZ & 0xFFFF) << 16)) ^ chunkProviderHash ^ 319023957;
-	}
-
-	private int getChunkKey(final int chunkX, final int chunkZ)
-	{
-		return getChunkKey(this, chunkX, chunkZ);
-	}
-
-	LruCacheList<Chunk> ChunkCache = new LruCacheList(15, new IKeyProvider<Chunk>()
-	{
-		@Override
-		public int provideKey(Chunk item)
-		{
-			if (item == null) { return 0; }
-			return getChunkKey(item.xPosition, item.zPosition);
-		}
-	});
-
 	/**
 	 * Will return back a chunk, if it doesn't exist and its not a MP client it will generates all the blocks for the
 	 * specified chunk from the map seed and chunk seed
@@ -390,7 +419,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 	@Override
 	public Chunk provideChunk(final int x, final int z)
 	{
-		return ChunkCache.FindOrAdd(getChunkKey(x, z), new Creator<Chunk>()
+		return ChunksCache.FindOrAdd(new ChunkCacheKey(this.world, x, z), new Creator<Chunk>()
 		{
 			@Override
 			public Chunk create()
@@ -762,17 +791,5 @@ public class BiosphereChunkProvider implements IChunkProvider
 	{
 
 		return null;
-	}
-
-	@Override
-	public int hashCode()
-	{
-		return getKey(this.world);
-	}
-
-	public static int getKey(final World world)
-	{
-		int hash = (world == null) ? 0 : world.hashCode();
-		return hash ^ 1753489021;
 	}
 }

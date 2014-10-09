@@ -13,6 +13,7 @@ import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import newBiospheresMod.BiomeEntry;
 import newBiospheresMod.BiosphereWorldType;
+import newBiospheresMod.Helpers.IKeyProvider;
 import newBiospheresMod.Helpers.LruCacheList;
 import newBiospheresMod.Helpers.ModConsts;
 import newBiospheresMod.Helpers.Utils;
@@ -21,6 +22,34 @@ import akka.japi.Predicate;
 
 public class ModConfig
 {
+	// #region Caching
+
+	private static LruCacheList<ModConfig> modConfigs = new LruCacheList<ModConfig>(10, new IKeyProvider<ModConfig>()
+	{
+		@Override
+		public Object provideKey(ModConfig item)
+		{
+			if (item == null) { return null; }
+			return item.World;
+		}
+	});
+
+	public static ModConfig get(final World world)
+	{
+		return modConfigs.FindOrAdd(world, new Creator<ModConfig>()
+		{
+			@Override
+			public ModConfig create()
+			{
+				return new ModConfig(world);
+			}
+		});
+	}
+
+	// #endregion
+
+	// #region Static Fields and Methods
+
 	private static Configuration cfgFile = null;
 
 	public static Configuration getConfigFile()
@@ -48,6 +77,8 @@ public class ModConfig
 		setConfigFile(getConfigFile());
 		ModConfig.get(null).update();
 	}
+
+	// #endregion
 
 	// #region Fields & Properties
 
@@ -511,31 +542,6 @@ public class ModConfig
 		};
 	}
 
-	private static LruCacheList<ModConfig> modConfigs = new LruCacheList<ModConfig>(10);
-
-	public static ModConfig get(final World world)
-	{
-		return modConfigs.FindOrAdd(getKey(world), new Creator<ModConfig>()
-		{
-			@Override
-			public ModConfig create()
-			{
-				return new ModConfig(world);
-			}
-		});
-	}
-
-	public static int getKey(World world)
-	{
-		int worldHash = 0;
-		if (world != null)
-		{
-			worldHash = world.hashCode();
-		}
-
-		return worldHash ^ 813938752;
-	}
-
 	private ModConfig(World world)
 	{
 		this.World = world;
@@ -758,11 +764,5 @@ public class ModConfig
 		{
 			cfgFile.save();
 		}
-	}
-
-	@Override
-	public int hashCode()
-	{
-		return getKey(this.World);
 	}
 }

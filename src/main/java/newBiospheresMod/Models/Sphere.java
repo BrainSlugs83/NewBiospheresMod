@@ -11,6 +11,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.world.biome.BiomeGenBase;
 import newBiospheresMod.BiosphereChunkProvider;
+import newBiospheresMod.Helpers.IKeyProvider;
 import newBiospheresMod.Helpers.LruCacheList;
 import newBiospheresMod.Helpers.ModConsts;
 import newBiospheresMod.Helpers.TopDownBoundingBox;
@@ -20,34 +21,56 @@ import akka.japi.Function2;
 
 public class Sphere
 {
-	private static LruCacheList<Sphere> sphereCache = new LruCacheList<Sphere>(12);
+	// #region Caching
 
-	public static int getKey(final BiosphereChunkProvider chunkProvider, int centerChunkX, int centerChunkZ)
+	private static class CacheKey
 	{
-		int scaledGridSize = 9;
-		int chunkProviderHash = 0;
+		public final int x;
+		public final int z;
+		public final BiosphereChunkProvider chunkProvider;
 
-		if (chunkProvider != null)
+		public CacheKey(final BiosphereChunkProvider chunkProvider, final int x, final int z)
 		{
-			if (chunkProvider.config != null)
-			{
-				scaledGridSize = chunkProvider.config.getScaledGridSize();
-			}
-
-			chunkProviderHash = chunkProvider.hashCode();
+			this.chunkProvider = chunkProvider;
+			this.x = x;
+			this.z = z;
 		}
 
-		centerChunkX /= scaledGridSize;
-		centerChunkZ /= scaledGridSize;
+		@Override
+		public boolean equals(Object obj)
+		{
+			if (obj == null) { return false; }
+			if (this == obj) { return true; }
+			if (!(obj instanceof CacheKey)) { return false; }
+			CacheKey other = (CacheKey)obj;
 
-		return ((centerChunkX & 0xFFFF) | ((centerChunkZ & 0xFFFF) << 16)) ^ chunkProviderHash ^ 438129048;
+			return this.x == other.x && this.z == other.z && this.chunkProvider == other.chunkProvider;
+		}
+
+		@Override
+		public int hashCode()
+		{
+			int chunkProviderHash = (chunkProvider == null) ? 0 : chunkProvider.hashCode();
+			return ((x & 0xFFFF) | ((z & 0xFFFF) << 16)) ^ chunkProviderHash ^ 438129048;
+		}
 	}
+
+	private static LruCacheList<Sphere> spheresCache = new LruCacheList<Sphere>(12, new IKeyProvider<Sphere>()
+	{
+		@Override
+		public Object provideKey(Sphere item)
+		{
+			if (item == null) { return null; }
+			return new CacheKey(item.chunkProvider, item.sphereLocation.posX, item.sphereLocation.posZ);
+		}
+	});
 
 	public static Sphere get(final BiosphereChunkProvider chunkProvider, final int chunkX, final int chunkZ)
 	{
-		int key = getKey(chunkProvider, chunkX, chunkZ);
+		ChunkCoordinates coords = GetSphereCenter(chunkX, chunkZ, chunkProvider.config);
+		Object key = new CacheKey(chunkProvider, coords.posX, coords.posZ);
 
-		return sphereCache.FindOrAdd(key, new Creator<Sphere>()
+		return spheresCache.FindOrAdd(key, new Creator<Sphere>()
 		{
 			@Override
 			public Sphere create()
@@ -56,6 +79,8 @@ public class Sphere
 			}
 		});
 	}
+
+	// #endregion
 
 	// #region Fields
 
@@ -326,12 +351,6 @@ public class Sphere
 
 		rnd.setSeed(_seed);
 		return rnd;
-	}
-
-	@Override
-	public int hashCode()
-	{
-		return getKey(chunkProvider, centerChunkX, centerChunkZ);
 	}
 
 	// #endregion
