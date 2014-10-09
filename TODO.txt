@@ -5,12 +5,9 @@ transparency of blocks set correctly -- restored correctly
 
 TUBE CONNECTORS!!!
 
-generate structures: towns, caves, abandonned mine shafts
-
-weather?
+generate structures: towns, caves, abandoned mine shafts
 
 No spawners, rivers, 
-
 
 Questionable:
 Moss Stone?
@@ -24,5 +21,3 @@ Configure Lava speed
 TODO: RE-ENABLE SAVING OF THE CONFIGURATION OPTIONS
 
 OPTIMIZE!
-	// TODO: SPLIT THIS INTO A SECOND GRID CHUNK CLASS, SO THAT WE DON'T HAVE TO REDO ALL THE WORK / STORE EVERYTHING
-	// MULTIPLE TIMES FOR EACH CHUNK IN THE GRID
