@@ -7,7 +7,6 @@ eclipse/saves
 *.snap
 *.gitignore
 .gradle
-.classpath
 MinecraftForge-Credits.txt
 MinecraftForge-License.txt
 build
@@ -20,3 +19,4 @@ mcp
 CREDITS-fml.txt
 README.txt
 LICENSE-fml.txt
+.classpath
