@@ -6,25 +6,16 @@ eclipse/config
 eclipse/saves
 *.snap
 *.gitignore
-build/classes
-build/libs
-build/dependency-cache
-build/resources
-build/sources
-build/tmp
-eclipse/.metadata/.plugins
-eclipse/MCEdit-0.1.7.1.win-amd64
-eclipse/mcedit.exe
-eclipse/mcedit.ini
-eclipse/mcedit.log
-eclipse/crash-reports
-eclipse/logs
-eclipse/ServerJarStorage
-eclipse/MCEdit-schematics
-eclipse/saves/ALL LAVA
-eclipse/saves/Copy of New World
-eclipse/saves/Hoopadoop
-eclipse/saves/New World
-eclipse/screenshots
-eclipse/saves/New World-
 .gradle
+.classpath
+MinecraftForge-Credits.txt
+MinecraftForge-License.txt
+build
+eclipse
+forge-1.7.10-10.13.1.1217-changelog.txt
+gradle
+gradlew
+gradlew.bat
+mcp
+CREDITS-fml.txt
+README.txt
