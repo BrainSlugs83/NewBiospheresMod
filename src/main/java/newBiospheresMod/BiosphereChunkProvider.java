@@ -34,16 +34,16 @@ import net.minecraft.world.gen.feature.WorldGenReed;
 import net.minecraft.world.gen.feature.WorldGenTallGrass;
 import net.minecraft.world.gen.feature.WorldGenerator;
 import newBiospheresMod.Helpers.AvgCalc;
+import newBiospheresMod.Helpers.Creator;
 import newBiospheresMod.Helpers.IKeyProvider;
 import newBiospheresMod.Helpers.LruCacheList;
 import newBiospheresMod.Helpers.ModConsts;
+import newBiospheresMod.Helpers.Predicate;
 import newBiospheresMod.Helpers.TopDownBoundingBox;
 import newBiospheresMod.Helpers.Utils;
 import newBiospheresMod.Models.ModConfig;
 import newBiospheresMod.Models.Sphere;
 import newBiospheresMod.Models.SphereChunk;
-import akka.japi.Creator;
-import akka.japi.Predicate;
 
 public class BiosphereChunkProvider implements IChunkProvider
 {

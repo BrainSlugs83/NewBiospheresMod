@@ -17,13 +17,13 @@ import net.minecraft.init.Blocks;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.world.biome.BiomeGenBase;
 import newBiospheresMod.BiosphereChunkProvider;
+import newBiospheresMod.Helpers.Creator;
+import newBiospheresMod.Helpers.Func2;
 import newBiospheresMod.Helpers.IKeyProvider;
 import newBiospheresMod.Helpers.LruCacheList;
 import newBiospheresMod.Helpers.ModConsts;
 import newBiospheresMod.Helpers.TopDownBoundingBox;
 import newBiospheresMod.Helpers.Utils;
-import akka.japi.Creator;
-import akka.japi.Function2;
 
 public class Sphere
 {
@@ -474,10 +474,10 @@ public class Sphere
 
 		if (orbDistZ == 0)
 		{
-			Utils.DoLine(orbLocation.posX, orbLocation.posY, ix, iy, new Function2<Integer, Integer, Boolean>()
+			Utils.DoLine(orbLocation.posX, orbLocation.posY, ix, iy, new Func2<Integer, Integer, Boolean>()
 			{
 				@Override
-				public Boolean apply(Integer x, Integer y)
+				public Boolean func(Integer x, Integer y)
 				{
 					for (int z = orbLocation.posZ - bridgeWidth; z <= orbLocation.posZ + bridgeWidth; z++)
 					{
@@ -497,10 +497,10 @@ public class Sphere
 		}
 		else
 		{
-			Utils.DoLine(orbLocation.posZ, orbLocation.posY, iz, iy, new Function2<Integer, Integer, Boolean>()
+			Utils.DoLine(orbLocation.posZ, orbLocation.posY, iz, iy, new Func2<Integer, Integer, Boolean>()
 			{
 				@Override
-				public Boolean apply(Integer z, Integer y)
+				public Boolean func(Integer z, Integer y)
 				{
 					for (int x = orbLocation.posX - bridgeWidth; x <= orbLocation.posX + bridgeWidth; x++)
 					{

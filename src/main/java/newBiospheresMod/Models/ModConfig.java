@@ -19,12 +19,12 @@ import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import newBiospheresMod.BiomeEntry;
 import newBiospheresMod.BiosphereWorldType;
+import newBiospheresMod.Helpers.Creator;
 import newBiospheresMod.Helpers.IKeyProvider;
 import newBiospheresMod.Helpers.LruCacheList;
 import newBiospheresMod.Helpers.ModConsts;
+import newBiospheresMod.Helpers.Predicate;
 import newBiospheresMod.Helpers.Utils;
-import akka.japi.Creator;
-import akka.japi.Predicate;
 
 public class ModConfig
 {

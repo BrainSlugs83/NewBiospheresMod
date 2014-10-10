@@ -20,9 +20,6 @@ import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import net.minecraft.world.storage.WorldInfo;
-import akka.japi.Function;
-import akka.japi.Function2;
-import akka.japi.Predicate;
 
 public class Utils
 {
@@ -239,7 +236,7 @@ public class Utils
 		return (int)range;
 	}
 
-	public static void DoLine(int x0, int y0, int x1, int y1, Function2<Integer, Integer, Boolean> func)
+	public static void DoLine(int x0, int y0, int x1, int y1, Func2<Integer, Integer, Boolean> func)
 	{
 		if (func != null)
 		{
@@ -256,7 +253,7 @@ public class Utils
 			{
 				try
 				{
-					if (!func.apply(x0, y0))
+					if (!func.func(x0, y0))
 					{
 						break;
 					}
@@ -422,7 +419,7 @@ public class Utils
 
 	// #region Array Serialization
 
-	private static <T> String __ConvertArrayToString(T[] args, Function<T, String> converter)
+	private static <T> String __ConvertArrayToString(T[] args, Func<T, String> converter)
 	{
 		StringBuilder sb = new StringBuilder();
 
@@ -435,7 +432,7 @@ public class Utils
 				try
 				{
 					String value = first ? "" : ", ";
-					value += converter.apply(item);
+					value += converter.func(item);
 					sb.append(value);
 					first = false;
 				}
@@ -449,7 +446,7 @@ public class Utils
 		return sb.toString();
 	}
 
-	private static <T> List<T> __ConvertStringToList(String input, Function<String, T> converter)
+	private static <T> List<T> __ConvertStringToList(String input, Func<String, T> converter)
 	{
 		List<T> output = new ArrayList<T>();
 		if (input != null && input.length() > 0 && converter != null)
@@ -461,7 +458,7 @@ public class Utils
 				{
 					if (result != null)
 					{
-						output.add(converter.apply(result));
+						output.add(converter.func(result));
 					}
 				}
 				catch (Throwable ignore)
@@ -474,10 +471,10 @@ public class Utils
 
 	public static String ConvertIntegersToString(Integer... args)
 	{
-		return __ConvertArrayToString(args, new Function<Integer, String>()
+		return __ConvertArrayToString(args, new Func<Integer, String>()
 		{
 			@Override
-			public String apply(Integer input)
+			public String func(Integer input)
 			{
 				return Integer.toString(input.intValue());
 			}
@@ -486,10 +483,10 @@ public class Utils
 
 	public static List<Integer> ConvertStringToIntegers(String input)
 	{
-		return __ConvertStringToList(input, new Function<String, Integer>()
+		return __ConvertStringToList(input, new Func<String, Integer>()
 		{
 			@Override
-			public Integer apply(String input)
+			public Integer func(String input)
 			{
 				return Integer.parseInt(input);
 			}
@@ -498,10 +495,10 @@ public class Utils
 
 	public static String ConvertDoublesToString(Double... args)
 	{
-		return __ConvertArrayToString(args, new Function<Double, String>()
+		return __ConvertArrayToString(args, new Func<Double, String>()
 		{
 			@Override
-			public String apply(Double input)
+			public String func(Double input)
 			{
 				return Double.toString(input.doubleValue());
 			}
@@ -510,10 +507,10 @@ public class Utils
 
 	public static List<Double> ConvertStringToDoubles(String input)
 	{
-		return __ConvertStringToList(input, new Function<String, Double>()
+		return __ConvertStringToList(input, new Func<String, Double>()
 		{
 			@Override
-			public Double apply(String input)
+			public Double func(String input)
 			{
 				return Double.parseDouble(input);
 			}
