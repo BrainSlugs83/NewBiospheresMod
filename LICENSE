@@ -1,3 +1,4 @@
+======================== NEW BIOSPHERES MOD =========================
 Copyright (c) 2014 Michael Jensen <BrainSlugs83@gmail.com>
 This work is free. You can redistribute it and/or modify it under the
 terms of the Do What The Fuck You Want To Public License, Version 2,
@@ -8,3 +9,15 @@ the extent permitted by applicable law. You can redistribute it
 and/or modify it under the terms of the Do What The Fuck You Want
 To Public License, Version 2, as published by Sam Hocevar. See
 http://www.wtfpl.net/ for more details.
+
+===================== Concurrent Linked Hashmap =====================
+Applies to: lib\concurrentlinkedhashmap-lru-1.4.jar
+Project Page: https://code.google.com/p/concurrentlinkedhashmap/
+License: Apache 2.0
+
+========================== Minecraft Forge ==========================
+Applies to: build.gradle
+Project Page: http://www.minecraftforge.net/
+License: GPL 2.1
+
+=====================================================================
