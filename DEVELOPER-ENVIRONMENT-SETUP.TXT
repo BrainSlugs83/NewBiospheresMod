@@ -1,0 +1,69 @@
+1.) Install the following, for command line utilities, please make sure they're in your path:
+
++ JDK 1.7 64-bit 
+    (do not install the 32-bit version, do not install the 32-bit JRE, do not install the JDK 1.8,
+     if any versions of the Java JRE or JDK are installed that are either 32-bit bit, or 1.8, 
+     UNINSTALL them and reboot before proceeding.  Then install the correct version: the latest
+     1.7 64-bit JDK, and nothing else.)
+
++ Info-Zip
+  Zip.exe: 3.0		http://gnuwin32.sourceforge.net/packages/zip.htm
+  Unzip.exe 5.5		http://gnuwin32.sourceforge.net/packages/unzip.htm
+
+  Just grab the binaries in both cases and unzip the .exes to your path somewhere.
+  Alternately, I've found bins here as well: http://www.willus.com/archive/zip64/
+
++ GIT (or another utility that can pull down code from github).
+
++ Eclipse (Luna at the time of this writing)
+
++ A legal, licensed, paid for, etc. version of Minecraft.
+
+2.) Install and run the latest version of Minecraft, configure it to run version 1.7.10, and launch
+    it at least once.  Then install Forge for that version of Minecraft.
+
+3.) Build and Configure the Forge Workspace:
+
++ Head on over to: http://files.minecraftforge.net/
++ Download the latest version of Forge for Minecraft 1.7.10.
+  (At the time of this writing that's: forge-1.7.10-10.13.1.1224-src.zip)
+
++ Create a new folder for the project, copy the archive in there, and unzip it.
+
+	c:\biz\baz\> cd /d x:\foo\bar\
+
+	x:\foo\bar\> md NewBiospheresMod
+
+	x:\foo\bar\NewBiospheresMod\> copy c:\foo\bar\downloads\forge-1.7.10-10.13.1.1224-src.zip
+
+	x:\foo\bar\NewBiospheresMod\> unzip forge-1.7.10-10.13.1.1224-src.zip
+
+	x:\foo\bar\NewBiospheresMod\> del forge-1.7.10-10.13.1.1224-src.zip
+
++ Follow the instructions in the "README.TXT" to setup a new environment:
+
+	x:\foo\bar\NewBiospheresMod\> gradlew setupDevWorkspace
+	x:\foo\bar\NewBiospheresMod\> gradlew eclipse
+
++ Delete the "src" folder.
+
+	x:\foo\bar\NewBiospheresMod\> rd /s /q src
+
++ Pull down the code from the git repo!
+  Now, usually this isn't allowed, so you'll have to do some hackery.
+  Essentially clone the repro somewhere, and move in the ".git" folder and then perform a hard
+  reset to the latest version.  Like so:
+
+	x:\foo\bar\NewBiospheresMod\> git clone --no-checkout https://github.com/BrainSlugs83/NewBiospheresMod.git temp
+	x:\foo\bar\NewBiospheresMod\> mv temp/.git .
+	x:\foo\bar\NewBiospheresMod\> rd /s /q temp
+	x:\foo\bar\NewBiospheresMod\> git reset --hard HEAD
+
++ Manually edit the .classpath file, add the following <classpathentry> tag:
+
+	<classpathentry kind="lib" path="lib/concurrentlinkedhashmap-lru-1.4.jar"/>
+
++ You can now work with the project in eclipse, either by using the workspace in the
+  "NewBiospheresMod\Eclipse" folder, or by importing it into an existing workspace, to create a
+  deployable .jar file, run the publish.bat command, if all goes well, both should work without
+  error.

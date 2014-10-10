@@ -1,0 +1,11 @@
+For the latest version of this mod, please see the Minecraft Forum thread:
+
+	http://www.minecraftforum.net/forums/mapping-and-modding/minecraft-mods/wip-mods/2236413-new-biospheres-mod
+
+For the latest source code, please see the GitHub repository:
+
+	https://github.com/BrainSlugs83/NewBiospheresMod
+
+Find me on twitter at:
+
+	http://www.twitter.com/BrainSlugs83

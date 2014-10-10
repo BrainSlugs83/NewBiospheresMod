@@ -21,14 +21,19 @@ for /F %%f in ('dir "%outputFolder%*.jar" /b') do (
     move /y "%outputFolder%%%f" .
     if ERRORLEVEL 1 EXIT /B %ERRORLEVEL%
 
-    zip -9 -r %zipName% src
-    if ERRORLEVEL 1 EXIT /B %ERRORLEVEL%
+    rem zip -9 -r %zipName% src
+    rem if ERRORLEVEL 1 EXIT /B %ERRORLEVEL%
 
-    zip -9 -m "%%f" %zipName%
+    rem zip -9 -m "%%f" %zipName%
+    rem if ERRORLEVEL 1 EXIT /B %ERRORLEVEL%
+
+    zip -9 "%%f" MODINFO.TXT
     if ERRORLEVEL 1 EXIT /B %ERRORLEVEL%
 
     call include.bat "%%f" "lib\concurrentlinkedhashmap-lru-1.4.jar"
+    if ERRORLEVEL 1 EXIT /B %ERRORLEVEL%
 
+    rem this improves the compression slightly:
     rd /s /q temp 2>nul 1>nul
     md temp
     copy "%%f" temp
