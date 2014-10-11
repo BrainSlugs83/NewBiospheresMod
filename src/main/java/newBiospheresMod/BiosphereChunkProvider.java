@@ -157,6 +157,8 @@ public class BiosphereChunkProvider implements IChunkProvider
 
 	private void GenerateChunk(int chunkX, int chunkZ, Block[] blocks)
 	{
+		Arrays.fill(blocks, config.getOutsideFillerBlock());
+
 		SphereChunk chunk = SphereChunk.get(this, chunkX, chunkZ);
 
 		if (chunk != null && chunk.masterSphere != null)
@@ -176,16 +178,36 @@ public class BiosphereChunkProvider implements IChunkProvider
 			{
 				// we collided with something like a sphere, ore orb, bridge, or other feature.
 				GenerateChunkInner(chunkX, chunkZ, blocks, chunk);
-				return;
 			}
 		}
-
-		// this chunk is outside and is not a part of any features
-		Arrays.fill(blocks, config.getOutsideFillerBlock());
 	}
+
+	// TODO: Build a helper for all the blocks, if this is something we have to worry about, it will save us time in the
+	// long run.
+	private static Block sand = null;
 
 	private void GenerateChunkInner(int chunkX, int chunkZ, Block[] blocks, SphereChunk chunk)
 	{
+		if (sand == null)
+		{
+			try
+			{
+				// 1.7.2 either returns null, or throws an exception on this block. Super lame.
+				sand = Blocks.sand;
+			}
+			catch (Throwable ignore)
+			{
+				System.out.println("Accessing Blocks.sand threw an exception.");
+				ignore.printStackTrace();
+			}
+
+			if (sand == null)
+			{
+				System.out.println("Sand block is null, loading in hard coded block by ID #12.");
+				sand = Block.getBlockById(12);
+			}
+		}
+
 		final int baseX = chunkX << 4;
 		final int baseZ = chunkZ << 4;
 		final int bridgeWidth = config.getBridgeWidth();
@@ -317,7 +339,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 						}
 						else
 						{
-							block = (sphere.lavaLake ? Blocks.gravel : Blocks.sand);
+							block = (sphere.lavaLake ? Blocks.gravel : sand);
 						}
 					}
 					else if (sphereDistance < sphere.scaledSphereRadius)
@@ -448,7 +470,6 @@ public class BiosphereChunkProvider implements IChunkProvider
 		this.caveGen.func_151539_a(this, this.world, x, z, blocks); // func_151539_a == generate
 
 		Chunk chunk = new Chunk(this.world, blocks, x, z);
-
 		chunk.generateSkylightMap();
 
 		// It's normal to see performance warnings for a few chunks at start-up and maybe every once in a while after
@@ -457,7 +478,6 @@ public class BiosphereChunkProvider implements IChunkProvider
 		long now = System.currentTimeMillis();
 		long elapsed = now - startedAt;
 		avg.addValue(elapsed / 1000d);
-
 		if (elapsed >= 100)
 		{
 			System.out.printf("WARNING: BIOSPHERE GENERATE NEW CHUNK @ [%d, %d] TOOK %.3f SECONDS!%n", x, z,
@@ -467,7 +487,6 @@ public class BiosphereChunkProvider implements IChunkProvider
 		if (lastPrintedAt == Long.MIN_VALUE || (now - lastPrintedAt) > 2500)
 		{
 			lastPrintedAt = now;
-
 			if (avg.getCount() >= 5)
 			{
 				double av = avg.getAverage();
