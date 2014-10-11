@@ -15,6 +15,7 @@ import java.util.Random;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.ChunkCoordinates;
+import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 import newBiospheresMod.BiosphereChunkProvider;
 import newBiospheresMod.Helpers.Creator;
@@ -71,8 +72,17 @@ public class Sphere
 		}
 	});
 
+	public static Sphere get(final World world, final int chunkX, final int chunkZ)
+	{
+		if (world == null) { return null; }
+		final BiosphereChunkProvider provider = BiosphereChunkProvider.get(world);
+		return get(provider, chunkX, chunkZ);
+	}
+
 	public static Sphere get(final BiosphereChunkProvider chunkProvider, final int chunkX, final int chunkZ)
 	{
+		if (chunkProvider == null) { return null; }
+
 		ChunkCoordinates coords = GetSphereCenter(chunkX, chunkZ, chunkProvider.config);
 		Object key = new CacheKey(chunkProvider, coords.posX, coords.posZ);
 
@@ -365,6 +375,8 @@ public class Sphere
 
 	private static ChunkCoordinates GetSphereCenter(int chunkX, int chunkZ, ModConfig cfg)
 	{
+		if (cfg == null) { return null; }
+
 		int chunkOffsetToCenterX = -(int)Math.floor(Math.IEEEremainder(chunkX, cfg.getScaledGridSize()));
 		int chunkOffsetToCenterZ = -(int)Math.floor(Math.IEEEremainder(chunkZ, cfg.getScaledGridSize()));
 

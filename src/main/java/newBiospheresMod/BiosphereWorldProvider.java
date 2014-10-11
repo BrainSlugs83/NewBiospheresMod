@@ -15,6 +15,7 @@ import newBiospheresMod.Helpers.AvgCalc;
 import newBiospheresMod.Helpers.ModConsts;
 import newBiospheresMod.Helpers.Utils;
 import newBiospheresMod.Models.ModConfig;
+import newBiospheresMod.Models.Sphere;
 
 public class BiosphereWorldProvider extends WorldProviderSurface
 {
@@ -23,9 +24,9 @@ public class BiosphereWorldProvider extends WorldProviderSurface
 	@Override
 	public ChunkCoordinates getRandomizedSpawnPoint()
 	{
-		ChunkCoordinates coords = super.getRandomizedSpawnPoint();
+		ChunkCoordinates coords = super.getSpawnPoint();
 
-		FixSpawnLocation(coords);
+		FixSpawnLocation(coords, true);
 
 		return coords;
 	}
@@ -35,7 +36,7 @@ public class BiosphereWorldProvider extends WorldProviderSurface
 	{
 		ChunkCoordinates coords = super.getSpawnPoint();
 
-		FixSpawnLocation(coords);
+		FixSpawnLocation(coords, false);
 
 		return coords;
 	}
@@ -113,50 +114,92 @@ public class BiosphereWorldProvider extends WorldProviderSurface
 		return true;
 	}
 
-	private static final double searchGridSize = 3.5d;
+	private static final double searchGridSize = 2.5d;
 	private static final double searchGridAngles = 12;
 	private static final double toRadians = Math.PI / (searchGridAngles / 2);
 
 	private static final AvgCalc avg = new AvgCalc();
 	private static long lastPrintedAt = Long.MIN_VALUE;
 
-	public void FixSpawnLocation(ChunkCoordinates coords)
+	public void FixSpawnLocation(ChunkCoordinates coords, boolean randomized)
 	{
 		long startedAt = System.currentTimeMillis();
 
 		if (BiosphereWorldType.IsBiosphereWorld(super.worldObj))
 		{
-			ChunkCoordinates orgCoords = Utils.GetCoords(coords);
-
-			double angle = 0;
-			double power = 1;
-
-			while (SpawnedOnTopOfDome(coords) && !__TryFixSpawnLocation(coords))
+			Sphere sphere = Sphere.get(this.worldObj, coords.posX >> 4, coords.posZ >> 4);
+			if (sphere == null)
 			{
-				angle++;
-				if (angle >= searchGridAngles)
-				{
-					angle -= searchGridAngles;
-					power++;
-				}
-
-				coords.posY = orgCoords.posY;
-
-				if (power >= 20)
-				{
-					coords.posX = orgCoords.posX;
-					coords.posZ = orgCoords.posZ;
-					System.out.println("WARNING: BIOSPHERE FIX SPAWN LOCATION FAILED!!");
-
-					break;
-				}
-
-				double x = Math.cos(angle * toRadians) * (power * searchGridSize);
-				double z = Math.sin(angle * toRadians) * (power * searchGridSize);
-
-				coords.posX = orgCoords.posX + (int)Math.round(x);
-				coords.posZ = orgCoords.posZ + (int)Math.round(z);
+				System.out.println("WARNING: COULDN'T FIND SPHERE, USING FALLBACK LOGIC TO FIND SPAWN LOCATION.");
+				FixSpawnLocation_fallback_logic(coords);
 			}
+			else
+			{
+				double xDist = coords.posX - sphere.sphereLocation.posX;
+				double zDist = coords.posZ - sphere.sphereLocation.posZ;
+
+				double dir = randomized
+					? this.worldObj.rand.nextDouble() * (Math.PI * 2d)
+					: Math.atan2(zDist, xDist);
+
+				double min = sphere.hasLake ? (sphere.scaledLakeEdgeRadius + 1) : 0;
+				double max = (sphere.scaledSphereRadius - 3);
+
+				double dist = randomized
+					? (min + (this.worldObj.rand.nextDouble() * (max - min)))
+					: Math.sqrt(zDist * zDist + xDist * xDist);
+
+				if (dist < min) dist = min;
+				if (dist > max) dist = max;
+
+				double vDist = Math.abs(dist - min) > Math.abs(dist - max) ? -1 : 1;
+				int bumpCount = 0;
+
+				while (true)
+				{
+					coords.posX = (int)Math.round(sphere.sphereLocation.posX + (Math.cos(dir) * dist));
+					coords.posZ = (int)Math.round(sphere.sphereLocation.posZ + (Math.sin(dir) * dist));
+					coords.posY = ModConsts.WORLD_HEIGHT;
+
+					if (bumpCount >= 2)
+					{
+						System.out.println("WARNING: COULDN'T FIND VALID SPAWN LOCATION VIA NORMAL LOGIC, USING FALLBACK LOGIC TO FIX SPAWN LOCATION.");
+						FixSpawnLocation_fallback_logic(coords);
+						break;
+					}
+
+					if (__TryFixSpawnLocation(coords))
+					{
+						break;
+					}
+					else
+					{
+						dist += vDist;
+
+						if (dist < min)
+						{
+							dist = min;
+							vDist *= -1;
+							bumpCount++;
+						}
+						else if (dist > max)
+						{
+							dist = max;
+							vDist *= -1;
+							bumpCount++;
+						}
+
+						if (bumpCount >= 2)
+						{
+							dist = min + ((max - min) * 0.5d);
+							vDist = 0;
+						}
+					}
+				}
+
+			}
+
+			// ========== PERF MONITORING ==========
 
 			long now = System.currentTimeMillis();
 			long elapsed = now - startedAt;
@@ -180,6 +223,41 @@ public class BiosphereWorldProvider extends WorldProviderSurface
 					}
 				}
 			}
+		}
+	}
+
+	public void FixSpawnLocation_fallback_logic(ChunkCoordinates coords)
+	{
+		ChunkCoordinates orgCoords = Utils.GetCoords(coords);
+
+		double angle = 0;
+		double power = 1;
+
+		while (SpawnedOnTopOfDome(coords) && !__TryFixSpawnLocation(coords))
+		{
+			angle++;
+			if (angle >= searchGridAngles)
+			{
+				angle -= searchGridAngles;
+				power++;
+			}
+
+			coords.posY = orgCoords.posY;
+
+			if (power >= 50)
+			{
+				coords.posX = orgCoords.posX;
+				coords.posZ = orgCoords.posZ;
+				System.out.println("WARNING: BIOSPHERE FIX SPAWN LOCATION FAILED!!");
+
+				break;
+			}
+
+			double x = Math.cos(angle * toRadians) * (power * searchGridSize);
+			double z = Math.sin(angle * toRadians) * (power * searchGridSize);
+
+			coords.posX = orgCoords.posX + (int)Math.round(x);
+			coords.posZ = orgCoords.posZ + (int)Math.round(z);
 		}
 	}
 
