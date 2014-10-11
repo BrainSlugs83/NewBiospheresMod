@@ -43,6 +43,7 @@
 + Follow the instructions in the "README.TXT" to setup a new environment:
 
 	x:\foo\bar\NewBiospheresMod\> gradlew setupDevWorkspace
+	x:\foo\bar\NewBiospheresMod\> gradlew setupDecompWorkspace
 	x:\foo\bar\NewBiospheresMod\> gradlew eclipse
 
 + Delete the "src" folder.
