@@ -9,11 +9,11 @@ package newBiospheresMod;
 import java.util.Random;
 
 import net.minecraft.block.Block;
-import net.minecraft.init.Blocks;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.gen.MapGenBase;
+import newBiospheresMod.Helpers.Blx;
 import newBiospheresMod.Helpers.ModConsts;
 import newBiospheresMod.Models.Sphere;
 import newBiospheresMod.Models.SphereChunk;
@@ -173,8 +173,8 @@ public class BiosphereMapGen extends MapGenBase
 
 								if (j4 >= 0 && j4 < 128)
 								{
-									if (blocks[j3] == Blocks.flowing_water || blocks[j3] == Blocks.water
-										|| blocks[j3] == Blocks.flowing_lava || blocks[j3] == Blocks.lava)
+									if (blocks[j3] == Blx.flowing_water || blocks[j3] == Blx.water
+										|| blocks[j3] == Blx.flowing_lava || blocks[j3] == Blx.lava)
 									{
 										flag2 = true;
 									}
@@ -208,9 +208,9 @@ public class BiosphereMapGen extends MapGenBase
 									{
 										Block block = blocks[k4];
 
-										if (block == Blocks.stone || block == Blocks.sand || block == Blocks.gravel
-											|| block == Blocks.diamond_ore || block == Blocks.lapis_ore
-											|| block == Blocks.emerald_ore)
+										if (block == Blx.stone || block == Blx.sand || block == Blx.gravel
+											|| block == Blx.diamond_ore || block == Blx.lapis_ore
+											|| block == Blx.emerald_ore)
 										{
 											if (l4 < ModConsts.LAVA_LEVEL)
 											{
@@ -224,21 +224,21 @@ public class BiosphereMapGen extends MapGenBase
 														&& d15 < (sphere.scaledSphereRadius + 5d))
 
 													{
-														blocks[k4] = Blocks.obsidian;
+														blocks[k4] = Blx.obsidian;
 													}
 													else if (d15 < sphere.scaledSphereRadius)
 													{
-														blocks[k4] = Blocks.flowing_lava;
+														blocks[k4] = Blx.flowing_lava;
 													}
 												}
 												else
 												{
-													blocks[k4] = Blocks.flowing_lava;
+													blocks[k4] = Blx.flowing_lava;
 												}
 											}
 											else if (l4 < midY - 2 || l4 > midY - 1)
 											{
-												blocks[k4] = Blocks.air;
+												blocks[k4] = Blx.air;
 											}
 										}
 									}

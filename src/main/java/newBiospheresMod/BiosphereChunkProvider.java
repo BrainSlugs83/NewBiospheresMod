@@ -13,7 +13,6 @@ import java.util.Random;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSand;
 import net.minecraft.entity.EnumCreatureType;
-import net.minecraft.init.Blocks;
 import net.minecraft.util.IProgressUpdate;
 import net.minecraft.world.ChunkPosition;
 import net.minecraft.world.SpawnerAnimals;
@@ -34,6 +33,7 @@ import net.minecraft.world.gen.feature.WorldGenReed;
 import net.minecraft.world.gen.feature.WorldGenTallGrass;
 import net.minecraft.world.gen.feature.WorldGenerator;
 import newBiospheresMod.Helpers.AvgCalc;
+import newBiospheresMod.Helpers.Blx;
 import newBiospheresMod.Helpers.Creator;
 import newBiospheresMod.Helpers.IKeyProvider;
 import newBiospheresMod.Helpers.LruCacheList;
@@ -182,32 +182,8 @@ public class BiosphereChunkProvider implements IChunkProvider
 		}
 	}
 
-	// TODO: Build a helper for all the blocks, if this is something we have to worry about, it will save us time in the
-	// long run.
-	private static Block sand = null;
-
 	private void GenerateChunkInner(int chunkX, int chunkZ, Block[] blocks, SphereChunk chunk)
 	{
-		if (sand == null)
-		{
-			try
-			{
-				// 1.7.2 either returns null, or throws an exception on this block. Super lame.
-				sand = Blocks.sand;
-			}
-			catch (Throwable ignore)
-			{
-				System.out.println("Accessing Blocks.sand threw an exception.");
-				ignore.printStackTrace();
-			}
-
-			if (sand == null)
-			{
-				System.out.println("Sand block is null, loading in hard coded block by ID #12.");
-				sand = Block.getBlockById(12);
-			}
-		}
-
 		final int baseX = chunkX << 4;
 		final int baseZ = chunkZ << 4;
 		final int bridgeWidth = config.getBridgeWidth();
@@ -225,7 +201,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 				for (int rawY = ModConsts.WORLD_MAX_Y; rawY >= ModConsts.WORLD_MIN_Y; rawY--)
 				{
 					int idx = (xo << ModConsts.xShift) | (zo << ModConsts.zShift) | rawY;
-					Block block = Blocks.air;
+					Block block = Blx.air;
 
 					int rawX = baseX + xo;
 					int rawZ = baseZ + zo;
@@ -271,7 +247,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 						{
 							if (rawY == sphere.lakeLocation.posY && sphere.biome == BiomeGenBase.icePlains)
 							{
-								block = Blocks.ice;
+								block = Blx.ice;
 							}
 							else if (rawY <= sphere.lakeLocation.posY)
 							{
@@ -300,7 +276,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 							&& (Math.abs(rawX - sphere.sphereLocation.posX) < bridgeWidth || Math.abs(rawZ
 								- sphere.sphereLocation.posZ) < bridgeWidth))
 						{
-							block = Blocks.air;
+							block = Blx.air;
 						}
 						else if (config.doesNeedProtectionGlass() && sphereDistance > sphere.scaledSphereRadius)
 						{
@@ -316,14 +292,14 @@ public class BiosphereChunkProvider implements IChunkProvider
 					}
 					else if (sphere.scaledSphereRadius == sphereDistance)
 					{
-						block = Blocks.stone;
+						block = Blx.stone;
 					}
 					else if (sphere.hasLake && sphere.biome != BiomeGenBase.desert
 						&& lakeDistance <= sphere.scaledLakeRadius)
 					{
 						if (rawY == sphere.lakeLocation.posY && sphere.biome == BiomeGenBase.icePlains)
 						{
-							block = Blocks.ice;
+							block = Blx.ice;
 						}
 						else if (rawY <= sphere.lakeLocation.posY)
 						{
@@ -335,11 +311,11 @@ public class BiosphereChunkProvider implements IChunkProvider
 					{
 						if (ModConsts.DEBUG)
 						{
-							block = Blocks.glowstone;
+							block = Blx.glowstone;
 						}
 						else
 						{
-							block = (sphere.lavaLake ? Blocks.gravel : sand);
+							block = (sphere.lavaLake ? Blx.gravel : Blx.sand);
 						}
 					}
 					else if (sphereDistance < sphere.scaledSphereRadius)
@@ -354,7 +330,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 						}
 						else
 						{
-							block = Blocks.stone;
+							block = Blx.stone;
 						}
 					}
 					else if (rawY == midY
@@ -380,48 +356,48 @@ public class BiosphereChunkProvider implements IChunkProvider
 
 						if (oreChance < 5) // 1%
 						{
-							block = Blocks.lapis_ore;
+							block = Blx.lapis_ore;
 						}
 						else if (oreChance < 10) // 1%
 						{
-							block = Blocks.emerald_ore;
+							block = Blx.emerald_ore;
 						}
 						else if (oreChance < 15) // 1%
 						{
-							block = Blocks.diamond_ore;
+							block = Blx.diamond_ore;
 						}
 						else if (oreChance < 25) // 2%
 						{
-							block = Blocks.iron_ore;
+							block = Blx.iron_ore;
 						}
 						else if (oreChance < 35) // 2%
 						{
-							block = Blocks.gold_ore;
+							block = Blx.gold_ore;
 						}
 						else if (oreChance < 50) // 3%
 						{
-							block = Blocks.coal_ore;
+							block = Blx.coal_ore;
 						}
 						else if (oreChance < 65) // 3%
 						{
-							block = Blocks.redstone_ore;
+							block = Blx.redstone_ore;
 						}
 						else if (oreChance < 75) // 2%
 						{
-							block = Blocks.quartz_ore;
+							block = Blx.quartz_ore;
 						}
 						else if (oreChance < 175) // 20%
 						{
-							block = Blocks.gravel;
+							block = Blx.gravel;
 						}
 						else if (oreChance < 190) // 3%
 						{
-							block = Blocks.lava;
+							block = Blx.lava;
 						}
 						else
 						// 62%
 						{
-							block = Blocks.stone;
+							block = Blx.stone;
 						}
 					}
 
@@ -536,7 +512,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 			int x = absX + rnd.nextInt(16);
 			int y = rnd.nextInt(ModConsts.WORLD_HEIGHT);
 			int z = absZ + rnd.nextInt(16);
-			(new WorldGenMinable(Blocks.coal_ore, 16)).generate(this.world, rnd, x, y, z);
+			(new WorldGenMinable(Blx.coal_ore, 16)).generate(this.world, rnd, x, y, z);
 		}
 
 		for (int i = 0; i < 20; i++)
@@ -544,7 +520,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 			int x = absX + rnd.nextInt(16);
 			int y = rnd.nextInt(ModConsts.WORLD_HEIGHT);
 			int z = absZ + rnd.nextInt(16);
-			(new WorldGenMinable(Blocks.iron_ore, 8)).generate(this.world, rnd, x, y, z);
+			(new WorldGenMinable(Blx.iron_ore, 8)).generate(this.world, rnd, x, y, z);
 		}
 
 		for (int i = 0; i < 2; i++)
@@ -552,7 +528,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 			int x = absX + rnd.nextInt(16);
 			int y = rnd.nextInt(ModConsts.WORLD_HEIGHT);
 			int z = absZ + rnd.nextInt(16);
-			(new WorldGenMinable(Blocks.gold_ore, 8)).generate(this.world, rnd, x, y, z);
+			(new WorldGenMinable(Blx.gold_ore, 8)).generate(this.world, rnd, x, y, z);
 		}
 
 		for (int i = 0; i < 8; i++)
@@ -560,7 +536,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 			int x = absX + rnd.nextInt(16);
 			int y = rnd.nextInt(ModConsts.WORLD_HEIGHT);
 			int z = absZ + rnd.nextInt(16);
-			(new WorldGenMinable(Blocks.redstone_ore, 7)).generate(this.world, rnd, x, y, z);
+			(new WorldGenMinable(Blx.redstone_ore, 7)).generate(this.world, rnd, x, y, z);
 		}
 
 		int treesPerChunk = sphere.biome.theBiomeDecorator.treesPerChunk;
@@ -589,7 +565,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 			int y = rnd.nextInt(ModConsts.WORLD_HEIGHT);
 			int z = absZ + rnd.nextInt(16) + 8;
 
-			(new WorldGenFlowers(Blocks.yellow_flower)).generate(this.world, rnd, x, y, z);
+			(new WorldGenFlowers(Blx.yellow_flower)).generate(this.world, rnd, x, y, z);
 		}
 
 		if (rnd.nextInt(2) == 0)
@@ -597,7 +573,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 			int x = absX + rnd.nextInt(16) + 8;
 			int y = rnd.nextInt(ModConsts.WORLD_HEIGHT);
 			int z = absZ + rnd.nextInt(16) + 8;
-			(new WorldGenFlowers(Blocks.red_flower)).generate(this.world, rnd, x, y, z);
+			(new WorldGenFlowers(Blx.red_flower)).generate(this.world, rnd, x, y, z);
 		}
 
 		if (rnd.nextInt(4) == 0)
@@ -605,7 +581,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 			int x = absX + rnd.nextInt(16) + 8;
 			int y = rnd.nextInt(ModConsts.WORLD_HEIGHT);
 			int z = absZ + rnd.nextInt(16) + 8;
-			(new WorldGenFlowers(Blocks.brown_mushroom)).generate(this.world, rnd, x, y, z);
+			(new WorldGenFlowers(Blx.brown_mushroom)).generate(this.world, rnd, x, y, z);
 		}
 
 		if (rnd.nextInt(8) == 0)
@@ -613,7 +589,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 			int x = absX + rnd.nextInt(16) + 8;
 			int y = rnd.nextInt(ModConsts.WORLD_HEIGHT);
 			int z = absZ + rnd.nextInt(16) + 8;
-			(new WorldGenFlowers(Blocks.red_mushroom)).generate(this.world, rnd, x, y, z);
+			(new WorldGenFlowers(Blx.red_mushroom)).generate(this.world, rnd, x, y, z);
 		}
 
 		int l13;
@@ -635,7 +611,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 				int y = rnd.nextInt(ModConsts.WORLD_HEIGHT);
 				int z = absZ + rnd.nextInt(16) + 8;
 
-				(new WorldGenTallGrass(Blocks.tallgrass, metadata)).generate(this.world, rnd, x, y, z);
+				(new WorldGenTallGrass(Blx.tallgrass, metadata)).generate(this.world, rnd, x, y, z);
 			}
 		}
 
@@ -698,7 +674,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 					int z = absZ + rnd.nextInt(16) + 8;
 					int y = this.world.getHeightValue(x, z);
 
-					(new WorldGenFlowers(Blocks.yellow_flower)).generate(this.world, rnd, x, y, z);
+					(new WorldGenFlowers(Blx.yellow_flower)).generate(this.world, rnd, x, y, z);
 				}
 
 				if (rnd.nextInt(8) == 0)
@@ -707,7 +683,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 					int z = absZ + rnd.nextInt(16) + 8;
 					int y = rnd.nextInt(ModConsts.WORLD_HEIGHT);
 
-					(new WorldGenFlowers(Blocks.red_flower)).generate(this.world, rnd, x, y, z);
+					(new WorldGenFlowers(Blx.red_flower)).generate(this.world, rnd, x, y, z);
 				}
 			}
 		}
@@ -727,7 +703,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 
 					if (distanceSquared <= sphere.scaledSphereRadius && this.world.isBlockFreezable(x, y, z))
 					{
-						this.world.setBlock(x, y, z, Blocks.snow);
+						this.world.setBlock(x, y, z, Blx.snow);
 					}
 				}
 			}

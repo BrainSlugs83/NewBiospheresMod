@@ -42,7 +42,8 @@
 
 + Follow the instructions in the "README.TXT" to setup a new environment:
 
-	x:\foo\bar\NewBiospheresMod\> gradlew setupDevWorkspace
+	x:\foo\bar\NewBiospheresMod\> gradlew clean
+	x:\foo\bar\NewBiospheresMod\> gradlew cleanCache
 	x:\foo\bar\NewBiospheresMod\> gradlew setupDecompWorkspace --refresh-dependencies
 	x:\foo\bar\NewBiospheresMod\> gradlew eclipse
 

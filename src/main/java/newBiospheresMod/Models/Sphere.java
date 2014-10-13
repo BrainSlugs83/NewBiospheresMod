@@ -13,11 +13,11 @@ import java.util.Map;
 import java.util.Random;
 
 import net.minecraft.block.Block;
-import net.minecraft.init.Blocks;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 import newBiospheresMod.BiosphereChunkProvider;
+import newBiospheresMod.Helpers.Blx;
 import newBiospheresMod.Helpers.Creator;
 import newBiospheresMod.Helpers.Func2;
 import newBiospheresMod.Helpers.IKeyProvider;
@@ -125,7 +125,7 @@ public class Sphere
 	public final int bridgeWidth;
 
 	private TopDownBoundingBox orbStairwayBox;
-	private Map<ChunkCoordinates, Block> orbStairwayBlocks;
+	private Map<ChunkCoordinates, Block> orbStairwayBlx;
 
 	private List<TopDownBoundingBox> boundingBoxes = null;
 
@@ -309,8 +309,8 @@ public class Sphere
 
 	public Block GetLakeBlock()
 	{
-		if (!this.hasLake) { return Blocks.air; }
-		return (this.lavaLake ? Blocks.flowing_lava : Blocks.flowing_water);
+		if (!this.hasLake) { return Blx.air; }
+		return (this.lavaLake ? Blx.flowing_lava : Blx.flowing_water);
 	}
 
 	public List<TopDownBoundingBox> getBoundingBoxes()
@@ -351,7 +351,7 @@ public class Sphere
 
 		ChunkCoordinates key = Utils.GetCoords(x, y, z);
 
-		if (orbStairwayBlocks.containsKey(key)) { return orbStairwayBlocks.get(key); }
+		if (orbStairwayBlx.containsKey(key)) { return orbStairwayBlx.get(key); }
 
 		return null;
 	}
@@ -482,7 +482,7 @@ public class Sphere
 		final int tox = (orbDistX == 0 ? 0 : ((orbDistX > 0) ? 1 : -1));
 		final int toz = (orbDistZ == 0 ? 0 : ((orbDistZ > 0) ? 1 : -1));
 
-		orbStairwayBlocks = new HashMap<ChunkCoordinates, Block>();
+		orbStairwayBlx = new HashMap<ChunkCoordinates, Block>();
 
 		if (orbDistZ == 0)
 		{
@@ -495,11 +495,11 @@ public class Sphere
 					{
 						if (rnd.nextBoolean())
 						{
-							orbStairwayBlocks.put(Utils.GetCoords(x, y, z), bridgeBlock);
+							orbStairwayBlx.put(Utils.GetCoords(x, y, z), bridgeBlock);
 						}
 						if (rnd.nextBoolean())
 						{
-							orbStairwayBlocks.put(Utils.GetCoords(x + tox, y, z + toz), bridgeBlock);
+							orbStairwayBlx.put(Utils.GetCoords(x + tox, y, z + toz), bridgeBlock);
 						}
 					}
 
@@ -518,11 +518,11 @@ public class Sphere
 					{
 						if (rnd.nextBoolean())
 						{
-							orbStairwayBlocks.put(Utils.GetCoords(x, y, z), bridgeBlock);
+							orbStairwayBlx.put(Utils.GetCoords(x, y, z), bridgeBlock);
 						}
 						if (rnd.nextBoolean())
 						{
-							orbStairwayBlocks.put(Utils.GetCoords(x + tox, y, z + toz), bridgeBlock);
+							orbStairwayBlx.put(Utils.GetCoords(x + tox, y, z + toz), bridgeBlock);
 						}
 					}
 
@@ -531,7 +531,7 @@ public class Sphere
 			});
 		}
 
-		orbStairwayBox = TopDownBoundingBox.FromArray(orbStairwayBlocks.keySet());
+		orbStairwayBox = TopDownBoundingBox.FromArray(orbStairwayBlx.keySet());
 	}
 
 	// #endregion

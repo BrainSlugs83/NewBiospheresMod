@@ -15,7 +15,6 @@ import java.util.Random;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
@@ -25,7 +24,7 @@ public class Utils
 {
 	public static Block ParseBlock(String blockNameOrId)
 	{
-		return ParseBlock(blockNameOrId, Blocks.air);
+		return ParseBlock(blockNameOrId, Blx.air);
 	}
 
 	public static Block ParseBlock(String blockNameOrId, Block fallbackValue)

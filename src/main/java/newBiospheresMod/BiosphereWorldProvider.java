@@ -7,11 +7,11 @@
 package newBiospheresMod;
 
 import net.minecraft.block.Block;
-import net.minecraft.init.Blocks;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldProviderSurface;
 import newBiospheresMod.Helpers.AvgCalc;
+import newBiospheresMod.Helpers.Blx;
 import newBiospheresMod.Helpers.ModConsts;
 import newBiospheresMod.Helpers.Utils;
 import newBiospheresMod.Models.ModConfig;
@@ -76,7 +76,7 @@ public class BiosphereWorldProvider extends WorldProviderSurface
 					return false;
 				}
 			}
-			else if (block != Blocks.air)
+			else if (block != Blx.air)
 			{
 				if (block != config.getOutsideFillerBlock()) { return false; }
 			}
@@ -100,7 +100,7 @@ public class BiosphereWorldProvider extends WorldProviderSurface
 		{
 			Block block = world.getBlock(x, y + i, z);
 
-			if (block != Blocks.air)
+			if (block != Blx.air)
 			{
 				// trying to spawn in the middle of non-empty blocks
 				return false;

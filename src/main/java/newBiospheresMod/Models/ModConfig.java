@@ -11,7 +11,6 @@ import java.util.Collections;
 import java.util.List;
 
 import net.minecraft.block.Block;
-import net.minecraft.init.Blocks;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
@@ -19,6 +18,7 @@ import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import newBiospheresMod.BiomeEntry;
 import newBiospheresMod.BiosphereWorldType;
+import newBiospheresMod.Helpers.Blx;
 import newBiospheresMod.Helpers.Creator;
 import newBiospheresMod.Helpers.IKeyProvider;
 import newBiospheresMod.Helpers.LruCacheList;
@@ -150,7 +150,7 @@ public class ModConfig
 
 	// #region Block DomeBlock
 
-	private static final Block defaultDomeBlock = Blocks.glass;
+	private static final Block defaultDomeBlock = Blx.glass;
 	private Block domeBlock = defaultDomeBlock;
 
 	public Block getDomeBlock()
@@ -177,7 +177,7 @@ public class ModConfig
 
 	// #region Block BridgeSupportBlock
 
-	private static final Block defaultBridgeSupportBlock = Blocks.planks;
+	private static final Block defaultBridgeSupportBlock = Blx.planks;
 	private Block bridgeSupportBlock = defaultBridgeSupportBlock;
 
 	public Block getBridgeSupportBlock()
@@ -205,7 +205,7 @@ public class ModConfig
 
 	// #region Block BridgeRailBlock
 
-	private static final Block defaultBridgeRailBlock = Blocks.fence;
+	private static final Block defaultBridgeRailBlock = Blx.fence;
 	private Block bridgeRailBlock = defaultBridgeRailBlock;
 
 	public Block getBridgeRailBlock()
@@ -232,7 +232,7 @@ public class ModConfig
 
 	// #region Block OutsideFillerBlock
 
-	private static final Block defaultOutsideFillerBlock = Blocks.air;
+	private static final Block defaultOutsideFillerBlock = Blx.air;
 	private Block outsideFillerBlock = defaultOutsideFillerBlock;
 
 	public Block getOutsideFillerBlock()
@@ -244,8 +244,8 @@ public class ModConfig
 	{
 		if (value == null) value = defaultOutsideFillerBlock;
 
-		// if (value == Blocks.lava) value = Blocks.flowing_lava;
-		// else if (value == Blocks.water) value = Blocks.flowing_water;
+		// if (value == Blx.lava) value = Blx.flowing_lava;
+		// else if (value == Blx.water) value = Blx.flowing_water;
 
 		outsideFillerBlock = value;
 	}
@@ -531,7 +531,7 @@ public class ModConfig
 
 	public boolean doesNeedProtectionGlass()
 	{
-		return getOutsideFillerBlock() != Blocks.air;
+		return getOutsideFillerBlock() != Blx.air;
 	}
 
 	// #endregion
