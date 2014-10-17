@@ -9,8 +9,8 @@ package newBiospheresMod;
 import net.minecraft.world.WorldType;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.config.Configuration;
+import newBiospheresMod.Configuration.ModConfig;
 import newBiospheresMod.Helpers.ModConsts;
-import newBiospheresMod.Models.ModConfig;
 import cpw.mods.fml.client.event.ConfigChangedEvent;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
@@ -20,7 +20,7 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 
-@Mod(modid = ModConsts.ModId, version = ModConsts.ModVersion, guiFactory = "newBiospheresMod.ModConfigGuiFactory")
+@Mod(modid = ModConsts.ModId, version = ModConsts.ModVersion, guiFactory = "newBiospheresMod.Configuration.ModConfigGuiFactory")
 public class NewBiospheresMod
 {
 	public static WorldType biosphereWorldType;

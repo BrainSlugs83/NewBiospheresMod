@@ -4,7 +4,7 @@
  * Sam Hocevar. See http://www.wtfpl.net/ for more details.
  */
 
-package newBiospheresMod;
+package newBiospheresMod.Configuration;
 
 import java.util.Set;
 
@@ -16,28 +16,23 @@ public class ModConfigGuiFactory implements IModGuiFactory
 {
 	@Override
 	public void initialize(Minecraft minecraftInstance)
-	{
-		// TODO Auto-generated method stub
-	}
+	{}
 
 	@Override
 	public Class<? extends GuiScreen> mainConfigGuiClass()
 	{
-		return ModConfigGui.class;
+		return ConfigScreens.GeneralGuiConfigTab.class;
 	}
 
 	@Override
 	public Set<RuntimeOptionCategoryElement> runtimeGuiCategories()
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public RuntimeOptionGuiHandler getHandlerFor(RuntimeOptionCategoryElement element)
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
-
 }

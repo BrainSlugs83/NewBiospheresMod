@@ -4,7 +4,7 @@
  * Sam Hocevar. See http://www.wtfpl.net/ for more details.
  */
 
-package newBiospheresMod.Models;
+package newBiospheresMod.Configuration;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -70,7 +70,7 @@ public class ModConfig
 		if (cfgFile != null)
 		{
 			cfgFile.setCategoryComment(
-				Configuration.CATEGORY_GENERAL,
+				Categories.General,
 				ModConsts.ModId
 					+ " "
 					+ ModConsts.ModVersion
@@ -110,7 +110,7 @@ public class ModConfig
 	{
 		if (cfgFile == null) { return null; }
 
-		return cfgFile.get(Configuration.CATEGORY_GENERAL, "Noise Enabled", defaultNoiseEnabled,
+		return cfgFile.get(Categories.General, "Noise Enabled", defaultNoiseEnabled,
 			"Controls whether a noise generator is used to generate terrain heights or if the World should be flat.");
 	}
 
@@ -142,7 +142,7 @@ public class ModConfig
 	{
 		if (cfgFile == null) { return null; }
 
-		return cfgFile.get(Configuration.CATEGORY_GENERAL, "Scale", defaultScale,
+		return cfgFile.get(Categories.General, "Scale", defaultScale,
 			"The scale of the world to generate.", minScale, maxScale);
 	}
 
@@ -169,7 +169,7 @@ public class ModConfig
 	{
 		if (cfgFile == null) { return null; }
 
-		return cfgFile.get(Configuration.CATEGORY_GENERAL, "Dome Block", Utils.GetName(defaultDomeBlock),
+		return cfgFile.get(Categories.General, "Dome Block", Utils.GetName(defaultDomeBlock),
 			"The Block to use for the generated bio-domes.");
 	}
 
@@ -196,7 +196,7 @@ public class ModConfig
 	{
 		if (cfgFile == null) { return null; }
 
-		return cfgFile.get(Configuration.CATEGORY_GENERAL, "Bridge Support Block",
+		return cfgFile.get(Categories.General, "Bridge Support Block",
 			Utils.GetName(defaultBridgeSupportBlock),
 			"The Block to use for bridges between bio-domes and stairways to ore-orbs.");
 	}
@@ -224,7 +224,7 @@ public class ModConfig
 	{
 		if (cfgFile == null) { return null; }
 
-		return cfgFile.get(Configuration.CATEGORY_GENERAL, "Bridge Rail Block", Utils.GetName(defaultBridgeRailBlock),
+		return cfgFile.get(Categories.General, "Bridge Rail Block", Utils.GetName(defaultBridgeRailBlock),
 			"The Block to use for the rails on the bridges between bio-domes.");
 	}
 
@@ -254,7 +254,7 @@ public class ModConfig
 	{
 		if (cfgFile == null) { return null; }
 
-		return cfgFile.get(Configuration.CATEGORY_GENERAL, "Outside Filler Block",
+		return cfgFile.get(Categories.General, "Outside Filler Block",
 			Utils.GetName(defaultOutsideFillerBlock),
 			"The block used to fill the area outside of the domes [air, water, and lava are good choices].");
 	}
@@ -280,7 +280,7 @@ public class ModConfig
 	{
 		if (cfgFile == null) { return null; }
 
-		return cfgFile.get(Configuration.CATEGORY_GENERAL, "Tall Grass Enabled", defaultTallGrassEnabled,
+		return cfgFile.get(Categories.General, "Tall Grass Enabled", defaultTallGrassEnabled,
 			"Controls whether tall grass is generated or not.");
 	}
 
@@ -311,7 +311,7 @@ public class ModConfig
 	{
 		if (cfgFile == null) { return null; }
 
-		return cfgFile.get(Configuration.CATEGORY_GENERAL, "Grid Size", defaultGridSize,
+		return cfgFile.get(Categories.General, "Grid Size", defaultGridSize,
 			"The size of the grid (for one sphere and orb) in chunks (pre-scaled)[a 'chunk' is 16 blocks square].",
 			minGridSize, maxGridSize);
 	}
@@ -342,7 +342,7 @@ public class ModConfig
 	{
 		if (cfgFile == null) { return null; }
 
-		return cfgFile.get(Configuration.CATEGORY_GENERAL, "Bridge Width", defaultBridgeWidth,
+		return cfgFile.get(Categories.General, "Bridge Width", defaultBridgeWidth,
 			"Bridge Width: the width of the bridge [from the center to the edge].", minBridgeWidth, maxBridgeWidth);
 	}
 
@@ -373,7 +373,7 @@ public class ModConfig
 	{
 		if (cfgFile == null) { return null; }
 
-		return cfgFile.get(Configuration.CATEGORY_GENERAL, "Sphere Radius (Minimum)", defaultMinSphereRadius,
+		return cfgFile.get(Categories.General, "Sphere Radius (Minimum)", defaultMinSphereRadius,
 			"The minimum (pre-scaled) sphere radius to generate.", sphereRadiusMinimumValue, sphereRadiusMaximumValue);
 	}
 
@@ -401,7 +401,7 @@ public class ModConfig
 	{
 		if (cfgFile == null) { return null; }
 
-		return cfgFile.get(Configuration.CATEGORY_GENERAL, "Sphere Radius (Maximum)", defaultMaxSphereRadius,
+		return cfgFile.get(Categories.General, "Sphere Radius (Maximum)", defaultMaxSphereRadius,
 			"The maximum (pre-scaled) sphere radius to generate.", sphereRadiusMinimumValue, sphereRadiusMaximumValue);
 	}
 
@@ -432,7 +432,7 @@ public class ModConfig
 	{
 		if (cfgFile == null) { return null; }
 
-		return cfgFile.get(Configuration.CATEGORY_GENERAL, "Ore Orb Radius", defaultOrbRadius,
+		return cfgFile.get(Categories.General, "Ore Orb Radius", defaultOrbRadius,
 			"The radius (pre-scaled) of the ore orbs to generate.", minOrbRadius, maxOrbRadius);
 	}
 
@@ -463,7 +463,7 @@ public class ModConfig
 	{
 		if (cfgFile == null) { return null; }
 
-		return cfgFile.get(Configuration.CATEGORY_GENERAL, "Lake Ratio (Minimum)", defaultMinLakeRatio,
+		return cfgFile.get(Categories.General, "Lake Ratio (Minimum)", defaultMinLakeRatio,
 			"The minimum ratio of lake size to sphere size.", lakeRatioMinimumValue, lakeRatioMaximumValue);
 	}
 
@@ -491,7 +491,7 @@ public class ModConfig
 	{
 		if (cfgFile == null) { return null; }
 
-		return cfgFile.get(Configuration.CATEGORY_GENERAL, "Lake Ratio (Maximum)", defaultMaxLakeRatio,
+		return cfgFile.get(Categories.General, "Lake Ratio (Maximum)", defaultMaxLakeRatio,
 			"The maximum ratio of lake size to sphere size.", lakeRatioMinimumValue, lakeRatioMaximumValue);
 	}
 
@@ -548,18 +548,35 @@ public class ModConfig
 		};
 	}
 
+	private static int GetDefaultBiomeWeight(BiomeGenBase biome)
+	{
+		if (biome == BiomeGenBase.forest) { return 50; }
+		if (biome == BiomeGenBase.taiga) { return 40; }
+		if (biome == BiomeGenBase.swampland) { return 40; }
+		if (biome == BiomeGenBase.hell) { return 10; }
+		if (biome == BiomeGenBase.mushroomIsland) { return 5; }
+		if (biome == BiomeGenBase.sky) { return 2; }
+
+		return 25;
+	}
+
+	private Property GetBiomeEntryProperty(BiomeEntry biomeEntry)
+	{
+		if (cfgFile == null) { return null; }
+		if (biomeEntry == null) { return null; }
+		BiomeGenBase biome = biomeEntry.biome;
+		if (biome == null) { return null; }
+
+		return cfgFile.get(Categories.BiomeWeights, biome.biomeName, GetDefaultBiomeWeight(biome),
+			"The weighted chance that the \"" + biome.biomeName + "\" biome will be generated.", 0, 1000);
+	}
+
 	private ModConfig(World world)
 	{
 		this.World = world;
 
 		// Setup Defaults
 		List<BiomeEntry> entries = new ArrayList<BiomeEntry>();
-		entries.add(new BiomeEntry(BiomeGenBase.forest, 50));
-		entries.add(new BiomeEntry(BiomeGenBase.taiga, 40));
-		entries.add(new BiomeEntry(BiomeGenBase.swampland, 40));
-		entries.add(new BiomeEntry(BiomeGenBase.hell, 10));
-		entries.add(new BiomeEntry(BiomeGenBase.mushroomIsland, 5));
-		entries.add(new BiomeEntry(BiomeGenBase.sky, 2));
 
 		for (BiomeGenBase biome: BiomeGenBase.getBiomeGenArray())
 		{
@@ -567,7 +584,7 @@ public class ModConfig
 			{
 				if (!Utils.Any(Utils.Where(entries, SearchFor(biome))))
 				{
-					entries.add(new BiomeEntry(biome, 25));
+					entries.add(new BiomeEntry(biome, GetDefaultBiomeWeight(biome)));
 				}
 			}
 		}
@@ -740,6 +757,15 @@ public class ModConfig
 		this.setOrbRadius(getOrbRadiusProperty().getDouble());
 		this.setMinLakeRatio(getMinLakeRatioProperty().getDouble());
 		this.setMaxLakeRatio(getMaxLakeRatioProperty().getDouble());
+
+		for (BiomeEntry entry: AllBiomes)
+		{
+			Property prop = GetBiomeEntryProperty(entry);
+			if (prop != null)
+			{
+				entry.itemWeight = prop.getInt(GetDefaultBiomeWeight(entry.biome));
+			}
+		}
 
 		if (cfgFile.hasChanged())
 		{

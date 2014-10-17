@@ -12,12 +12,12 @@ import net.minecraft.world.WorldType;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.biome.WorldChunkManager;
 import net.minecraft.world.chunk.IChunkProvider;
+import newBiospheresMod.Configuration.ModConfig;
 import newBiospheresMod.Helpers.Blx;
 import newBiospheresMod.Helpers.IKeyProvider;
 import newBiospheresMod.Helpers.LruCacheList;
 import newBiospheresMod.Helpers.ModConsts;
 import newBiospheresMod.Helpers.Utils;
-import newBiospheresMod.Models.ModConfig;
 
 public class BiosphereWorldType extends WorldType
 {

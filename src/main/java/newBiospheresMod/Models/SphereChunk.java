@@ -9,6 +9,7 @@ package newBiospheresMod.Models;
 import java.util.Random;
 
 import newBiospheresMod.BiosphereChunkProvider;
+import newBiospheresMod.Configuration.ModConfig;
 import newBiospheresMod.Helpers.Creator;
 import newBiospheresMod.Helpers.IKeyProvider;
 import newBiospheresMod.Helpers.LruCacheList;

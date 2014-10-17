@@ -10,11 +10,11 @@ import net.minecraft.block.Block;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldProviderSurface;
+import newBiospheresMod.Configuration.ModConfig;
 import newBiospheresMod.Helpers.AvgCalc;
 import newBiospheresMod.Helpers.Blx;
 import newBiospheresMod.Helpers.ModConsts;
 import newBiospheresMod.Helpers.Utils;
-import newBiospheresMod.Models.ModConfig;
 import newBiospheresMod.Models.Sphere;
 
 public class BiosphereWorldProvider extends WorldProviderSurface

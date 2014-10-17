@@ -17,6 +17,7 @@ import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 import newBiospheresMod.BiosphereChunkProvider;
+import newBiospheresMod.Configuration.ModConfig;
 import newBiospheresMod.Helpers.Blx;
 import newBiospheresMod.Helpers.Creator;
 import newBiospheresMod.Helpers.Func2;

@@ -32,6 +32,7 @@ import net.minecraft.world.gen.feature.WorldGenPumpkin;
 import net.minecraft.world.gen.feature.WorldGenReed;
 import net.minecraft.world.gen.feature.WorldGenTallGrass;
 import net.minecraft.world.gen.feature.WorldGenerator;
+import newBiospheresMod.Configuration.ModConfig;
 import newBiospheresMod.Helpers.AvgCalc;
 import newBiospheresMod.Helpers.Blx;
 import newBiospheresMod.Helpers.Creator;
@@ -41,7 +42,6 @@ import newBiospheresMod.Helpers.ModConsts;
 import newBiospheresMod.Helpers.Predicate;
 import newBiospheresMod.Helpers.TopDownBoundingBox;
 import newBiospheresMod.Helpers.Utils;
-import newBiospheresMod.Models.ModConfig;
 import newBiospheresMod.Models.Sphere;
 import newBiospheresMod.Models.SphereChunk;
 
