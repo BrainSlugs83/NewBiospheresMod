@@ -75,7 +75,17 @@ public class ModGuiConfigTabProvider implements IGuiConfigTabProvider
 				}
 			}));
 
-		tabs.add(new GuiConfigTabEntry(Categories.BiomeWeights, "Biome Weights",
+		// tabs.add(new GuiConfigTabEntry(Categories.OreOrbOreBlocks, "Ore Orbs 2",
+		// new Func2<GuiScreen, IGuiConfigTabProvider, GuiScreen>()
+		// {
+		// @Override
+		// public GuiScreen func(GuiScreen parent, IGuiConfigTabProvider provider)
+		// {
+		// return new ConfigScreens.OreOrbOreBlocksGuiConfigTab(parent, provider);
+		// }
+		// }));
+
+		tabs.add(new GuiConfigTabEntry(Categories.BiomeWeights, "Biomes",
 			new Func2<GuiScreen, IGuiConfigTabProvider, GuiScreen>()
 			{
 				@Override

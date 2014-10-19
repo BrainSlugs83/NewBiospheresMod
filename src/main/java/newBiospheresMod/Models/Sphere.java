@@ -14,9 +14,11 @@ import java.util.Random;
 
 import net.minecraft.block.Block;
 import net.minecraft.util.ChunkCoordinates;
+import net.minecraft.util.WeightedRandom;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 import newBiospheresMod.BiosphereChunkProvider;
+import newBiospheresMod.BlockEntry;
 import newBiospheresMod.Configuration.ModConfig;
 import newBiospheresMod.Helpers.Blx;
 import newBiospheresMod.Helpers.Creator;
@@ -447,8 +449,18 @@ public class Sphere
 	{
 		if (chunkProvider.config.doesNeedProtectionGlass()) { return; }
 
-		final Block bridgeBlock = chunkProvider.config.getBridgeSupportBlock();
-		final Block railBlock = chunkProvider.config.getBridgeRailBlock();
+		final List<BlockEntry> stairwayBlocks = chunkProvider.config.StairwayBlocks;
+
+		boolean foundBlock = false;
+		for (BlockEntry be: stairwayBlocks)
+		{
+			if (be.itemWeight > 0)
+			{
+				foundBlock = true;
+				break;
+			}
+		}
+		if (!foundBlock) { return; }
 
 		int orbDistX, orbDistZ;
 
@@ -494,13 +506,16 @@ public class Sphere
 				{
 					for (int z = orbLocation.posZ - bridgeWidth; z <= orbLocation.posZ + bridgeWidth; z++)
 					{
-						if (rnd.nextBoolean())
+						Block block = ((BlockEntry)WeightedRandom.getRandomItem(rnd, stairwayBlocks)).Block;
+						if (block != Blx.air)
 						{
-							orbStairwayBlx.put(Utils.GetCoords(x, y, z), bridgeBlock);
+							orbStairwayBlx.put(Utils.GetCoords(x, y, z), block);
 						}
-						if (rnd.nextBoolean())
+
+						block = ((BlockEntry)WeightedRandom.getRandomItem(rnd, stairwayBlocks)).Block;
+						if (block != Blx.air)
 						{
-							orbStairwayBlx.put(Utils.GetCoords(x + tox, y, z + toz), bridgeBlock);
+							orbStairwayBlx.put(Utils.GetCoords(x + tox, y, z + toz), block);
 						}
 					}
 
@@ -517,13 +532,16 @@ public class Sphere
 				{
 					for (int x = orbLocation.posX - bridgeWidth; x <= orbLocation.posX + bridgeWidth; x++)
 					{
-						if (rnd.nextBoolean())
+						Block block = ((BlockEntry)WeightedRandom.getRandomItem(rnd, stairwayBlocks)).Block;
+						if (block != Blx.air)
 						{
-							orbStairwayBlx.put(Utils.GetCoords(x, y, z), bridgeBlock);
+							orbStairwayBlx.put(Utils.GetCoords(x, y, z), block);
 						}
-						if (rnd.nextBoolean())
+
+						block = ((BlockEntry)WeightedRandom.getRandomItem(rnd, stairwayBlocks)).Block;
+						if (block != Blx.air)
 						{
-							orbStairwayBlx.put(Utils.GetCoords(x + tox, y, z + toz), bridgeBlock);
+							orbStairwayBlx.put(Utils.GetCoords(x + tox, y, z + toz), block);
 						}
 					}
 
@@ -534,7 +552,6 @@ public class Sphere
 
 		orbStairwayBox = TopDownBoundingBox.FromArray(orbStairwayBlx.keySet());
 	}
-
 	// #endregion
 
 }

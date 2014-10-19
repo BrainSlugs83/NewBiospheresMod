@@ -94,8 +94,9 @@ public class ModConfig
 	public final World World;
 	public final List<BiomeEntry> AllBiomes;
 
-	private final static int ORE_ORB_BLOCK_COUNT = 25;
+	private final static int BLOCK_COUNT = 20;
 	public final List<BlockEntry> OreOrbBlocks = new ArrayList<BlockEntry>();
+	public final List<BlockEntry> StairwayBlocks = new ArrayList<BlockEntry>();
 
 	// #region boolean NoiseEnabled
 
@@ -787,6 +788,14 @@ public class ModConfig
 		return new BlockEntry(Blx.air, 0);
 	}
 
+	private static BlockEntry GetDefaultStairBlockEntry(int index)
+	{
+		if (index == 0) return new BlockEntry(Blx.planks, 50);
+		if (index == 1) return new BlockEntry(Blx.air, 50);
+
+		return new BlockEntry(Blx.air, 0);
+	}
+
 	private Property GetRandomOreBlockEntryProperty(int index)
 	{
 		if (cfgFile == null) { return null; }
@@ -799,10 +808,29 @@ public class ModConfig
 			idxStr = "0" + idxStr;
 		}
 
-		return cfgFile.get(Categories.OreOrbs, "Random Ore Block #" + idxStr, be.toString(),
+		return cfgFile.get(Categories.OreOrbs, "Random Ore #" + idxStr, be.toString(),
 			"The chance that the Ore Orb will produce a given block.  Values have two parts, and are separated by a "
 				+ "comma.  The left side of the comma specifies the block name or Id, and the right side of the comma "
 				+ "specifies the weighted chance to produce that block inside an Ore Orb.");
+	}
+
+	private Property GetRandomStairwayBlockEntryProperty(int index)
+	{
+		if (cfgFile == null) { return null; }
+
+		BlockEntry be = GetDefaultStairBlockEntry(index);
+
+		String idxStr = Integer.toString(index);
+		while (idxStr.length() < 2)
+		{
+			idxStr = "0" + idxStr;
+		}
+
+		return cfgFile.get(Categories.OreOrbs, "Random Stairway #" + idxStr, be.toString(),
+			"The chance that a given block will be present in an Ore Orb's stairway pattern.  Values have two parts, "
+				+ "and are separated by a comma.  The left side of the comma specifies the block name or Id, and the "
+				+ "right side of the comma specifies the weighted chance to produce that block as a part of an Ore "
+				+ "Orb's stairway.");
 	}
 
 	// #endregion
@@ -936,7 +964,7 @@ public class ModConfig
 			setMaxLakeRatio(data.getDouble(keyName, getMaxLakeRatio()));
 		}
 
-		for (int i = 0; i < ORE_ORB_BLOCK_COUNT; i++)
+		for (int i = 0; i < BLOCK_COUNT; i++)
 		{
 			Property prop = GetRandomOreBlockEntryProperty(i);
 
@@ -955,6 +983,30 @@ public class ModConfig
 					else
 					{
 						OreOrbBlocks.add(value);
+					}
+				}
+			}
+		}
+
+		for (int i = 0; i < BLOCK_COUNT; i++)
+		{
+			Property prop = GetRandomStairwayBlockEntryProperty(i);
+
+			if (prop != null)
+			{
+				keyName = GetNewWorldProperty(prop);
+
+				if (data.ContainsKey(keyName))
+				{
+					BlockEntry value = BlockEntry.Parse(data.get(keyName));
+
+					if (StairwayBlocks.size() > i)
+					{
+						StairwayBlocks.set(i, value);
+					}
+					else
+					{
+						StairwayBlocks.add(value);
 					}
 				}
 			}
@@ -1028,7 +1080,7 @@ public class ModConfig
 		keyName = GetNewWorldProperty(getMaxLakeRatioProperty());
 		data.put(keyName, getMaxLakeRatio());
 
-		for (int i = 0; i < ORE_ORB_BLOCK_COUNT; i++)
+		for (int i = 0; i < BLOCK_COUNT; i++)
 		{
 			Property prop = GetRandomOreBlockEntryProperty(i);
 
@@ -1040,6 +1092,24 @@ public class ModConfig
 				if (OreOrbBlocks.size() > i)
 				{
 					value = OreOrbBlocks.get(i).toString();
+				}
+
+				data.put(keyName, value);
+			}
+		}
+
+		for (int i = 0; i < BLOCK_COUNT; i++)
+		{
+			Property prop = GetRandomStairwayBlockEntryProperty(i);
+
+			if (prop != null)
+			{
+				keyName = GetNewWorldProperty(prop);
+				String value = "air, 0";
+
+				if (StairwayBlocks.size() > i)
+				{
+					value = StairwayBlocks.get(i).toString();
 				}
 
 				data.put(keyName, value);
@@ -1083,7 +1153,19 @@ public class ModConfig
 		this.setMinLakeRatio(getMinLakeRatioProperty().getDouble());
 		this.setMaxLakeRatio(getMaxLakeRatioProperty().getDouble());
 
-		for (int i = 0; i < ORE_ORB_BLOCK_COUNT; i++)
+		LoadOreBlocksFromFile();
+		LoadStairwayBlocksFromFile();
+		LoadBiomeWeightsFromFile();
+
+		if (cfgFile.hasChanged())
+		{
+			cfgFile.save();
+		}
+	}
+
+	private void LoadOreBlocksFromFile()
+	{
+		for (int i = 0; i < BLOCK_COUNT; i++)
 		{
 			Property prop = GetRandomOreBlockEntryProperty(i);
 
@@ -1112,12 +1194,38 @@ public class ModConfig
 		{
 			OreOrbBlocks.add(new BlockEntry(Blx.stone, 1));
 		}
+	}
 
-		LoadBiomeWeightsFromFile();
-
-		if (cfgFile.hasChanged())
+	private void LoadStairwayBlocksFromFile()
+	{
+		for (int i = 0; i < BLOCK_COUNT; i++)
 		{
-			cfgFile.save();
+			Property prop = GetRandomStairwayBlockEntryProperty(i);
+
+			if (prop != null)
+			{
+				BlockEntry value = BlockEntry.Parse(prop.getString());
+
+				if (StairwayBlocks.size() > i)
+				{
+					StairwayBlocks.set(i, value);
+				}
+				else
+				{
+					StairwayBlocks.add(value);
+				}
+			}
+		}
+
+		int blockCount = 0;
+		for (BlockEntry block: StairwayBlocks)
+		{
+			blockCount += block.itemWeight;
+		}
+
+		if (blockCount <= 0)
+		{
+			StairwayBlocks.add(new BlockEntry(Blx.air, 1));
 		}
 	}
 
@@ -1173,7 +1281,7 @@ public class ModConfig
 		getMinLakeRatioProperty().set(getMinLakeRatio());
 		getMaxLakeRatioProperty().set(getMaxLakeRatio());
 
-		for (int i = 0; i < ORE_ORB_BLOCK_COUNT; i++)
+		for (int i = 0; i < BLOCK_COUNT; i++)
 		{
 			Property prop = GetRandomOreBlockEntryProperty(i);
 
@@ -1184,6 +1292,23 @@ public class ModConfig
 				if (OreOrbBlocks.size() > i)
 				{
 					value = OreOrbBlocks.get(i).toString();
+				}
+
+				prop.set(value);
+			}
+		}
+
+		for (int i = 0; i < BLOCK_COUNT; i++)
+		{
+			Property prop = GetRandomStairwayBlockEntryProperty(i);
+
+			if (prop != null)
+			{
+				String value = "air, 0";
+
+				if (StairwayBlocks.size() > i)
+				{
+					value = StairwayBlocks.get(i).toString();
 				}
 
 				prop.set(value);

@@ -56,6 +56,21 @@ public class ConfigScreens
 		}
 	}
 
+	// public static class OreOrbOreBlocksGuiConfigTab extends SimpleGuiConfigTab
+	// {
+	// private static final String Category = Categories.OreOrbOreBlocks;
+	//
+	// public OreOrbOreBlocksGuiConfigTab(GuiScreen parent)
+	// {
+	// super(parent, Category);
+	// }
+	//
+	// public OreOrbOreBlocksGuiConfigTab(GuiScreen parent, IGuiConfigTabProvider provider)
+	// {
+	// super(parent, provider, Category);
+	// }
+	// }
+
 	public static class BiomeWeightsGuiConfigTab extends SimpleGuiConfigTab
 	{
 		private static final String Category = Categories.BiomeWeights;
