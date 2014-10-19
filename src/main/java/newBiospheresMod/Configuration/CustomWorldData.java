@@ -39,8 +39,12 @@ public class CustomWorldData extends WorldSavedData
 
 	public void put(String keyName, String value)
 	{
-		Data.put(keyName, value);
-		markDirty();
+		String prevValue = Data.put(keyName, value);
+
+		if (prevValue == null ? value != null : !prevValue.equals(value))
+		{
+			markDirty();
+		}
 	}
 
 	public String get(String keyName)
@@ -53,7 +57,11 @@ public class CustomWorldData extends WorldSavedData
 	public String RemoveKey(String keyName)
 	{
 		String returnValue = Data.remove(keyName);
-		markDirty();
+
+		if (returnValue != null)
+		{
+			markDirty();
+		}
 
 		return returnValue;
 	}

@@ -17,33 +17,33 @@ set zipName="Source (%datestamp%-%timestamp%).zip"
 
 for /F %%f in ('dir "%outputFolder%*.jar" /b') do (
 
-    rem copy "%outputFolder%%%f" . /y
-    move /y "%outputFolder%%%f" .
-    if ERRORLEVEL 1 EXIT /B %ERRORLEVEL%
+	rem copy "%outputFolder%%%f" . /y
+	move /y "%outputFolder%%%f" .
+	if ERRORLEVEL 1 EXIT /B %ERRORLEVEL%
 
-    rem zip -9 -r %zipName% src
-    rem if ERRORLEVEL 1 EXIT /B %ERRORLEVEL%
+	rem zip -9 -r %zipName% src
+	rem if ERRORLEVEL 1 EXIT /B %ERRORLEVEL%
 
-    rem zip -9 -m "%%f" %zipName%
-    rem if ERRORLEVEL 1 EXIT /B %ERRORLEVEL%
+	rem zip -9 -m "%%f" %zipName%
+	rem if ERRORLEVEL 1 EXIT /B %ERRORLEVEL%
 
-    zip -9 "%%f" MODINFO.TXT
-    if ERRORLEVEL 1 EXIT /B %ERRORLEVEL%
+	rem zip -9 "%%f" MODINFO.TXT
+	rem if ERRORLEVEL 1 EXIT /B %ERRORLEVEL%
 
-    call include.bat "%%f" "lib\concurrentlinkedhashmap-lru-1.4.jar"
-    if ERRORLEVEL 1 EXIT /B %ERRORLEVEL%
+	call include.bat "%%f" "lib\concurrentlinkedhashmap-lru-1.4.jar"
+	if ERRORLEVEL 1 EXIT /B %ERRORLEVEL%
 
-    rem this improves the compression slightly:
-    rd /s /q temp 2>nul 1>nul
-    md temp
-    copy "%%f" temp
-    cd temp
-    unzip "%%~nxf"
-    del "%%~nxf"
-    jar cvf "%%~nxf" *
-    copy /y "%%~nxf" ..
-    cd ..
-    rd /s /q temp
+	rem this improves the compression slightly:
+	rd /s /q temp 2>nul 1>nul
+	md temp
+	copy "%%f" temp
+	cd temp
+	unzip "%%~nxf"
+	del "%%~nxf"
+	jar cvf "%%~nxf" *
+	copy /y "%%~nxf" ..
+	cd ..
+	rd /s /q temp
 )
 
 set /A endedAt=(%time:~0,2% * 3600) + (%time:~3,2% * 60) + (%time:~6,2%)
