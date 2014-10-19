@@ -466,7 +466,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 			if (avg.getCount() >= 5)
 			{
 				double av = avg.getAverage();
-				if (av >= .001D)
+				if (av >= .02D)
 				{
 					System.out.printf("INFO: BIOSPHERE GENERATE NEW CHUNK ON AVERAGE TAKES %.3f SECONDS.%n", av);
 				}
@@ -788,7 +788,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 
 	@Override
 	public ChunkPosition func_147416_a(World p_147416_1_, String p_147416_2_, int p_147416_3_, int p_147416_4_,
-			int p_147416_5_)
+		int p_147416_5_)
 	{
 
 		return null;

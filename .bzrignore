@@ -59,3 +59,5 @@ org.eclipse.ui.ide
 org.eclipse.ui.workbench
 org.eclipse.ui.workbench.texteditor
 org.eclipse.team.ui
+eclipse/.metadata/.plugins/org.eclipse.equinox.p2.ui
+eclipse/.metadata/.plugins/org.eclipse.jdt.junit.core

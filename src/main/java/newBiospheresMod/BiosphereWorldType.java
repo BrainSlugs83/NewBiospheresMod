@@ -6,18 +6,17 @@
 
 package newBiospheresMod;
 
-import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldType;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.biome.WorldChunkManager;
 import net.minecraft.world.chunk.IChunkProvider;
+import newBiospheresMod.Configuration.CustomWorldData;
 import newBiospheresMod.Configuration.ModConfig;
 import newBiospheresMod.Helpers.Blx;
 import newBiospheresMod.Helpers.IKeyProvider;
 import newBiospheresMod.Helpers.LruCacheList;
 import newBiospheresMod.Helpers.ModConsts;
-import newBiospheresMod.Helpers.Utils;
 
 public class BiosphereWorldType extends WorldType
 {
@@ -32,7 +31,7 @@ public class BiosphereWorldType extends WorldType
 		}
 	});
 
-	private static final String IsBiosphereWorldKey = ModConsts.ModId + ".Is Biosphere World";
+	public static final String IsBiosphereWorldKey = "IsBiosphereWorld";
 
 	public static boolean IsBiosphereWorld(World world)
 	{
@@ -40,10 +39,10 @@ public class BiosphereWorldType extends WorldType
 		{
 			if (BiosphereWorlds.Contains(world)) { return true; }
 
-			GameRules rules = Utils.GetGameRules(world);
-			if (rules != null)
+			CustomWorldData data = CustomWorldData.FromWorld(world);
+			if (data != null)
 			{
-				if (rules.getGameRuleBooleanValue(IsBiosphereWorldKey))
+				if (data.getBool(IsBiosphereWorldKey))
 				{
 					EnsureWorldIsTracked(world);
 					return true;
@@ -108,12 +107,14 @@ public class BiosphereWorldType extends WorldType
 		if (world != null)
 		{
 			BiosphereWorlds.Push(world);
-			GameRules rules = Utils.GetGameRules(world);
-			if (rules != null)
+
+			CustomWorldData data = CustomWorldData.FromWorld(world);
+			if (data != null)
 			{
-				rules.addGameRule(IsBiosphereWorldKey, "true");
-				ModConfig.get(world).update();
+				data.put(IsBiosphereWorldKey, true);
 			}
+
+			ModConfig.get(world).update();
 		}
 	}
 }

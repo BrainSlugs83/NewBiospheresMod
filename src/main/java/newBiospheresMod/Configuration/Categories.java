@@ -6,10 +6,10 @@
 
 package newBiospheresMod.Configuration;
 
-import net.minecraftforge.common.config.Configuration;
-
 public class Categories
 {
-	public static final String General = Configuration.CATEGORY_GENERAL;
-	public static final String BiomeWeights = "biomeweights";
+	public static final String General = "general";
+	public static final String Biospheres = "biospheres";
+	public static final String OreOrbs = "oreOrbs";
+	public static final String BiomeWeights = "biomeWeights";
 }

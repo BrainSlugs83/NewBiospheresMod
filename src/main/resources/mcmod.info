@@ -3,7 +3,7 @@
   "modid": "New Biospheres Mod",
   "name": "New Biospheres Mod",
   "description": "Adds a 'Biospheres' WorldType to Minecraft.  Based on Risugami's original mod for Minecraft 1.6.",
-  "version": "0.7",
+  "version": "0.8",
   "mcversion": "${mcversion}",
   "url": "http://www.twitter.com/BrainSlugs83",
   "updateUrl": "",

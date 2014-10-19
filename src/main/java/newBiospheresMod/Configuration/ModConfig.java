@@ -14,6 +14,7 @@ import net.minecraft.block.Block;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
+import net.minecraftforge.common.config.ConfigCategory;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import newBiospheresMod.BiomeEntry;
@@ -69,12 +70,13 @@ public class ModConfig
 
 		if (cfgFile != null)
 		{
-			cfgFile.setCategoryComment(
-				Categories.General,
-				ModConsts.ModId
-					+ " "
-					+ ModConsts.ModVersion
-					+ ": Note, these settings only affect new Worlds; previously created Worlds will persist with their existing settings.");
+			cfgFile
+				.setCategoryComment(
+					Categories.General,
+					ModConsts.ModId
+						+ " "
+						+ ModConsts.ModVersion
+						+ ": Note, these settings only affect new Worlds; previously created Worlds will persist with their existing settings.");
 		}
 	}
 
@@ -169,7 +171,7 @@ public class ModConfig
 	{
 		if (cfgFile == null) { return null; }
 
-		return cfgFile.get(Categories.General, "Dome Block", Utils.GetName(defaultDomeBlock),
+		return cfgFile.get(Categories.Biospheres, "Dome Block", Utils.GetName(defaultDomeBlock),
 			"The Block to use for the generated bio-domes.");
 	}
 
@@ -280,7 +282,7 @@ public class ModConfig
 	{
 		if (cfgFile == null) { return null; }
 
-		return cfgFile.get(Categories.General, "Tall Grass Enabled", defaultTallGrassEnabled,
+		return cfgFile.get(Categories.Biospheres, "Tall Grass Enabled", defaultTallGrassEnabled,
 			"Controls whether tall grass is generated or not.");
 	}
 
@@ -373,7 +375,7 @@ public class ModConfig
 	{
 		if (cfgFile == null) { return null; }
 
-		return cfgFile.get(Categories.General, "Sphere Radius (Minimum)", defaultMinSphereRadius,
+		return cfgFile.get(Categories.Biospheres, "Sphere Radius (Minimum)", defaultMinSphereRadius,
 			"The minimum (pre-scaled) sphere radius to generate.", sphereRadiusMinimumValue, sphereRadiusMaximumValue);
 	}
 
@@ -401,7 +403,7 @@ public class ModConfig
 	{
 		if (cfgFile == null) { return null; }
 
-		return cfgFile.get(Categories.General, "Sphere Radius (Maximum)", defaultMaxSphereRadius,
+		return cfgFile.get(Categories.Biospheres, "Sphere Radius (Maximum)", defaultMaxSphereRadius,
 			"The maximum (pre-scaled) sphere radius to generate.", sphereRadiusMinimumValue, sphereRadiusMaximumValue);
 	}
 
@@ -432,7 +434,7 @@ public class ModConfig
 	{
 		if (cfgFile == null) { return null; }
 
-		return cfgFile.get(Categories.General, "Ore Orb Radius", defaultOrbRadius,
+		return cfgFile.get(Categories.OreOrbs, "Ore Orb Radius", defaultOrbRadius,
 			"The radius (pre-scaled) of the ore orbs to generate.", minOrbRadius, maxOrbRadius);
 	}
 
@@ -463,7 +465,7 @@ public class ModConfig
 	{
 		if (cfgFile == null) { return null; }
 
-		return cfgFile.get(Categories.General, "Lake Ratio (Minimum)", defaultMinLakeRatio,
+		return cfgFile.get(Categories.Biospheres, "Lake Ratio (Minimum)", defaultMinLakeRatio,
 			"The minimum ratio of lake size to sphere size.", lakeRatioMinimumValue, lakeRatioMaximumValue);
 	}
 
@@ -491,7 +493,7 @@ public class ModConfig
 	{
 		if (cfgFile == null) { return null; }
 
-		return cfgFile.get(Categories.General, "Lake Ratio (Maximum)", defaultMaxLakeRatio,
+		return cfgFile.get(Categories.Biospheres, "Lake Ratio (Maximum)", defaultMaxLakeRatio,
 			"The maximum ratio of lake size to sphere size.", lakeRatioMinimumValue, lakeRatioMaximumValue);
 	}
 
@@ -536,6 +538,180 @@ public class ModConfig
 
 	// #endregion
 
+	// #region Migrations
+
+	private String GetCategoryName(Property input)
+	{
+		String fallback = null;
+		String propName = input.getName();
+
+		for (String catName: cfgFile.getCategoryNames())
+		{
+			ConfigCategory cat = cfgFile.getCategory(catName);
+			if (cat != null)
+			{
+				if (cat.containsKey(propName))
+				{
+					if (fallback == null) fallback = catName;
+					if (cat.get(propName) == input) { return catName; }
+				}
+			}
+		}
+
+		return fallback;
+	}
+
+	private String GetOldWorldProperty(Property input)
+	{
+		return GetOldWorldProperty(input.getName());
+	}
+
+	private String GetOldWorldProperty(String propName)
+	{
+		return ModConsts.ModId + "." + propName;
+	}
+
+	private String GetNewWorldProperty(Property input)
+	{
+		return GetNewWorldProperty(GetCategoryName(input), input.getName());
+	}
+
+	private String GetNewWorldProperty(String category, String propName)
+	{
+		String result = category + "." + propName;
+		result = result.toLowerCase().replace(" ", "");
+		return result;
+	}
+
+	private static class MigrationEntry
+	{
+		public final String OldCategory;
+		public final String NewCategory;
+		public final String PropertyName;
+
+		public MigrationEntry(String oldCategory, String newCategory, String propertyName)
+		{
+			this.OldCategory = oldCategory;
+			this.NewCategory = newCategory;
+			this.PropertyName = propertyName;
+		}
+	}
+
+	private static List<MigrationEntry> migrations = null;
+
+	private synchronized void InitMigrations()
+	{
+		if (migrations == null)
+		{
+			migrations = new ArrayList<MigrationEntry>();
+			migrations.add(new MigrationEntry(Categories.General, Categories.Biospheres, "Dome Block"));
+			migrations.add(new MigrationEntry(Categories.General, Categories.Biospheres, "Sphere Radius (Minimum)"));
+			migrations.add(new MigrationEntry(Categories.General, Categories.Biospheres, "Sphere Radius (Maximum)"));
+			migrations.add(new MigrationEntry(Categories.General, Categories.Biospheres, "Lake Ratio (Minimum)"));
+			migrations.add(new MigrationEntry(Categories.General, Categories.Biospheres, "Lake Ratio (Maximum)"));
+			migrations.add(new MigrationEntry(Categories.General, Categories.Biospheres, "Tall Grass Enabled"));
+			migrations.add(new MigrationEntry(Categories.General, Categories.OreOrbs, "Ore Orb Radius"));
+
+			for (BiomeEntry be: AllBiomes)
+			{
+				Property prop = GetBiomeEntryProperty(be);
+
+				migrations.add(new MigrationEntry(Categories.BiomeWeights.toLowerCase(),
+					Categories.BiomeWeights, prop.getName()));
+			}
+		}
+	}
+
+	private void PerformFileMigrations()
+	{
+		InitMigrations();
+
+		if (cfgFile != null)
+		{
+			for (MigrationEntry mige: migrations)
+			{
+				cfgFile.moveProperty(mige.OldCategory, mige.PropertyName, mige.NewCategory);
+			}
+
+			if (cfgFile.hasChanged())
+			{
+				cfgFile.save();
+			}
+		}
+	}
+
+	private void MigrateWorldProperty(GameRules rules, CustomWorldData data, String category, String propertyName)
+	{
+		if (rules != null && data != null)
+		{
+			String oldName = GetOldWorldProperty(propertyName);
+			if (rules.hasRule(oldName))
+			{
+				String value = rules.getGameRuleStringValue(oldName);
+				data.put(GetNewWorldProperty(category, propertyName), value);
+			}
+		}
+	}
+
+	private void MigrateWorldProperty(CustomWorldData data, String oldCategory, String newCategory, String propertyName)
+	{
+		if (data != null)
+		{
+			String oldName = GetNewWorldProperty(oldCategory, propertyName);
+			String newName = GetNewWorldProperty(newCategory, propertyName);
+
+			if (data.ContainsKey(oldName))
+			{
+				String value = data.get(oldName);
+				data.RemoveKey(oldName);
+				data.put(newName, value);
+			}
+		}
+	}
+
+	private void PerformWorldMigrations()
+	{
+		InitMigrations();
+
+		if (World == null) { return; }
+
+		CustomWorldData data = CustomWorldData.FromWorld(World);
+		if (data == null) { return; }
+
+		GameRules rules = Utils.GetGameRules(this.World);
+		if (rules != null)
+		{
+			String ruleName = ModConsts.ModId + ".Is Biosphere World";
+			if (rules.getGameRuleBooleanValue(ruleName))
+			{
+				data.put(BiosphereWorldType.IsBiosphereWorldKey, true);
+			}
+		}
+
+		if (rules != null && cfgFile != null)
+		{
+			for (String catName: cfgFile.getCategoryNames())
+			{
+				ConfigCategory cat = cfgFile.getCategory(catName);
+				for (String propName: cat.getValues().keySet())
+				{
+					MigrateWorldProperty(rules, data, catName, propName);
+				}
+			}
+		}
+
+		for (MigrationEntry mige: migrations)
+		{
+			MigrateWorldProperty(data, mige.OldCategory, mige.NewCategory, mige.PropertyName);
+		}
+
+		data.setDirty(true);
+	}
+
+	// #endregion
+
+	// #region Biome Property Helpers
+
 	private static Predicate<BiomeEntry> SearchFor(final BiomeGenBase biome)
 	{
 		return new Predicate<BiomeEntry>()
@@ -571,6 +747,8 @@ public class ModConfig
 			"The weighted chance that the \"" + biome.biomeName + "\" biome will be generated.", 0, 1000);
 	}
 
+	// #endregion
+
 	private ModConfig(World world)
 	{
 		this.World = world;
@@ -595,97 +773,119 @@ public class ModConfig
 
 	public void update()
 	{
+		PerformFileMigrations();
 		LoadConfigurationFromFile();
 		SaveConfigurationToFile();
 
+		PerformWorldMigrations();
 		LoadConfigurationFromWorld();
 		SaveConfigurationToWorld();
 	}
+
+	// #region Load & Save from World
 
 	private void LoadConfigurationFromWorld()
 	{
 		if (!BiosphereWorldType.IsBiosphereWorld(this.World)) { return; }
 
-		GameRules rules = Utils.GetGameRules(this.World);
-		if (rules != null)
+		CustomWorldData data = CustomWorldData.FromWorld(this.World);
+		if (data == null) { return; }
+
+		String keyName;
+
+		keyName = GetNewWorldProperty(getNoiseEnabledProperty());
+		if (data.ContainsKey(keyName))
 		{
-			String ruleName = ModConsts.ModId + "." + getNoiseEnabledProperty().getName();
-			if (rules.hasRule(ruleName))
-			{
-				setNoiseEnabled(rules.getGameRuleBooleanValue(ruleName));
-			}
+			setNoiseEnabled(data.getBool(keyName, isNoiseEnabled()));
+		}
 
-			ruleName = ModConsts.ModId + "." + getScaleProperty().getName();
-			if (rules.hasRule(ruleName))
-			{
-				setScale(Float.parseFloat(rules.getGameRuleStringValue(ruleName)));
-			}
+		keyName = GetNewWorldProperty(getScaleProperty());
+		if (data.ContainsKey(keyName))
+		{
+			setScale(data.getFloat(keyName, getScale()));
+		}
 
-			ruleName = ModConsts.ModId + "." + getDomeBlockProperty().getName();
-			if (rules.hasRule(ruleName))
-			{
-				setDomeBlock(Utils.ParseBlock(rules.getGameRuleStringValue(ruleName)));
-			}
+		keyName = GetNewWorldProperty(getDomeBlockProperty());
+		if (data.ContainsKey(keyName))
+		{
+			setDomeBlock(data.getBlock(keyName, getDomeBlock()));
+		}
 
-			ruleName = ModConsts.ModId + "." + getBridgeSupportBlockProperty().getName();
-			if (rules.hasRule(ruleName))
-			{
-				setBridgeSupportBlock(Utils.ParseBlock(rules.getGameRuleStringValue(ruleName)));
-			}
+		keyName = GetNewWorldProperty(getBridgeSupportBlockProperty());
+		if (data.ContainsKey(keyName))
+		{
+			setBridgeSupportBlock(data.getBlock(keyName, getBridgeSupportBlock()));
+		}
 
-			ruleName = ModConsts.ModId + "." + getOutsideFillerBlockProperty().getName();
-			if (rules.hasRule(ruleName))
-			{
-				setOutsideFillerBlock(Utils.ParseBlock(rules.getGameRuleStringValue(ruleName)));
-			}
+		keyName = GetNewWorldProperty(getOutsideFillerBlockProperty());
+		if (data.ContainsKey(keyName))
+		{
+			setOutsideFillerBlock(data.getBlock(keyName, getOutsideFillerBlock()));
+		}
 
-			ruleName = ModConsts.ModId + "." + getTallGrassEnabledProperty().getName();
-			if (rules.hasRule(ruleName))
-			{
-				setTallGrassEnabled(rules.getGameRuleBooleanValue(ruleName));
-			}
+		keyName = GetNewWorldProperty(getTallGrassEnabledProperty());
+		if (data.ContainsKey(keyName))
+		{
+			setTallGrassEnabled(data.getBool(keyName, isTallGrassEnabled()));
+		}
 
-			ruleName = ModConsts.ModId + "." + getGridSizeProperty().getName();
-			if (rules.hasRule(ruleName))
-			{
-				setGridSize(Integer.parseInt(rules.getGameRuleStringValue(ruleName)));
-			}
+		keyName = GetNewWorldProperty(getGridSizeProperty());
+		if (data.ContainsKey(keyName))
+		{
+			setGridSize(data.getInt(keyName, getGridSize()));
+		}
 
-			ruleName = ModConsts.ModId + "." + getBridgeWidthProperty().getName();
-			if (rules.hasRule(ruleName))
-			{
-				setBridgeWidth(Integer.parseInt(rules.getGameRuleStringValue(ruleName)));
-			}
+		keyName = GetNewWorldProperty(getBridgeWidthProperty());
+		if (data.ContainsKey(keyName))
+		{
+			setBridgeWidth(data.getInt(keyName, getBridgeWidth()));
+		}
 
-			ruleName = ModConsts.ModId + "." + getMinSphereRadiusProperty().getName();
-			if (rules.hasRule(ruleName))
-			{
-				setMinSphereRadius(Double.parseDouble(rules.getGameRuleStringValue(ruleName)));
-			}
+		keyName = GetNewWorldProperty(getMinSphereRadiusProperty());
+		if (data.ContainsKey(keyName))
+		{
+			setMinSphereRadius(data.getDouble(keyName, getMinSphereRadius()));
+		}
 
-			ruleName = ModConsts.ModId + "." + getMaxSphereRadiusProperty().getName();
-			if (rules.hasRule(ruleName))
-			{
-				setMaxSphereRadius(Double.parseDouble(rules.getGameRuleStringValue(ruleName)));
-			}
+		keyName = GetNewWorldProperty(getMaxSphereRadiusProperty());
+		if (data.ContainsKey(keyName))
+		{
+			setMaxSphereRadius(data.getDouble(keyName, getMaxSphereRadius()));
+		}
 
-			ruleName = ModConsts.ModId + "." + getOrbRadiusProperty().getName();
-			if (rules.hasRule(ruleName))
-			{
-				setOrbRadius(Double.parseDouble(rules.getGameRuleStringValue(ruleName)));
-			}
+		keyName = GetNewWorldProperty(getOrbRadiusProperty());
+		if (data.ContainsKey(keyName))
+		{
+			setOrbRadius(data.getDouble(keyName, getOrbRadius()));
+		}
 
-			ruleName = ModConsts.ModId + "." + getMinLakeRatioProperty().getName();
-			if (rules.hasRule(ruleName))
-			{
-				setMinLakeRatio(Double.parseDouble(rules.getGameRuleStringValue(ruleName)));
-			}
+		keyName = GetNewWorldProperty(getMinLakeRatioProperty());
+		if (data.ContainsKey(keyName))
+		{
+			setMinLakeRatio(data.getDouble(keyName, getMinLakeRatio()));
+		}
 
-			ruleName = ModConsts.ModId + "." + getMaxLakeRatioProperty().getName();
-			if (rules.hasRule(ruleName))
+		keyName = GetNewWorldProperty(getMaxLakeRatioProperty());
+		if (data.ContainsKey(keyName))
+		{
+			setMaxLakeRatio(data.getDouble(keyName, getMaxLakeRatio()));
+		}
+
+		int biomeCount = 0;
+
+		for (BiomeEntry entry: AllBiomes)
+		{
+			Property prop = GetBiomeEntryProperty(entry);
+			if (prop != null)
 			{
-				setMaxLakeRatio(Double.parseDouble(rules.getGameRuleStringValue(ruleName)));
+				entry.itemWeight = data.getInt(GetNewWorldProperty(prop), entry.itemWeight);
+				biomeCount += entry.itemWeight;
 			}
+		}
+
+		if (biomeCount <= 0)
+		{
+			LoadBiomeWeightsFromFile();
 		}
 	}
 
@@ -693,49 +893,64 @@ public class ModConfig
 	{
 		if (!BiosphereWorldType.IsBiosphereWorld(this.World)) { return; }
 
-		GameRules rules = Utils.GetGameRules(this.World);
-		if (rules != null)
+		CustomWorldData data = CustomWorldData.FromWorld(this.World);
+		if (data == null) { return; }
+
+		String keyName;
+
+		keyName = GetNewWorldProperty(getNoiseEnabledProperty());
+		data.put(keyName, isNoiseEnabled());
+
+		keyName = GetNewWorldProperty(getScaleProperty());
+		data.put(keyName, getScale());
+
+		keyName = GetNewWorldProperty(getDomeBlockProperty());
+		data.put(keyName, getDomeBlock());
+
+		keyName = GetNewWorldProperty(getBridgeSupportBlockProperty());
+		data.put(keyName, getBridgeSupportBlock());
+
+		keyName = GetNewWorldProperty(getOutsideFillerBlockProperty());
+		data.put(keyName, getOutsideFillerBlock());
+
+		keyName = GetNewWorldProperty(getTallGrassEnabledProperty());
+		data.put(keyName, isTallGrassEnabled());
+
+		keyName = GetNewWorldProperty(getGridSizeProperty());
+		data.put(keyName, getGridSize());
+
+		keyName = GetNewWorldProperty(getBridgeWidthProperty());
+		data.put(keyName, getBridgeWidth());
+
+		keyName = GetNewWorldProperty(getMinSphereRadiusProperty());
+		data.put(keyName, getMinSphereRadius());
+
+		keyName = GetNewWorldProperty(getMaxSphereRadiusProperty());
+		data.put(keyName, getMaxSphereRadius());
+
+		keyName = GetNewWorldProperty(getOrbRadiusProperty());
+		data.put(keyName, getOrbRadius());
+
+		keyName = GetNewWorldProperty(getMinLakeRatioProperty());
+		data.put(keyName, getMinLakeRatio());
+
+		keyName = GetNewWorldProperty(getMaxLakeRatioProperty());
+		data.put(keyName, getMaxLakeRatio());
+
+		for (BiomeEntry entry: AllBiomes)
 		{
-			String ruleName = ModConsts.ModId + "." + getNoiseEnabledProperty().getName();
-			rules.setOrCreateGameRule(ruleName, Boolean.toString(isNoiseEnabled()));
-
-			ruleName = ModConsts.ModId + "." + getScaleProperty().getName();
-			rules.setOrCreateGameRule(ruleName, Float.toString(getScale()));
-
-			ruleName = ModConsts.ModId + "." + getDomeBlockProperty().getName();
-			rules.setOrCreateGameRule(ruleName, Utils.GetName(getDomeBlock()));
-
-			ruleName = ModConsts.ModId + "." + getBridgeSupportBlockProperty().getName();
-			rules.setOrCreateGameRule(ruleName, Utils.GetName(getBridgeSupportBlock()));
-
-			ruleName = ModConsts.ModId + "." + getOutsideFillerBlockProperty().getName();
-			rules.setOrCreateGameRule(ruleName, Utils.GetName(getOutsideFillerBlock()));
-
-			ruleName = ModConsts.ModId + "." + getTallGrassEnabledProperty().getName();
-			rules.setOrCreateGameRule(ruleName, Boolean.toString(isTallGrassEnabled()));
-
-			ruleName = ModConsts.ModId + "." + getGridSizeProperty().getName();
-			rules.setOrCreateGameRule(ruleName, Integer.toString(getGridSize()));
-
-			ruleName = ModConsts.ModId + "." + getBridgeWidthProperty().getName();
-			rules.setOrCreateGameRule(ruleName, Integer.toString(getBridgeWidth()));
-
-			ruleName = ModConsts.ModId + "." + getMinSphereRadiusProperty().getName();
-			rules.setOrCreateGameRule(ruleName, Double.toString(getMinSphereRadius()));
-
-			ruleName = ModConsts.ModId + "." + getMaxSphereRadiusProperty().getName();
-			rules.setOrCreateGameRule(ruleName, Double.toString(getMaxSphereRadius()));
-
-			ruleName = ModConsts.ModId + "." + getOrbRadiusProperty().getName();
-			rules.setOrCreateGameRule(ruleName, Double.toString(getOrbRadius()));
-
-			ruleName = ModConsts.ModId + "." + getMinLakeRatioProperty().getName();
-			rules.setOrCreateGameRule(ruleName, Double.toString(getMinLakeRatio()));
-
-			ruleName = ModConsts.ModId + "." + getMaxLakeRatioProperty().getName();
-			rules.setOrCreateGameRule(ruleName, Double.toString(getMaxLakeRatio()));
+			Property prop = GetBiomeEntryProperty(entry);
+			if (prop != null)
+			{
+				keyName = GetNewWorldProperty(prop);
+				data.put(keyName, entry.itemWeight);
+			}
 		}
 	}
+
+	// #endregion
+
+	// #region Load & Save from File
 
 	private void LoadConfigurationFromFile()
 	{
@@ -758,18 +973,37 @@ public class ModConfig
 		this.setMinLakeRatio(getMinLakeRatioProperty().getDouble());
 		this.setMaxLakeRatio(getMaxLakeRatioProperty().getDouble());
 
-		for (BiomeEntry entry: AllBiomes)
-		{
-			Property prop = GetBiomeEntryProperty(entry);
-			if (prop != null)
-			{
-				entry.itemWeight = prop.getInt(GetDefaultBiomeWeight(entry.biome));
-			}
-		}
+		LoadBiomeWeightsFromFile();
 
 		if (cfgFile.hasChanged())
 		{
 			cfgFile.save();
+		}
+	}
+
+	private void LoadBiomeWeightsFromFile()
+	{
+		int count = 0;
+
+		if (cfgFile != null)
+		{
+			for (BiomeEntry entry: AllBiomes)
+			{
+				Property prop = GetBiomeEntryProperty(entry);
+				if (prop != null)
+				{
+					entry.itemWeight = prop.getInt(GetDefaultBiomeWeight(entry.biome));
+					count += entry.itemWeight;
+				}
+			}
+		}
+
+		if (count <= 0)
+		{
+			for (BiomeEntry entry: AllBiomes)
+			{
+				entry.itemWeight = GetDefaultBiomeWeight(entry.biome);
+			}
 		}
 	}
 
@@ -792,9 +1026,20 @@ public class ModConfig
 		getMinLakeRatioProperty().set(getMinLakeRatio());
 		getMaxLakeRatioProperty().set(getMaxLakeRatio());
 
+		for (BiomeEntry entry: AllBiomes)
+		{
+			Property prop = GetBiomeEntryProperty(entry);
+			if (prop != null)
+			{
+				prop.set(GetDefaultBiomeWeight(entry.biome));
+			}
+		}
+
 		if (cfgFile.hasChanged())
 		{
 			cfgFile.save();
 		}
 	}
+
+	// #endregion
 }

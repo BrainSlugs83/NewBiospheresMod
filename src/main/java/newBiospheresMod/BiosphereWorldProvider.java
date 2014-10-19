@@ -130,7 +130,11 @@ public class BiosphereWorldProvider extends WorldProviderSurface
 			Sphere sphere = Sphere.get(this.worldObj, coords.posX >> 4, coords.posZ >> 4);
 			if (sphere == null)
 			{
-				System.out.println("WARNING: COULDN'T FIND SPHERE, USING FALLBACK LOGIC TO FIND SPAWN LOCATION.");
+				if (ModConsts.DEBUG)
+				{
+					System.out.println("WARNING: COULDN'T FIND SPHERE, USING FALLBACK LOGIC TO FIND SPAWN LOCATION.");
+				}
+
 				FixSpawnLocation_fallback_logic(coords);
 			}
 			else
@@ -163,7 +167,12 @@ public class BiosphereWorldProvider extends WorldProviderSurface
 
 					if (bumpCount >= 2)
 					{
-						System.out.println("WARNING: COULDN'T FIND VALID SPAWN LOCATION VIA NORMAL LOGIC, USING FALLBACK LOGIC TO FIX SPAWN LOCATION.");
+						if (ModConsts.DEBUG)
+						{
+							System.out
+								.println(
+								"WARNING: COULDN'T FIND VALID SPAWN LOCATION VIA NORMAL LOGIC, USING FALLBACK LOGIC TO FIX SPAWN LOCATION.");
+						}
 						FixSpawnLocation_fallback_logic(coords);
 						break;
 					}
@@ -217,7 +226,7 @@ public class BiosphereWorldProvider extends WorldProviderSurface
 				if (avg.getCount() >= 5)
 				{
 					double av = avg.getAverage();
-					if (av >= .001D)
+					if (av >= .02D)
 					{
 						System.out.printf("INFO: BIOSPHERE FIX SPAWN LOCATION ON AVERAGE TAKES %.3f SECONDS.%n", av);
 					}
@@ -248,7 +257,11 @@ public class BiosphereWorldProvider extends WorldProviderSurface
 			{
 				coords.posX = orgCoords.posX;
 				coords.posZ = orgCoords.posZ;
-				System.out.println("WARNING: BIOSPHERE FIX SPAWN LOCATION FAILED!!");
+
+				if (ModConsts.DEBUG)
+				{
+					System.out.println("WARNING: BIOSPHERE FIX SPAWN LOCATION FAILED!!");
+				}
 
 				break;
 			}

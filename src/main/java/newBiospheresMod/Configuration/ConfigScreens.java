@@ -26,6 +26,36 @@ public class ConfigScreens
 		}
 	}
 
+	public static class BiospheresGuiConfigTab extends SimpleGuiConfigTab
+	{
+		private static final String Category = Categories.Biospheres;
+
+		public BiospheresGuiConfigTab(GuiScreen parent)
+		{
+			super(parent, Category);
+		}
+
+		public BiospheresGuiConfigTab(GuiScreen parent, IGuiConfigTabProvider provider)
+		{
+			super(parent, provider, Category);
+		}
+	}
+
+	public static class OreOrbsGuiConfigTab extends SimpleGuiConfigTab
+	{
+		private static final String Category = Categories.OreOrbs;
+
+		public OreOrbsGuiConfigTab(GuiScreen parent)
+		{
+			super(parent, Category);
+		}
+
+		public OreOrbsGuiConfigTab(GuiScreen parent, IGuiConfigTabProvider provider)
+		{
+			super(parent, provider, Category);
+		}
+	}
+
 	public static class BiomeWeightsGuiConfigTab extends SimpleGuiConfigTab
 	{
 		private static final String Category = Categories.BiomeWeights;
