@@ -19,6 +19,7 @@ import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import newBiospheresMod.BiomeEntry;
 import newBiospheresMod.BiosphereWorldType;
+import newBiospheresMod.BlockEntry;
 import newBiospheresMod.Helpers.Blx;
 import newBiospheresMod.Helpers.Creator;
 import newBiospheresMod.Helpers.IKeyProvider;
@@ -92,6 +93,9 @@ public class ModConfig
 
 	public final World World;
 	public final List<BiomeEntry> AllBiomes;
+
+	private final static int ORE_ORB_BLOCK_COUNT = 25;
+	public final List<BlockEntry> OreOrbBlocks = new ArrayList<BlockEntry>();
 
 	// #region boolean NoiseEnabled
 
@@ -171,8 +175,35 @@ public class ModConfig
 	{
 		if (cfgFile == null) { return null; }
 
-		return cfgFile.get(Categories.Biospheres, "Dome Block", Utils.GetName(defaultDomeBlock),
+		return cfgFile.get(Categories.Biospheres, "Dome Block", Utils.GetNameOrIdForBlock(defaultDomeBlock),
 			"The Block to use for the generated bio-domes.");
+	}
+
+	// #endregion
+
+	// #region Block OrbBlock
+
+	private static final Block defaultOrbBlock = Blx.glass;
+	private Block orbBlock = defaultDomeBlock;
+
+	public Block getOrbBlock()
+	{
+		return orbBlock;
+	}
+
+	public void setOrbBlock(Block value)
+	{
+		if (value == null) value = defaultOrbBlock;
+
+		this.orbBlock = value;
+	}
+
+	private static Property getOrbBlockProperty()
+	{
+		if (cfgFile == null) { return null; }
+
+		return cfgFile.get(Categories.OreOrbs, "Ore Orb Shell Block", Utils.GetNameOrIdForBlock(defaultOrbBlock),
+			"The Block to use for the shell of the generated Ore Orbs.");
 	}
 
 	// #endregion
@@ -199,7 +230,7 @@ public class ModConfig
 		if (cfgFile == null) { return null; }
 
 		return cfgFile.get(Categories.General, "Bridge Support Block",
-			Utils.GetName(defaultBridgeSupportBlock),
+			Utils.GetNameOrIdForBlock(defaultBridgeSupportBlock),
 			"The Block to use for bridges between bio-domes and stairways to ore-orbs.");
 	}
 
@@ -226,7 +257,7 @@ public class ModConfig
 	{
 		if (cfgFile == null) { return null; }
 
-		return cfgFile.get(Categories.General, "Bridge Rail Block", Utils.GetName(defaultBridgeRailBlock),
+		return cfgFile.get(Categories.General, "Bridge Rail Block", Utils.GetNameOrIdForBlock(defaultBridgeRailBlock),
 			"The Block to use for the rails on the bridges between bio-domes.");
 	}
 
@@ -257,7 +288,7 @@ public class ModConfig
 		if (cfgFile == null) { return null; }
 
 		return cfgFile.get(Categories.General, "Outside Filler Block",
-			Utils.GetName(defaultOutsideFillerBlock),
+			Utils.GetNameOrIdForBlock(defaultOutsideFillerBlock),
 			"The block used to fill the area outside of the domes [air, water, and lava are good choices].");
 	}
 
@@ -611,14 +642,6 @@ public class ModConfig
 			migrations.add(new MigrationEntry(Categories.General, Categories.Biospheres, "Lake Ratio (Maximum)"));
 			migrations.add(new MigrationEntry(Categories.General, Categories.Biospheres, "Tall Grass Enabled"));
 			migrations.add(new MigrationEntry(Categories.General, Categories.OreOrbs, "Ore Orb Radius"));
-
-			for (BiomeEntry be: AllBiomes)
-			{
-				Property prop = GetBiomeEntryProperty(be);
-
-				migrations.add(new MigrationEntry(Categories.BiomeWeights.toLowerCase(),
-					Categories.BiomeWeights, prop.getName()));
-			}
 		}
 	}
 
@@ -710,7 +733,7 @@ public class ModConfig
 
 	// #endregion
 
-	// #region Biome Property Helpers
+	// #region Property Helpers
 
 	private static Predicate<BiomeEntry> SearchFor(final BiomeGenBase biome)
 	{
@@ -747,6 +770,41 @@ public class ModConfig
 			"The weighted chance that the \"" + biome.biomeName + "\" biome will be generated.", 0, 1000);
 	}
 
+	private static BlockEntry GetDefaultOreBlockEntry(int index)
+	{
+		if (index == 0) return new BlockEntry(Blx.lapis_ore, 5);
+		if (index == 1) return new BlockEntry(Blx.emerald_ore, 5);
+		if (index == 2) return new BlockEntry(Blx.diamond_ore, 5);
+		if (index == 3) return new BlockEntry(Blx.iron_ore, 10);
+		if (index == 4) return new BlockEntry(Blx.gold_ore, 10);
+		if (index == 5) return new BlockEntry(Blx.coal_ore, 15);
+		if (index == 6) return new BlockEntry(Blx.redstone_ore, 15);
+		if (index == 7) return new BlockEntry(Blx.quartz_ore, 10);
+		if (index == 8) return new BlockEntry(Blx.gravel, 100);
+		if (index == 9) return new BlockEntry(Blx.lava, 15);
+		if (index == 10) return new BlockEntry(Blx.stone, 310);
+
+		return new BlockEntry(Blx.air, 0);
+	}
+
+	private Property GetRandomOreBlockEntryProperty(int index)
+	{
+		if (cfgFile == null) { return null; }
+
+		BlockEntry be = GetDefaultOreBlockEntry(index);
+
+		String idxStr = Integer.toString(index);
+		while (idxStr.length() < 2)
+		{
+			idxStr = "0" + idxStr;
+		}
+
+		return cfgFile.get(Categories.OreOrbs, "Random Ore Block #" + idxStr, be.toString(),
+			"The chance that the Ore Orb will produce a given block.  Values have two parts, and are separated by a "
+				+ "comma.  The left side of the comma specifies the block name or Id, and the right side of the comma "
+				+ "specifies the weighted chance to produce that block inside an Ore Orb.");
+	}
+
 	// #endregion
 
 	private ModConfig(World world)
@@ -768,6 +826,7 @@ public class ModConfig
 		}
 
 		this.AllBiomes = Collections.unmodifiableList(entries);
+
 		update();
 	}
 
@@ -809,6 +868,12 @@ public class ModConfig
 		if (data.ContainsKey(keyName))
 		{
 			setDomeBlock(data.getBlock(keyName, getDomeBlock()));
+		}
+
+		keyName = GetNewWorldProperty(getOrbBlockProperty());
+		if (data.ContainsKey(keyName))
+		{
+			setOrbBlock(data.getBlock(keyName, getOrbBlock()));
 		}
 
 		keyName = GetNewWorldProperty(getBridgeSupportBlockProperty());
@@ -871,8 +936,31 @@ public class ModConfig
 			setMaxLakeRatio(data.getDouble(keyName, getMaxLakeRatio()));
 		}
 
-		int biomeCount = 0;
+		for (int i = 0; i < ORE_ORB_BLOCK_COUNT; i++)
+		{
+			Property prop = GetRandomOreBlockEntryProperty(i);
 
+			if (prop != null)
+			{
+				keyName = GetNewWorldProperty(prop);
+
+				if (data.ContainsKey(keyName))
+				{
+					BlockEntry value = BlockEntry.Parse(data.get(keyName));
+
+					if (OreOrbBlocks.size() > i)
+					{
+						OreOrbBlocks.set(i, value);
+					}
+					else
+					{
+						OreOrbBlocks.add(value);
+					}
+				}
+			}
+		}
+
+		int biomeCount = 0;
 		for (BiomeEntry entry: AllBiomes)
 		{
 			Property prop = GetBiomeEntryProperty(entry);
@@ -907,6 +995,9 @@ public class ModConfig
 		keyName = GetNewWorldProperty(getDomeBlockProperty());
 		data.put(keyName, getDomeBlock());
 
+		keyName = GetNewWorldProperty(getOrbBlockProperty());
+		data.put(keyName, getOrbBlock());
+
 		keyName = GetNewWorldProperty(getBridgeSupportBlockProperty());
 		data.put(keyName, getBridgeSupportBlock());
 
@@ -937,6 +1028,24 @@ public class ModConfig
 		keyName = GetNewWorldProperty(getMaxLakeRatioProperty());
 		data.put(keyName, getMaxLakeRatio());
 
+		for (int i = 0; i < ORE_ORB_BLOCK_COUNT; i++)
+		{
+			Property prop = GetRandomOreBlockEntryProperty(i);
+
+			if (prop != null)
+			{
+				keyName = GetNewWorldProperty(prop);
+				String value = "air, 0";
+
+				if (OreOrbBlocks.size() > i)
+				{
+					value = OreOrbBlocks.get(i).toString();
+				}
+
+				data.put(keyName, value);
+			}
+		}
+
 		for (BiomeEntry entry: AllBiomes)
 		{
 			Property prop = GetBiomeEntryProperty(entry);
@@ -959,6 +1068,7 @@ public class ModConfig
 		this.setNoiseEnabled(getNoiseEnabledProperty().getBoolean());
 		this.setScale((float)getScaleProperty().getDouble());
 		this.setDomeBlock(Utils.ParseBlock(getDomeBlockProperty().getString(), defaultDomeBlock));
+		this.setOrbBlock(Utils.ParseBlock(getOrbBlockProperty().getString(), defaultOrbBlock));
 		this.setBridgeSupportBlock(Utils.ParseBlock(getBridgeSupportBlockProperty().getString(),
 			defaultBridgeSupportBlock));
 		this.setBridgeRailBlock(Utils.ParseBlock(getBridgeRailBlockProperty().getString(), defaultBridgeRailBlock));
@@ -972,6 +1082,36 @@ public class ModConfig
 		this.setOrbRadius(getOrbRadiusProperty().getDouble());
 		this.setMinLakeRatio(getMinLakeRatioProperty().getDouble());
 		this.setMaxLakeRatio(getMaxLakeRatioProperty().getDouble());
+
+		for (int i = 0; i < ORE_ORB_BLOCK_COUNT; i++)
+		{
+			Property prop = GetRandomOreBlockEntryProperty(i);
+
+			if (prop != null)
+			{
+				BlockEntry value = BlockEntry.Parse(prop.getString());
+
+				if (OreOrbBlocks.size() > i)
+				{
+					OreOrbBlocks.set(i, value);
+				}
+				else
+				{
+					OreOrbBlocks.add(value);
+				}
+			}
+		}
+
+		int oreCount = 0;
+		for (BlockEntry block: OreOrbBlocks)
+		{
+			oreCount += block.itemWeight;
+		}
+
+		if (oreCount <= 0)
+		{
+			OreOrbBlocks.add(new BlockEntry(Blx.stone, 1));
+		}
 
 		LoadBiomeWeightsFromFile();
 
@@ -992,8 +1132,14 @@ public class ModConfig
 				Property prop = GetBiomeEntryProperty(entry);
 				if (prop != null)
 				{
-					entry.itemWeight = prop.getInt(GetDefaultBiomeWeight(entry.biome));
-					count += entry.itemWeight;
+					int weight = prop.getInt(GetDefaultBiomeWeight(entry.biome));
+					if (weight < 0)
+					{
+						weight = 0;
+					}
+
+					entry.itemWeight = weight;
+					count += weight;
 				}
 			}
 		}
@@ -1013,10 +1159,11 @@ public class ModConfig
 
 		getNoiseEnabledProperty().set(isNoiseEnabled());
 		getScaleProperty().set(getScale());
-		getDomeBlockProperty().set(Utils.GetName(getDomeBlock()));
-		getBridgeSupportBlockProperty().set(Utils.GetName(getBridgeSupportBlock()));
-		getBridgeRailBlockProperty().set(Utils.GetName(getBridgeRailBlock()));
-		getOutsideFillerBlockProperty().set(Utils.GetName(getOutsideFillerBlock()));
+		getDomeBlockProperty().set(Utils.GetNameOrIdForBlock(getDomeBlock()));
+		getOrbBlockProperty().set(Utils.GetNameOrIdForBlock(getOrbBlock()));
+		getBridgeSupportBlockProperty().set(Utils.GetNameOrIdForBlock(getBridgeSupportBlock()));
+		getBridgeRailBlockProperty().set(Utils.GetNameOrIdForBlock(getBridgeRailBlock()));
+		getOutsideFillerBlockProperty().set(Utils.GetNameOrIdForBlock(getOutsideFillerBlock()));
 		getTallGrassEnabledProperty().set(isTallGrassEnabled());
 		getGridSizeProperty().set(getGridSize());
 		getBridgeWidthProperty().set(getBridgeWidth());
@@ -1025,6 +1172,23 @@ public class ModConfig
 		getOrbRadiusProperty().set(getOrbRadius());
 		getMinLakeRatioProperty().set(getMinLakeRatio());
 		getMaxLakeRatioProperty().set(getMaxLakeRatio());
+
+		for (int i = 0; i < ORE_ORB_BLOCK_COUNT; i++)
+		{
+			Property prop = GetRandomOreBlockEntryProperty(i);
+
+			if (prop != null)
+			{
+				String value = "air, 0";
+
+				if (OreOrbBlocks.size() > i)
+				{
+					value = OreOrbBlocks.get(i).toString();
+				}
+
+				prop.set(value);
+			}
+		}
 
 		for (BiomeEntry entry: AllBiomes)
 		{

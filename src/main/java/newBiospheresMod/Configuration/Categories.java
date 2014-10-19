@@ -10,6 +10,6 @@ public class Categories
 {
 	public static final String General = "general";
 	public static final String Biospheres = "biospheres";
-	public static final String OreOrbs = "oreOrbs";
-	public static final String BiomeWeights = "biomeWeights";
+	public static final String OreOrbs = "oreorbs";
+	public static final String BiomeWeights = "biomeweights";
 }

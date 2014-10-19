@@ -14,6 +14,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockSand;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.util.IProgressUpdate;
+import net.minecraft.util.WeightedRandom;
 import net.minecraft.world.ChunkPosition;
 import net.minecraft.world.SpawnerAnimals;
 import net.minecraft.world.World;
@@ -347,58 +348,11 @@ public class BiosphereChunkProvider implements IChunkProvider
 
 					if (sphere.scaledOrbRadius == orbDistance)
 					{
-						block = config.getDomeBlock();
+						block = config.getOrbBlock();
 					}
 					else if (orbDistance < sphere.scaledOrbRadius)
 					{
-
-						int oreChance = rnd.nextInt(500);
-
-						if (oreChance < 5) // 1%
-						{
-							block = Blx.lapis_ore;
-						}
-						else if (oreChance < 10) // 1%
-						{
-							block = Blx.emerald_ore;
-						}
-						else if (oreChance < 15) // 1%
-						{
-							block = Blx.diamond_ore;
-						}
-						else if (oreChance < 25) // 2%
-						{
-							block = Blx.iron_ore;
-						}
-						else if (oreChance < 35) // 2%
-						{
-							block = Blx.gold_ore;
-						}
-						else if (oreChance < 50) // 3%
-						{
-							block = Blx.coal_ore;
-						}
-						else if (oreChance < 65) // 3%
-						{
-							block = Blx.redstone_ore;
-						}
-						else if (oreChance < 75) // 2%
-						{
-							block = Blx.quartz_ore;
-						}
-						else if (oreChance < 175) // 20%
-						{
-							block = Blx.gravel;
-						}
-						else if (oreChance < 190) // 3%
-						{
-							block = Blx.lava;
-						}
-						else
-						// 62%
-						{
-							block = Blx.stone;
-						}
+						block = ((BlockEntry)WeightedRandom.getRandomItem(rnd, config.OreOrbBlocks)).Block;
 					}
 
 					blocks[idx] = block;
