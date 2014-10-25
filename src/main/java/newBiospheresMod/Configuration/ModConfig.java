@@ -89,6 +89,164 @@ public class ModConfig
 
 	// #endregion
 
+	// #region Read/Write Delegates
+
+	private abstract class WorldProperty<T>
+	{
+		public final Property Property;
+		public final T DefaultValue;
+		public final T CurrentValue;
+
+		protected abstract T Convert(String input, CustomWorldData data) throws Throwable;
+
+		protected abstract String Convert(T input, CustomWorldData data);
+
+		protected T getFallbackValue(CustomWorldData data)
+		{
+			if (data == null) { return this.CurrentValue; }
+			return data.getIsNew() ? this.CurrentValue : this.DefaultValue;
+		}
+
+		WorldProperty(Property property, T currentValue, T defaultValue)
+		{
+			this.Property = property;
+			this.CurrentValue = currentValue;
+			this.DefaultValue = defaultValue;
+		}
+
+		public T ReadWorldValue(CustomWorldData data)
+		{
+			if (data != null)
+			{
+				String keyName = GetNewWorldProperty(this.Property);
+
+				if (data.ContainsKey(keyName))
+				{
+					try
+					{
+						return Convert(data.get(keyName), data);
+					}
+					catch (Throwable ignore)
+					{
+						// ignore
+					}
+				}
+			}
+			return getFallbackValue(data);
+		}
+
+		public void WriteWorldValue(CustomWorldData data)
+		{
+			if (data != null)
+			{
+				String keyName = GetNewWorldProperty(this.Property);
+				data.put(keyName, Convert(this.CurrentValue, data));
+			}
+		}
+	}
+
+	private class BooleanWorldProperty extends WorldProperty<Boolean>
+	{
+		BooleanWorldProperty(Property property, Boolean currentValue, Boolean defaultValue)
+		{
+			super(property, currentValue, defaultValue);
+		}
+
+		@Override
+		protected Boolean Convert(String input, CustomWorldData data) throws Throwable
+		{
+			return Boolean.parseBoolean(input);
+		}
+
+		@Override
+		protected String Convert(Boolean input, CustomWorldData data)
+		{
+			return Boolean.toString(input);
+		}
+	}
+
+	private class IntegerWorldProperty extends WorldProperty<Integer>
+	{
+		IntegerWorldProperty(Property property, Integer currentValue, Integer defaultValue)
+		{
+			super(property, currentValue, defaultValue);
+		}
+
+		@Override
+		protected Integer Convert(String input, CustomWorldData data) throws Throwable
+		{
+			return Integer.parseInt(input);
+		}
+
+		@Override
+		protected String Convert(Integer input, CustomWorldData data)
+		{
+			return Integer.toString(input);
+		}
+	}
+
+	private class FloatWorldProperty extends WorldProperty<Float>
+	{
+		FloatWorldProperty(Property property, Float currentValue, Float defaultValue)
+		{
+			super(property, currentValue, defaultValue);
+		}
+
+		@Override
+		protected Float Convert(String input, CustomWorldData data) throws Throwable
+		{
+			return Float.parseFloat(input);
+		}
+
+		@Override
+		protected String Convert(Float input, CustomWorldData data)
+		{
+			return Float.toString(input);
+		}
+	}
+
+	private class DoubleWorldProperty extends WorldProperty<Double>
+	{
+		DoubleWorldProperty(Property property, Double currentValue, Double defaultValue)
+		{
+			super(property, currentValue, defaultValue);
+		}
+
+		@Override
+		protected Double Convert(String input, CustomWorldData data) throws Throwable
+		{
+			return Double.parseDouble(input);
+		}
+
+		@Override
+		protected String Convert(Double input, CustomWorldData data)
+		{
+			return Double.toString(input);
+		}
+	}
+
+	private class BlockWorldProperty extends WorldProperty<Block>
+	{
+		BlockWorldProperty(Property property, Block currentValue, Block defaultValue)
+		{
+			super(property, currentValue, defaultValue);
+		}
+
+		@Override
+		protected Block Convert(String input, CustomWorldData data) throws Throwable
+		{
+			return Utils.ParseBlock(input, this.getFallbackValue(data));
+		}
+
+		@Override
+		protected String Convert(Block input, CustomWorldData data)
+		{
+			return Utils.GetNameOrIdForBlock(input);
+		}
+	}
+
+	// #endregion
+
 	// #region Fields & Properties
 
 	public final World World;
@@ -119,6 +277,11 @@ public class ModConfig
 
 		return cfgFile.get(Categories.General, "Noise Enabled", defaultNoiseEnabled,
 			"Controls whether a noise generator is used to generate terrain heights or if the World should be flat.");
+	}
+
+	private BooleanWorldProperty getNoiseEnabledWorldProperty()
+	{
+		return new BooleanWorldProperty(getNoiseEnabledProperty(), isNoiseEnabled(), defaultNoiseEnabled);
 	}
 
 	// #endregion
@@ -153,6 +316,11 @@ public class ModConfig
 			"The scale of the world to generate.", minScale, maxScale);
 	}
 
+	private FloatWorldProperty getScaleWorldProperty()
+	{
+		return new FloatWorldProperty(getScaleProperty(), getScale(), defaultScale);
+	}
+
 	// #endregion
 
 	// #region Block DomeBlock
@@ -180,6 +348,11 @@ public class ModConfig
 			"The Block to use for the generated bio-domes.");
 	}
 
+	private BlockWorldProperty getDomeBlockWorldProperty()
+	{
+		return new BlockWorldProperty(getDomeBlockProperty(), getDomeBlock(), defaultDomeBlock);
+	}
+
 	// #endregion
 
 	// #region Block OrbBlock
@@ -205,6 +378,11 @@ public class ModConfig
 
 		return cfgFile.get(Categories.OreOrbs, "Ore Orb Shell Block", Utils.GetNameOrIdForBlock(defaultOrbBlock),
 			"The Block to use for the shell of the generated Ore Orbs.");
+	}
+
+	private BlockWorldProperty getOrbBlockWorldProperty()
+	{
+		return new BlockWorldProperty(getOrbBlockProperty(), getOrbBlock(), defaultOrbBlock);
 	}
 
 	// #endregion
@@ -235,6 +413,12 @@ public class ModConfig
 			"The Block to use for bridges between bio-domes and stairways to ore-orbs.");
 	}
 
+	private BlockWorldProperty getBridgeSupportBlockWorldProperty()
+	{
+		return new BlockWorldProperty(getBridgeSupportBlockProperty(), getBridgeSupportBlock(),
+			defaultBridgeSupportBlock);
+	}
+
 	// #endregion
 
 	// #region Block BridgeRailBlock
@@ -260,6 +444,11 @@ public class ModConfig
 
 		return cfgFile.get(Categories.General, "Bridge Rail Block", Utils.GetNameOrIdForBlock(defaultBridgeRailBlock),
 			"The Block to use for the rails on the bridges between bio-domes.");
+	}
+
+	private BlockWorldProperty getBridgeRailBlockWorldProperty()
+	{
+		return new BlockWorldProperty(getBridgeRailBlockProperty(), getBridgeRailBlock(), defaultBridgeRailBlock);
 	}
 
 	// #endregion
@@ -293,6 +482,12 @@ public class ModConfig
 			"The block used to fill the area outside of the domes [air, water, and lava are good choices].");
 	}
 
+	private BlockWorldProperty getOutsideFillerBlockWorldProperty()
+	{
+		return new BlockWorldProperty(getOutsideFillerBlockProperty(), getOutsideFillerBlock(),
+			defaultOutsideFillerBlock);
+	}
+
 	// #endregion
 
 	// #region boolean TallGrassEnabled
@@ -316,6 +511,11 @@ public class ModConfig
 
 		return cfgFile.get(Categories.Biospheres, "Tall Grass Enabled", defaultTallGrassEnabled,
 			"Controls whether tall grass is generated or not.");
+	}
+
+	private BooleanWorldProperty getTallGrassEnabledWorldProperty()
+	{
+		return new BooleanWorldProperty(getTallGrassEnabledProperty(), isTallGrassEnabled(), defaultTallGrassEnabled);
 	}
 
 	// #endregion
@@ -350,6 +550,11 @@ public class ModConfig
 			minGridSize, maxGridSize);
 	}
 
+	private IntegerWorldProperty getGridSizeWorldProperty()
+	{
+		return new IntegerWorldProperty(getGridSizeProperty(), getGridSize(), defaultGridSize);
+	}
+
 	// #endregion
 
 	// #region int BridgeWidth
@@ -380,7 +585,14 @@ public class ModConfig
 			"Bridge Width: the width of the bridge [from the center to the edge].", minBridgeWidth, maxBridgeWidth);
 	}
 
+	private IntegerWorldProperty getBridgeWidthWorldProperty()
+	{
+		return new IntegerWorldProperty(getBridgeWidthProperty(), getBridgeWidth(), defaultBridgeWidth);
+	}
+
 	// #endregion
+
+	// #region Min & Max Sphere Radius
 
 	private static final double sphereRadiusMinimumValue = 15d;
 	private static final double sphereRadiusMaximumValue = 80d;
@@ -411,6 +623,11 @@ public class ModConfig
 			"The minimum (pre-scaled) sphere radius to generate.", sphereRadiusMinimumValue, sphereRadiusMaximumValue);
 	}
 
+	private DoubleWorldProperty getMinSphereRadiusWorldProperty()
+	{
+		return new DoubleWorldProperty(getMinSphereRadiusProperty(), getMinSphereRadius(), defaultMinSphereRadius);
+	}
+
 	// #endregion
 
 	// #region double MaxSphereRadius
@@ -438,6 +655,13 @@ public class ModConfig
 		return cfgFile.get(Categories.Biospheres, "Sphere Radius (Maximum)", defaultMaxSphereRadius,
 			"The maximum (pre-scaled) sphere radius to generate.", sphereRadiusMinimumValue, sphereRadiusMaximumValue);
 	}
+
+	private DoubleWorldProperty getMaxSphereRadiusWorldProperty()
+	{
+		return new DoubleWorldProperty(getMaxSphereRadiusProperty(), getMaxSphereRadius(), defaultMaxSphereRadius);
+	}
+
+	// #endregion
 
 	// #endregion
 
@@ -470,7 +694,14 @@ public class ModConfig
 			"The radius (pre-scaled) of the ore orbs to generate.", minOrbRadius, maxOrbRadius);
 	}
 
+	private DoubleWorldProperty getOrbRadiusWorldProperty()
+	{
+		return new DoubleWorldProperty(getOrbRadiusProperty(), getOrbRadius(), defaultOrbRadius);
+	}
+
 	// #endregion
+
+	// #region Min & Max Lake Ratio
 
 	private static final double lakeRatioMinimumValue = 0.1d;
 	private static final double lakeRatioMaximumValue = 0.75d;
@@ -501,6 +732,11 @@ public class ModConfig
 			"The minimum ratio of lake size to sphere size.", lakeRatioMinimumValue, lakeRatioMaximumValue);
 	}
 
+	private DoubleWorldProperty getMinLakeRatioWorldProperty()
+	{
+		return new DoubleWorldProperty(getMinLakeRatioProperty(), getMinLakeRatio(), defaultMinLakeRatio);
+	}
+
 	// #endregion
 
 	// #region double MaxLakeRatio
@@ -527,6 +763,49 @@ public class ModConfig
 
 		return cfgFile.get(Categories.Biospheres, "Lake Ratio (Maximum)", defaultMaxLakeRatio,
 			"The maximum ratio of lake size to sphere size.", lakeRatioMinimumValue, lakeRatioMaximumValue);
+	}
+
+	private DoubleWorldProperty getMaxLakeRatioWorldProperty()
+	{
+		return new DoubleWorldProperty(getMaxLakeRatioProperty(), getMaxLakeRatio(), defaultMaxLakeRatio);
+	}
+
+	// #endregion
+
+	// #endregion
+
+	// #region int SeaLevel
+
+	private static final int seaLevelMinimumValue = 16;
+	private static final int seaLevelMaximumValue = 112;
+
+	private static final int defaultSeaLevel = 64;
+	private int seaLevel = defaultSeaLevel;
+
+	public int getSeaLevel()
+	{
+		return seaLevel;
+	}
+
+	public void setSeaLevel(int value)
+	{
+		if (value < seaLevelMinimumValue) value = seaLevelMinimumValue;
+		else if (value > seaLevelMaximumValue) value = seaLevelMaximumValue;
+
+		this.seaLevel = value;
+	}
+
+	private static Property getSeaLevelProperty()
+	{
+		if (cfgFile == null) { return null; }
+
+		return cfgFile.get(Categories.General, "Sea Level", defaultSeaLevel,
+			"Sea Level (the default vertical center of the Biospheres).", seaLevelMinimumValue, seaLevelMaximumValue);
+	}
+
+	private IntegerWorldProperty getSeaLevelWorldProperty()
+	{
+		return new IntegerWorldProperty(getSeaLevelProperty(), getSeaLevel(), defaultSeaLevel);
 	}
 
 	// #endregion
@@ -729,6 +1008,7 @@ public class ModConfig
 			MigrateWorldProperty(data, mige.OldCategory, mige.NewCategory, mige.PropertyName);
 		}
 
+		data.MakeNotNew();
 		data.setDirty(true);
 	}
 
@@ -873,96 +1153,28 @@ public class ModConfig
 
 	private void LoadConfigurationFromWorld()
 	{
+		if (this.World == null) { return; }
 		if (!BiosphereWorldType.IsBiosphereWorld(this.World)) { return; }
 
 		CustomWorldData data = CustomWorldData.FromWorld(this.World);
 		if (data == null) { return; }
 
-		String keyName;
-
-		keyName = GetNewWorldProperty(getNoiseEnabledProperty());
-		if (data.ContainsKey(keyName))
-		{
-			setNoiseEnabled(data.getBool(keyName, isNoiseEnabled()));
-		}
-
-		keyName = GetNewWorldProperty(getScaleProperty());
-		if (data.ContainsKey(keyName))
-		{
-			setScale(data.getFloat(keyName, getScale()));
-		}
-
-		keyName = GetNewWorldProperty(getDomeBlockProperty());
-		if (data.ContainsKey(keyName))
-		{
-			setDomeBlock(data.getBlock(keyName, getDomeBlock()));
-		}
-
-		keyName = GetNewWorldProperty(getOrbBlockProperty());
-		if (data.ContainsKey(keyName))
-		{
-			setOrbBlock(data.getBlock(keyName, getOrbBlock()));
-		}
-
-		keyName = GetNewWorldProperty(getBridgeSupportBlockProperty());
-		if (data.ContainsKey(keyName))
-		{
-			setBridgeSupportBlock(data.getBlock(keyName, getBridgeSupportBlock()));
-		}
-
-		keyName = GetNewWorldProperty(getOutsideFillerBlockProperty());
-		if (data.ContainsKey(keyName))
-		{
-			setOutsideFillerBlock(data.getBlock(keyName, getOutsideFillerBlock()));
-		}
-
-		keyName = GetNewWorldProperty(getTallGrassEnabledProperty());
-		if (data.ContainsKey(keyName))
-		{
-			setTallGrassEnabled(data.getBool(keyName, isTallGrassEnabled()));
-		}
-
-		keyName = GetNewWorldProperty(getGridSizeProperty());
-		if (data.ContainsKey(keyName))
-		{
-			setGridSize(data.getInt(keyName, getGridSize()));
-		}
-
-		keyName = GetNewWorldProperty(getBridgeWidthProperty());
-		if (data.ContainsKey(keyName))
-		{
-			setBridgeWidth(data.getInt(keyName, getBridgeWidth()));
-		}
-
-		keyName = GetNewWorldProperty(getMinSphereRadiusProperty());
-		if (data.ContainsKey(keyName))
-		{
-			setMinSphereRadius(data.getDouble(keyName, getMinSphereRadius()));
-		}
-
-		keyName = GetNewWorldProperty(getMaxSphereRadiusProperty());
-		if (data.ContainsKey(keyName))
-		{
-			setMaxSphereRadius(data.getDouble(keyName, getMaxSphereRadius()));
-		}
-
-		keyName = GetNewWorldProperty(getOrbRadiusProperty());
-		if (data.ContainsKey(keyName))
-		{
-			setOrbRadius(data.getDouble(keyName, getOrbRadius()));
-		}
-
-		keyName = GetNewWorldProperty(getMinLakeRatioProperty());
-		if (data.ContainsKey(keyName))
-		{
-			setMinLakeRatio(data.getDouble(keyName, getMinLakeRatio()));
-		}
-
-		keyName = GetNewWorldProperty(getMaxLakeRatioProperty());
-		if (data.ContainsKey(keyName))
-		{
-			setMaxLakeRatio(data.getDouble(keyName, getMaxLakeRatio()));
-		}
+		setNoiseEnabled(getNoiseEnabledWorldProperty().ReadWorldValue(data));
+		setScale(getScaleWorldProperty().ReadWorldValue(data));
+		setDomeBlock(getDomeBlockWorldProperty().ReadWorldValue(data));
+		setOrbBlock(getOrbBlockWorldProperty().ReadWorldValue(data));
+		setBridgeSupportBlock(getBridgeSupportBlockWorldProperty().ReadWorldValue(data));
+		setBridgeRailBlock(getBridgeRailBlockWorldProperty().ReadWorldValue(data));
+		setOutsideFillerBlock(getOutsideFillerBlockWorldProperty().ReadWorldValue(data));
+		setTallGrassEnabled(getTallGrassEnabledWorldProperty().ReadWorldValue(data));
+		setGridSize(getGridSizeWorldProperty().ReadWorldValue(data));
+		setBridgeWidth(getBridgeWidthWorldProperty().ReadWorldValue(data));
+		setMinSphereRadius(getMinSphereRadiusWorldProperty().ReadWorldValue(data));
+		setMaxSphereRadius(getMaxSphereRadiusWorldProperty().ReadWorldValue(data));
+		setOrbRadius(getOrbRadiusWorldProperty().ReadWorldValue(data));
+		setMinLakeRatio(getMinLakeRatioWorldProperty().ReadWorldValue(data));
+		setMaxLakeRatio(getMaxLakeRatioWorldProperty().ReadWorldValue(data));
+		setSeaLevel(getSeaLevelWorldProperty().ReadWorldValue(data));
 
 		for (int i = 0; i < BLOCK_COUNT; i++)
 		{
@@ -970,7 +1182,7 @@ public class ModConfig
 
 			if (prop != null)
 			{
-				keyName = GetNewWorldProperty(prop);
+				String keyName = GetNewWorldProperty(prop);
 
 				if (data.ContainsKey(keyName))
 				{
@@ -994,7 +1206,7 @@ public class ModConfig
 
 			if (prop != null)
 			{
-				keyName = GetNewWorldProperty(prop);
+				String keyName = GetNewWorldProperty(prop);
 
 				if (data.ContainsKey(keyName))
 				{
@@ -1036,49 +1248,22 @@ public class ModConfig
 		CustomWorldData data = CustomWorldData.FromWorld(this.World);
 		if (data == null) { return; }
 
-		String keyName;
-
-		keyName = GetNewWorldProperty(getNoiseEnabledProperty());
-		data.put(keyName, isNoiseEnabled());
-
-		keyName = GetNewWorldProperty(getScaleProperty());
-		data.put(keyName, getScale());
-
-		keyName = GetNewWorldProperty(getDomeBlockProperty());
-		data.put(keyName, getDomeBlock());
-
-		keyName = GetNewWorldProperty(getOrbBlockProperty());
-		data.put(keyName, getOrbBlock());
-
-		keyName = GetNewWorldProperty(getBridgeSupportBlockProperty());
-		data.put(keyName, getBridgeSupportBlock());
-
-		keyName = GetNewWorldProperty(getOutsideFillerBlockProperty());
-		data.put(keyName, getOutsideFillerBlock());
-
-		keyName = GetNewWorldProperty(getTallGrassEnabledProperty());
-		data.put(keyName, isTallGrassEnabled());
-
-		keyName = GetNewWorldProperty(getGridSizeProperty());
-		data.put(keyName, getGridSize());
-
-		keyName = GetNewWorldProperty(getBridgeWidthProperty());
-		data.put(keyName, getBridgeWidth());
-
-		keyName = GetNewWorldProperty(getMinSphereRadiusProperty());
-		data.put(keyName, getMinSphereRadius());
-
-		keyName = GetNewWorldProperty(getMaxSphereRadiusProperty());
-		data.put(keyName, getMaxSphereRadius());
-
-		keyName = GetNewWorldProperty(getOrbRadiusProperty());
-		data.put(keyName, getOrbRadius());
-
-		keyName = GetNewWorldProperty(getMinLakeRatioProperty());
-		data.put(keyName, getMinLakeRatio());
-
-		keyName = GetNewWorldProperty(getMaxLakeRatioProperty());
-		data.put(keyName, getMaxLakeRatio());
+		getNoiseEnabledWorldProperty().WriteWorldValue(data);
+		getScaleWorldProperty().WriteWorldValue(data);
+		getDomeBlockWorldProperty().WriteWorldValue(data);
+		getOrbBlockWorldProperty().WriteWorldValue(data);
+		getBridgeSupportBlockWorldProperty().WriteWorldValue(data);
+		getBridgeRailBlockWorldProperty().WriteWorldValue(data);
+		getOutsideFillerBlockWorldProperty().WriteWorldValue(data);
+		getTallGrassEnabledWorldProperty().WriteWorldValue(data);
+		getGridSizeWorldProperty().WriteWorldValue(data);
+		getBridgeWidthWorldProperty().WriteWorldValue(data);
+		getMinSphereRadiusWorldProperty().WriteWorldValue(data);
+		getMaxSphereRadiusWorldProperty().WriteWorldValue(data);
+		getOrbRadiusWorldProperty().WriteWorldValue(data);
+		getMinLakeRatioWorldProperty().WriteWorldValue(data);
+		getMaxLakeRatioWorldProperty().WriteWorldValue(data);
+		getSeaLevelWorldProperty().WriteWorldValue(data);
 
 		for (int i = 0; i < BLOCK_COUNT; i++)
 		{
@@ -1086,7 +1271,7 @@ public class ModConfig
 
 			if (prop != null)
 			{
-				keyName = GetNewWorldProperty(prop);
+				String keyName = GetNewWorldProperty(prop);
 				String value = "air, 0";
 
 				if (OreOrbBlocks.size() > i)
@@ -1104,7 +1289,7 @@ public class ModConfig
 
 			if (prop != null)
 			{
-				keyName = GetNewWorldProperty(prop);
+				String keyName = GetNewWorldProperty(prop);
 				String value = "air, 0";
 
 				if (StairwayBlocks.size() > i)
@@ -1121,7 +1306,7 @@ public class ModConfig
 			Property prop = GetBiomeEntryProperty(entry);
 			if (prop != null)
 			{
-				keyName = GetNewWorldProperty(prop);
+				String keyName = GetNewWorldProperty(prop);
 				data.put(keyName, entry.itemWeight);
 			}
 		}
@@ -1152,6 +1337,7 @@ public class ModConfig
 		this.setOrbRadius(getOrbRadiusProperty().getDouble());
 		this.setMinLakeRatio(getMinLakeRatioProperty().getDouble());
 		this.setMaxLakeRatio(getMaxLakeRatioProperty().getDouble());
+		this.setSeaLevel(getSeaLevelProperty().getInt());
 
 		LoadOreBlocksFromFile();
 		LoadStairwayBlocksFromFile();
@@ -1280,6 +1466,7 @@ public class ModConfig
 		getOrbRadiusProperty().set(getOrbRadius());
 		getMinLakeRatioProperty().set(getMinLakeRatio());
 		getMaxLakeRatioProperty().set(getMaxLakeRatio());
+		getSeaLevelProperty().set(getSeaLevel());
 
 		for (int i = 0; i < BLOCK_COUNT; i++)
 		{

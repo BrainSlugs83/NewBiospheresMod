@@ -27,6 +27,18 @@ public class CustomWorldData extends WorldSavedData
 	public final String ContainerName;
 	private final Map<String, String> Data = new ConcurrentHashMapV8<String, String>();
 
+	private boolean isNew = true;
+
+	public boolean getIsNew()
+	{
+		return isNew;
+	}
+
+	public void MakeNotNew()
+	{
+		isNew = false;
+	}
+
 	public Set<String> Keys()
 	{
 		return Data.keySet();
@@ -86,6 +98,11 @@ public class CustomWorldData extends WorldSavedData
 		{
 			result = new CustomWorldData(containerName);
 			storage.setData(containerName, result);
+		}
+		else
+		{
+			// returned object is not new, it was loaded.
+			result.MakeNotNew();
 		}
 
 		return result;
