@@ -776,10 +776,10 @@ public class ModConfig
 
 	// #region int SeaLevel
 
-	private static final int seaLevelMinimumValue = 16;
-	private static final int seaLevelMaximumValue = 112;
+	private static final int seaLevelMinimumValue = 15;
+	private static final int seaLevelMaximumValue = 111;
 
-	private static final int defaultSeaLevel = 64;
+	private static final int defaultSeaLevel = 63;
 	private int seaLevel = defaultSeaLevel;
 
 	public int getSeaLevel()
@@ -791,6 +791,8 @@ public class ModConfig
 	{
 		if (value < seaLevelMinimumValue) value = seaLevelMinimumValue;
 		else if (value > seaLevelMaximumValue) value = seaLevelMaximumValue;
+
+		System.out.println("New Sea Level: " + value + ", Old: " + seaLevel);
 
 		this.seaLevel = value;
 	}

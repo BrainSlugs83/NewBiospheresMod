@@ -3,12 +3,12 @@
 <workingSet editPageId="org.eclipse.jdt.ui.JavaWorkingSetPage" factoryID="org.eclipse.ui.internal.WorkingSetFactory" id="1413188644334_2" label="Project" name="Project">
 <item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/Minecraft/logo.pdn" type="1"/>
 <item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/Minecraft/build.gradle" type="1"/>
-<item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/Minecraft/DEVELOPER-ENVIRONMENT-SETUP.TXT" type="1"/>
-<item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/Minecraft/COPYING" type="1"/>
 <item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/Minecraft/include.bat" type="1"/>
-<item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/Minecraft/push.bat" type="1"/>
-<item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/Minecraft/publish.bat" type="1"/>
+<item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/Minecraft/COPYING" type="1"/>
+<item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/Minecraft/DEVELOPER-ENVIRONMENT-SETUP.TXT" type="1"/>
 <item elementID="=Minecraft/src\/main\/resources" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
+<item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/Minecraft/publish.bat" type="1"/>
+<item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/Minecraft/push.bat" type="1"/>
 <item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/Minecraft/LICENSE" type="1"/>
 <item elementID="=Minecraft/src\/main\/java" factoryID="org.eclipse.jdt.ui.PersistableJavaElementFactory"/>
 <item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/Minecraft/RestoreWorld.bat" type="1"/>

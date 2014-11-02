@@ -63,7 +63,7 @@ public class NoiseChunk
 		});
 
 	public static NoiseChunk get(final World world, final int chunkX, final int chunkZ,
-			final NoiseGeneratorOctaves noiseGen, final double scale)
+		final NoiseGeneratorOctaves noiseGen, final double scale, final int seaLevel)
 	{
 		Object key = new CacheKey(world, chunkX, chunkZ);
 
@@ -72,7 +72,7 @@ public class NoiseChunk
 			@Override
 			public NoiseChunk create()
 			{
-				return new NoiseChunk(world, chunkX, chunkZ, noiseGen, scale);
+				return new NoiseChunk(world, chunkX, chunkZ, noiseGen, scale, seaLevel);
 			}
 		});
 	}
@@ -88,9 +88,11 @@ public class NoiseChunk
 	private final double scale;
 	private static final double noiseScale = 0.0078125D;
 
+	private final int seaLevel;
+
 	public final NoiseGeneratorOctaves noiseGenerator;
 
-	private NoiseChunk(World world, int chunkX, int chunkZ, NoiseGeneratorOctaves noiseGen, double scale)
+	private NoiseChunk(World world, int chunkX, int chunkZ, NoiseGeneratorOctaves noiseGen, double scale, int seaLevel)
 	{
 		this.chunkX = chunkX;
 		this.chunkZ = chunkZ;
@@ -103,11 +105,13 @@ public class NoiseChunk
 
 		minNoise = Utils.Min(noise);
 		maxNoise = Utils.Max(noise);
+
+		this.seaLevel = seaLevel;
 	}
 
 	public int getChunkBoundSurfaceLevel(int boundX, int boundZ)
 	{
-		return getChunkBoundSurfaceLevel(boundX, boundZ, ModConsts.SEA_LEVEL);
+		return getChunkBoundSurfaceLevel(boundX, boundZ, this.seaLevel);
 	}
 
 	public int getChunkBoundSurfaceLevel(int boundX, int boundZ, int baseLevel)
@@ -122,7 +126,7 @@ public class NoiseChunk
 
 	public int getRawSurfaceLevel(int rawX, int rawZ)
 	{
-		return getRawSurfaceLevel(rawX, rawZ, ModConsts.SEA_LEVEL);
+		return getRawSurfaceLevel(rawX, rawZ, this.seaLevel);
 	}
 
 	public int getRawSurfaceLevel(int rawX, int rawZ, int baseLevel)
@@ -134,7 +138,7 @@ public class NoiseChunk
 
 		if (this.chunkX == chunkX && this.chunkZ == chunkZ) { return getChunkBoundSurfaceLevel(rawX, rawZ, baseLevel); }
 
-		return get(world, chunkX, chunkZ, noiseGenerator, scale).getChunkBoundSurfaceLevel(rawX, rawZ);
+		return get(world, chunkX, chunkZ, noiseGenerator, scale, seaLevel).getChunkBoundSurfaceLevel(rawX, rawZ);
 	}
 
 	public NoiseChunk GetChunkAt(int rawX, int rawZ)
@@ -144,6 +148,6 @@ public class NoiseChunk
 
 		if (this.chunkX == chunkX && this.chunkZ == chunkZ) { return this; }
 
-		return get(world, chunkX, chunkZ, noiseGenerator, scale);
+		return get(world, chunkX, chunkZ, noiseGenerator, scale, seaLevel);
 	}
 }

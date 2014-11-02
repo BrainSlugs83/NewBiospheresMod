@@ -13,7 +13,6 @@ import newBiospheresMod.Configuration.ModConfig;
 import newBiospheresMod.Helpers.Creator;
 import newBiospheresMod.Helpers.IKeyProvider;
 import newBiospheresMod.Helpers.LruCacheList;
-import newBiospheresMod.Helpers.ModConsts;
 
 public class SphereChunk
 {
@@ -94,7 +93,7 @@ public class SphereChunk
 		this.isNoiseEnabled = cfg.isNoiseEnabled();
 
 		noise = isNoiseEnabled ? NoiseChunk.get(this.chunkProvider.world, chunkX, chunkZ,
-			this.chunkProvider.noiseGenerator, cfg.getScale()) : null;
+			this.chunkProvider.noiseGenerator, cfg.getScale(), cfg.getSeaLevel()) : null;
 
 		masterSphere = Sphere.get(chunkProvider, chunkX, chunkZ);
 	}
@@ -107,6 +106,6 @@ public class SphereChunk
 	public int getChunkBoundSurfaceLevel(int boundX, int boundZ)
 	{
 		if (this.noise != null) { return noise.getChunkBoundSurfaceLevel(boundX, boundZ); }
-		return ModConsts.SEA_LEVEL;
+		return this.chunkProvider.config.getSeaLevel();
 	}
 }

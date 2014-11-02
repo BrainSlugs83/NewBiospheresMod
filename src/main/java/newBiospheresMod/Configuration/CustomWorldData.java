@@ -28,6 +28,7 @@ public class CustomWorldData extends WorldSavedData
 	private final Map<String, String> Data = new ConcurrentHashMapV8<String, String>();
 
 	private boolean isNew = true;
+	private boolean makeNotNewTriggered = false;
 
 	public boolean getIsNew()
 	{
@@ -36,7 +37,7 @@ public class CustomWorldData extends WorldSavedData
 
 	public void MakeNotNew()
 	{
-		isNew = false;
+		makeNotNewTriggered = true;
 	}
 
 	public Set<String> Keys()
@@ -149,7 +150,7 @@ public class CustomWorldData extends WorldSavedData
 		{
 			for (String key: GetNbtTagKeys(nbtTag))
 			{
-				System.out.println("LOADING: " + key);
+				// System.out.println("LOADING: " + key);
 				this.put(key, nbtTag.getString(key));
 			}
 		}
@@ -167,8 +168,14 @@ public class CustomWorldData extends WorldSavedData
 
 			for (String key: Keys())
 			{
-				System.out.println("SAVING: " + key);
+				// System.out.println("SAVING: " + key);
 				nbtTag.setString(key, Data.get(key));
+			}
+
+			if (makeNotNewTriggered)
+			{
+				isNew = false;
+				makeNotNewTriggered = false;
 			}
 		}
 	}

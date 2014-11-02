@@ -16,7 +16,6 @@ import newBiospheresMod.Configuration.ModConfig;
 import newBiospheresMod.Helpers.Blx;
 import newBiospheresMod.Helpers.IKeyProvider;
 import newBiospheresMod.Helpers.LruCacheList;
-import newBiospheresMod.Helpers.ModConsts;
 
 public class BiosphereWorldType extends WorldType
 {
@@ -93,7 +92,7 @@ public class BiosphereWorldType extends WorldType
 	public int getSeaLevel(World world)
 	{
 		BiosphereWorlds.Push(world);
-		return ModConsts.SEA_LEVEL + 1;
+		return ModConfig.get(world).getSeaLevel() + 1;
 	}
 
 	@Override

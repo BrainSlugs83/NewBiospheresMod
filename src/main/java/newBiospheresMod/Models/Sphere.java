@@ -132,6 +132,8 @@ public class Sphere
 
 	private List<TopDownBoundingBox> boundingBoxes = null;
 
+	public final int seaLevel;
+
 	// #endregion
 
 	private Sphere(BiosphereChunkProvider chunkProvider, int chunkX, int chunkZ)
@@ -139,6 +141,7 @@ public class Sphere
 		this.chunkProvider = chunkProvider;
 		ModConfig _cfg = this.chunkProvider.config;
 
+		this.seaLevel = _cfg.getSeaLevel();
 		this.scale = _cfg.getScale();
 		this.isNoiseEnabled = _cfg.isNoiseEnabled();
 		this.scaledGridSize = _cfg.getScaledGridSize();
@@ -152,7 +155,7 @@ public class Sphere
 		if (this.isNoiseEnabled)
 		{
 			centerNoiseChunk = NoiseChunk.get(chunkProvider.world, centerChunkX, centerChunkZ,
-				this.chunkProvider.noiseGenerator, this.scale);
+				this.chunkProvider.noiseGenerator, this.scale, this.seaLevel);
 		}
 		else
 		{
@@ -202,7 +205,7 @@ public class Sphere
 
 		orbLocation.posX = this.sphereLocation.posX;
 		orbLocation.posZ = this.sphereLocation.posZ;
-		orbLocation.posY = ModConsts.SEA_LEVEL;
+		orbLocation.posY = this.seaLevel;
 
 		// TODO: let's make this algorithm more efficient
 		int giveUpAfter = 100;
@@ -221,7 +224,7 @@ public class Sphere
 		if (!ValidOrbLocation())
 		{
 			// put the orb out of range
-			orbLocation.posY = ModConsts.SEA_LEVEL;
+			orbLocation.posY = this.seaLevel;
 			orbLocation.posX = sphereLocation.posX + (this.scaledGridSize * 32);
 			orbLocation.posZ = sphereLocation.posZ + (this.scaledGridSize * 32);
 		}
@@ -284,7 +287,7 @@ public class Sphere
 					int x = sphereLocation.posX + ((rawX - sphereLocation.posX) * 20);
 					int z = sphereLocation.posZ + ((rawZ - sphereLocation.posZ) * 20);
 
-					double offset = getRawSurfaceLevel(x, z) - ModConsts.SEA_LEVEL;
+					double offset = getRawSurfaceLevel(x, z) - this.seaLevel;
 					dy += Math.abs((offset / 4d));
 				}
 
@@ -307,7 +310,7 @@ public class Sphere
 	public int getRawSurfaceLevel(int rawX, int rawZ)
 	{
 		if (centerNoiseChunk != null) { return centerNoiseChunk.getRawSurfaceLevel(rawX, rawZ); }
-		return ModConsts.SEA_LEVEL;
+		return this.seaLevel;
 	}
 
 	public Block GetLakeBlock()
@@ -388,7 +391,7 @@ public class Sphere
 
 		int x = ((chunkX) << 4) + 8;
 		int z = ((chunkZ) << 4) + 8;
-		int y = ModConsts.SEA_LEVEL;
+		int y = cfg.getSeaLevel();
 
 		return Utils.GetCoords(x, y, z);
 	}
@@ -416,7 +419,7 @@ public class Sphere
 	{
 		if (centerNoiseChunk == null)
 		{
-			lakeLocation.posY = ModConsts.SEA_LEVEL;
+			lakeLocation.posY = this.seaLevel;
 		}
 		else
 		{
@@ -441,7 +444,7 @@ public class Sphere
 				x += 16;
 			}
 
-			lakeLocation.posY = (int)Math.round(ModConsts.SEA_LEVEL + min * 8.0D * scale);
+			lakeLocation.posY = (int)Math.round(this.seaLevel + min * 8.0D * scale);
 		}
 	}
 
