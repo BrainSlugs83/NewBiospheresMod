@@ -5,7 +5,6 @@ bin
 eclipse/config
 eclipse/saves
 *.snap
-*.gitignore
 .gradle
 MinecraftForge-Credits.txt
 MinecraftForge-License.txt
@@ -61,3 +60,4 @@ org.eclipse.ui.workbench.texteditor
 org.eclipse.team.ui
 eclipse/.metadata/.plugins/org.eclipse.equinox.p2.ui
 eclipse/.metadata/.plugins/org.eclipse.jdt.junit.core
+forge-*.txt
