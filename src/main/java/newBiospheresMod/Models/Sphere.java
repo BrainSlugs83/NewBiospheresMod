@@ -134,6 +134,8 @@ public class Sphere
 
 	public final int seaLevel;
 
+	public final int sphereType;
+
 	// #endregion
 
 	private Sphere(BiosphereChunkProvider chunkProvider, int chunkX, int chunkZ)
@@ -246,9 +248,39 @@ public class Sphere
 		xm = rnd.nextLong() / 2L * 2L + 1L;
 		zm = rnd.nextLong() / 2L * 2L + 1L;
 		this.seed = (centerChunkX * xm + centerChunkZ * zm) * 3168045L ^ this.chunkProvider.worldSeed;
+
+		rnd = GetPhaseRandom("SphereType", centerChunkX, centerChunkZ);
+		int sType = -1;
+		if (AnySphereTypeValid())
+		{
+			while (!SphereTypeValid(sType))
+			{
+				sType = rnd.nextInt() % ModConfig.DOMETYPE_COUNT;
+			}
+		}
+		this.sphereType = sType;
 	}
 
 	// #region Public Methods
+
+	public Block getDomeBlock(int x, int y, int z)
+	{
+		Block ret = Blx.glass;
+
+		if (SphereTypeValid(this.sphereType))
+		{
+			Random rnd = GetPhaseRandom
+			(
+				"SphereType_" + Integer.toString(x) + "_" + Integer.toString(y) + "_" + Integer.toString(z),
+				centerChunkX,
+				centerChunkZ
+			);
+
+			ret = ((BlockEntry)WeightedRandom.getRandomItem(rnd, this.chunkProvider.config.DomeBlocks[this.sphereType])).Block;
+		}
+
+		return ret;
+	}
 
 	public int getMainDistance(int rawX, int rawY, int rawZ)
 	{
@@ -378,6 +410,37 @@ public class Sphere
 	// #endregion
 
 	// #region Private Methods
+
+	private boolean AnySphereTypeValid()
+	{
+		for (int i = 0; i < ModConfig.DOMETYPE_COUNT; i++)
+		{
+			if (SphereTypeValid(i)) { return true; }
+		}
+
+		return false;
+	}
+
+	private boolean SphereTypeValid(int typeIndex)
+	{
+		if (typeIndex < 0) { return false; }
+		if (typeIndex >= ModConfig.DOMETYPE_COUNT) { return false; }
+
+		ModConfig config = chunkProvider.config;
+
+		if (config.DomeBlocks[typeIndex] != null)
+		{
+			for (int i = 0; i < config.DomeBlocks[typeIndex].size(); i++)
+			{
+				if (config.DomeBlocks[typeIndex].get(i).itemWeight > 0)
+				{
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
 
 	private static ChunkCoordinates GetSphereCenter(int chunkX, int chunkZ, ModConfig cfg)
 	{

@@ -1,16 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <section name="Workbench">
+	<section name="WorkbenchPreferenceDialogSettings">
+		<item value="43" key="DIALOG_Y_ORIGIN"/>
+		<item value="350" key="DIALOG_X_ORIGIN"/>
+	</section>
+	<section name="org.eclipse.ui.preferences.keysPreferencePage">
+		<item value="true" key="actionSetFilter"/>
+		<item value="true" key="uncategorizedFilter"/>
+		<item value="true" key="internalFilter"/>
+	</section>
+	<section name="EditorSelectionDialog">
+		<item value="false" key="EditorSelectionDialog.STORE_ID_INTERNAL_EXTERNAL"/>
+	</section>
+	<section name="org.eclipse.ui.internal.QuickAccess">
+		<item value="596" key="dialogHeight"/>
+		<item value="1152" key="dialogWidth"/>
+		<list key="textEntries">
+			<item value="1"/>
+		</list>
+		<list key="orderedElements">
+			<item value="org.eclipse.ui.preferencePages.Keys"/>
+		</list>
+		<list key="orderedProviders">
+			<item value="org.eclipse.ui.preferences"/>
+		</list>
+		<list key="textArray">
+			<item value="keys"/>
+		</list>
+	</section>
 	<section name="PreferencesImportWizard">
 		<item value="D:\MCP\1.7.10\preferences.epf" key=""/>
 		<list key="WizardPreferencesExportPage1.STORE_DESTINATION_NAMES_ID">
 			<item value="D:\MCP\1.7.10\preferences.epf"/>
 		</list>
 	</section>
+	<section name="ImportExportAction">
+		<item value="org.eclipse.ui.wizards.export.Preferences" key="ImportExportPage.STORE_SELECTED_EXPORT_WIZARD_ID"/>
+		<item value="org.eclipse.ui.wizards.import.Preferences" key="ImportExportPage.STORE_SELECTED_IMPORT_WIZARD_ID"/>
+		<list key="ImportExportPage.STORE_EXPANDED_IMPORT_CATEGORIES">
+			<item value="org.eclipse.ui.Basic"/>
+		</list>
+		<list key="ImportExportPage.STORE_EXPANDED_EXPORT_CATEGORIES">
+			<item value="org.eclipse.ui.Basic"/>
+		</list>
+	</section>
 	<section name="PreferencesExportWizard">
 		<item value="D:\MCP\1.7.10\preferences.epf" key=""/>
-		<item value="D:\MCP\1.7.10\preferences.epf" key=""/>
-		<item value="false" key="WizardPreferencesExportPage1.EXPORT_ALL_PREFERENCES_ID"/>
 		<item value="true" key="WizardPreferencesExportPage1.STORE_OVERWRITE_EXISTING_FILES_ID"/>
+		<item value="false" key="WizardPreferencesExportPage1.EXPORT_ALL_PREFERENCES_ID"/>
 		<list key="WizardPreferencesExportPage1.TRANSFER_PREFERENCES_NAMES_ID">
 			<item value="org.eclipse.jdt.debug.ui.transfer.jres"/>
 			<item value="org.eclipse.jdt.internal.ui.transfer.appearance"/>
@@ -23,57 +60,19 @@
 			<item value="D:\MCP\1.7.10\preferences.epf"/>
 		</list>
 	</section>
+	<section name="FileExtensionDialogSettings">
+		<item value="525" key="DIALOG_WIDTH"/>
+		<item value="1|Segoe UI|9.0|0|WINDOWS|1|-12|0|0|0|400|0|0|0|1|0|0|0|0|Segoe UI" key="DIALOG_FONT_NAME"/>
+		<item value="281" key="DIALOG_HEIGHT"/>
+		<item value="154" key="DIALOG_Y_ORIGIN"/>
+		<item value="55" key="DIALOG_X_ORIGIN"/>
+	</section>
 	<section name="FileSystemImportWizard">
-		<item value="false" key="WizardFileSystemResourceImportPage1.STORE_OVERWRITE_EXISTING_RESOURCES_ID"/>
 		<item value="false" key="WizardFileSystemResourceImportPage1.STORE_CREATE_CONTAINER_STRUCTURE_ID"/>
+		<item value="false" key="WizardFileSystemResourceImportPage1.STORE_OVERWRITE_EXISTING_RESOURCES_ID"/>
 		<list key="WizardFileSystemResourceImportPage1.STORE_SOURCE_NAMES_ID">
 			<item value="d:\mcp\1.7.10\libs"/>
 			<item value="C:\Temp"/>
-		</list>
-	</section>
-	<section name="org.eclipse.ui.internal.QuickAccess">
-		<item value="1440" key="dialogWidth"/>
-		<item value="760" key="dialogHeight"/>
-		<list key="orderedProviders">
-			<item value="org.eclipse.ui.preferences"/>
-		</list>
-		<list key="textArray">
-			<item value="keys"/>
-		</list>
-		<list key="orderedElements">
-			<item value="org.eclipse.ui.preferencePages.Keys"/>
-		</list>
-		<list key="textEntries">
-			<item value="1"/>
-		</list>
-	</section>
-	<section name="WorkbenchPreferenceDialogSettings">
-		<item value="223" key="DIALOG_Y_ORIGIN"/>
-		<item value="350" key="DIALOG_X_ORIGIN"/>
-	</section>
-	<section name="FileExtensionDialogSettings">
-		<item value="525" key="DIALOG_WIDTH"/>
-		<item value="154" key="DIALOG_Y_ORIGIN"/>
-		<item value="55" key="DIALOG_X_ORIGIN"/>
-		<item value="281" key="DIALOG_HEIGHT"/>
-		<item value="1|Segoe UI|9.0|0|WINDOWS|1|-12|0|0|0|400|0|0|0|1|0|0|0|0|Segoe UI" key="DIALOG_FONT_NAME"/>
-	</section>
-	<section name="EditorSelectionDialog">
-		<item value="false" key="EditorSelectionDialog.STORE_ID_INTERNAL_EXTERNAL"/>
-	</section>
-	<section name="org.eclipse.ui.preferences.keysPreferencePage">
-		<item value="true" key="uncategorizedFilter"/>
-		<item value="true" key="internalFilter"/>
-		<item value="true" key="actionSetFilter"/>
-	</section>
-	<section name="ImportExportAction">
-		<item value="org.eclipse.ui.wizards.import.Preferences" key="ImportExportPage.STORE_SELECTED_IMPORT_WIZARD_ID"/>
-		<item value="org.eclipse.ui.wizards.export.Preferences" key="ImportExportPage.STORE_SELECTED_EXPORT_WIZARD_ID"/>
-		<list key="ImportExportPage.STORE_EXPANDED_IMPORT_CATEGORIES">
-			<item value="org.eclipse.ui.Basic"/>
-		</list>
-		<list key="ImportExportPage.STORE_EXPANDED_EXPORT_CATEGORIES">
-			<item value="org.eclipse.ui.Basic"/>
 		</list>
 	</section>
 </section>

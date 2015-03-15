@@ -228,7 +228,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 							if (rawY >= midY + 4 || Math.abs(rawX - sphere.sphereLocation.posX) > bridgeWidth
 								&& Math.abs(rawZ - sphere.sphereLocation.posZ) > bridgeWidth)
 							{
-								block = config.getDomeBlock();
+								block = sphere.getDomeBlock(rawX, rawY, rawZ);
 							}
 						}
 						else if (sphere.hasLake && config.isNoiseEnabled() && sphere.biome != BiomeGenBase.desert
@@ -261,7 +261,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 							&& (Math.abs(rawX - sphere.sphereLocation.posX) == bridgeWidth || Math.abs(rawZ
 								- sphere.sphereLocation.posZ) == bridgeWidth))
 						{
-							block = config.getDomeBlock();
+							block = sphere.getDomeBlock(rawX, rawY, rawZ);
 						}
 						else if (config.doesNeedProtectionGlass()
 							&& rawY == midY + 4
@@ -269,7 +269,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 							&& (Math.abs(rawX - sphere.sphereLocation.posX) < bridgeWidth || Math.abs(rawZ
 								- sphere.sphereLocation.posZ) < bridgeWidth))
 						{
-							block = config.getDomeBlock();
+							block = sphere.getDomeBlock(rawX, rawY, rawZ);
 						}
 						else if (config.doesNeedProtectionGlass()
 							&& rawY < midY + 4

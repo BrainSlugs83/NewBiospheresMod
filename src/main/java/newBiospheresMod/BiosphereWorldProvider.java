@@ -66,7 +66,7 @@ public class BiosphereWorldProvider extends WorldProviderSurface
 			// System.out.println("SPAWN BLOCK [" + x + ", " + y + ", "
 			// + z + "](" + yo + "): " + WoopMod.GetNameOrIdForBlock(block));
 
-			if (block == config.getDomeBlock())
+			/*if (block == config.getDomeBlock())
 			{
 				domeBlockCount++;
 
@@ -76,7 +76,7 @@ public class BiosphereWorldProvider extends WorldProviderSurface
 					return false;
 				}
 			}
-			else if (block != Blx.air)
+			else*/ if (block != Blx.air)
 			{
 				if (block != config.getOutsideFillerBlock()) { return false; }
 			}

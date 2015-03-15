@@ -256,6 +256,10 @@ public class ModConfig
 	public final List<BlockEntry> OreOrbBlocks = new ArrayList<BlockEntry>();
 	public final List<BlockEntry> StairwayBlocks = new ArrayList<BlockEntry>();
 
+	public final static int DOMETYPE_COUNT = 4;
+	public final static int DOMETYPE_BLOCK_COUNT = 4;
+	public final static List<BlockEntry>[] DomeBlocks = new ArrayList[DOMETYPE_COUNT];
+
 	// #region boolean NoiseEnabled
 
 	private static final boolean defaultNoiseEnabled = true;
@@ -325,40 +329,22 @@ public class ModConfig
 
 	// #region Block DomeBlock
 
-	private static final Block defaultDomeBlock = Blx.glass;
-	private Block domeBlock = defaultDomeBlock;
-
-	public Block getDomeBlock()
-	{
-		return domeBlock;
-	}
-
-	public void setDomeBlock(Block value)
-	{
-		if (value == null) value = defaultDomeBlock;
-
-		this.domeBlock = value;
-	}
-
-	private static Property getDomeBlockProperty()
-	{
-		if (cfgFile == null) { return null; }
-
-		return cfgFile.get(Categories.Biospheres, "Dome Block", Utils.GetNameOrIdForBlock(defaultDomeBlock),
-			"The Block to use for the generated bio-domes.");
-	}
-
-	private BlockWorldProperty getDomeBlockWorldProperty()
-	{
-		return new BlockWorldProperty(getDomeBlockProperty(), getDomeBlock(), defaultDomeBlock);
-	}
+	/*
+	 * private static final Block defaultDomeBlock = Blx.glass; private Block domeBlock = defaultDomeBlock; public Block
+	 * getDomeBlock() { return domeBlock; } public void setDomeBlock(Block value) { if (value == null) value =
+	 * defaultDomeBlock; this.domeBlock = value; } private static Property getDomeBlockProperty() { if (cfgFile == null)
+	 * { return null; } return cfgFile.get(Categories.Biospheres, "Dome Block",
+	 * Utils.GetNameOrIdForBlock(defaultDomeBlock), "The Block to use for the generated bio-domes."); } private
+	 * BlockWorldProperty getDomeBlockWorldProperty() { return new BlockWorldProperty(getDomeBlockProperty(),
+	 * getDomeBlock(), defaultDomeBlock); }
+	 */
 
 	// #endregion
 
 	// #region Block OrbBlock
 
 	private static final Block defaultOrbBlock = Blx.glass;
-	private Block orbBlock = defaultDomeBlock;
+	private Block orbBlock = defaultOrbBlock;
 
 	public Block getOrbBlock()
 	{
@@ -855,6 +841,11 @@ public class ModConfig
 
 	private String GetCategoryName(Property input)
 	{
+		return GetCategoryName(input, cfgFile);
+	}
+
+	private static String GetCategoryName(Property input, Configuration cfgFile)
+	{
 		String fallback = null;
 		String propName = input.getName();
 
@@ -879,51 +870,107 @@ public class ModConfig
 		return GetOldWorldProperty(input.getName());
 	}
 
-	private String GetOldWorldProperty(String propName)
+	private static String GetOldWorldProperty(String propName)
 	{
 		return ModConsts.ModId + "." + propName;
 	}
 
 	private String GetNewWorldProperty(Property input)
 	{
-		return GetNewWorldProperty(GetCategoryName(input), input.getName());
+		return GetNewWorldProperty(input, cfgFile);
 	}
 
-	private String GetNewWorldProperty(String category, String propName)
+	private static String GetNewWorldProperty(Property input, Configuration cfgFile)
+	{
+		return GetNewWorldProperty(GetCategoryName(input, cfgFile), input.getName());
+	}
+
+	private static String GetNewWorldProperty(String category, String propName)
 	{
 		String result = category + "." + propName;
 		result = result.toLowerCase().replace(" ", "");
 		return result;
 	}
 
-	private static class MigrationEntry
+	private static abstract class MigrationAction
+	{
+		public abstract void PerformConfigMigration(Configuration cfgFile);
+		public abstract void PerformWorldMigration(CustomWorldData data, Configuration cfgFile);
+	}
+
+	private static class PropertyRenamedMigration extends MigrationAction
+	{
+		public final String Category;
+		public final String OldPropertyName;
+		public final String NewPropertyName;
+
+		public PropertyRenamedMigration(String category, String oldPropertyName, String newPropertyName)
+		{
+			this.Category = category;
+			this.OldPropertyName = oldPropertyName;
+			this.NewPropertyName = newPropertyName;
+		}
+
+		@Override
+		public void PerformConfigMigration(Configuration cfgFile)
+		{
+			if (cfgFile.hasCategory(this.Category))
+			{
+				if (cfgFile.hasKey(this.Category, this.OldPropertyName))
+				{
+					cfgFile.renameProperty(this.Category, this.OldPropertyName, this.NewPropertyName);
+				}
+			}
+		}
+
+		@Override
+		public void PerformWorldMigration(CustomWorldData data, Configuration cfgFile)
+		{
+			MigrateWorldProperty(data, this.Category, this.Category, this.OldPropertyName, this.NewPropertyName);
+		}
+	}
+
+	private static class PropertyMovedMigration extends MigrationAction
 	{
 		public final String OldCategory;
 		public final String NewCategory;
 		public final String PropertyName;
 
-		public MigrationEntry(String oldCategory, String newCategory, String propertyName)
+		public PropertyMovedMigration(String oldCategory, String newCategory, String propertyName)
 		{
 			this.OldCategory = oldCategory;
 			this.NewCategory = newCategory;
 			this.PropertyName = propertyName;
 		}
+
+		@Override
+		public void PerformConfigMigration(Configuration cfgFile)
+		{
+			cfgFile.moveProperty(OldCategory, PropertyName, NewCategory);
+		}
+
+		@Override
+		public void PerformWorldMigration(CustomWorldData data, Configuration cfgFile)
+		{
+			MigrateWorldProperty(data, this.OldCategory, this.NewCategory, this.PropertyName, this.PropertyName);
+		}
 	}
 
-	private static List<MigrationEntry> migrations = null;
+	private static List<MigrationAction> migrations = null;
 
 	private synchronized void InitMigrations()
 	{
 		if (migrations == null)
 		{
-			migrations = new ArrayList<MigrationEntry>();
-			migrations.add(new MigrationEntry(Categories.General, Categories.Biospheres, "Dome Block"));
-			migrations.add(new MigrationEntry(Categories.General, Categories.Biospheres, "Sphere Radius (Minimum)"));
-			migrations.add(new MigrationEntry(Categories.General, Categories.Biospheres, "Sphere Radius (Maximum)"));
-			migrations.add(new MigrationEntry(Categories.General, Categories.Biospheres, "Lake Ratio (Minimum)"));
-			migrations.add(new MigrationEntry(Categories.General, Categories.Biospheres, "Lake Ratio (Maximum)"));
-			migrations.add(new MigrationEntry(Categories.General, Categories.Biospheres, "Tall Grass Enabled"));
-			migrations.add(new MigrationEntry(Categories.General, Categories.OreOrbs, "Ore Orb Radius"));
+			migrations = new ArrayList<MigrationAction>();
+			migrations.add(new PropertyMovedMigration(Categories.General, Categories.Biospheres, "Dome Block"));
+			migrations.add(new PropertyMovedMigration(Categories.General, Categories.Biospheres, "Sphere Radius (Minimum)"));
+			migrations.add(new PropertyMovedMigration(Categories.General, Categories.Biospheres, "Sphere Radius (Maximum)"));
+			migrations.add(new PropertyMovedMigration(Categories.General, Categories.Biospheres, "Lake Ratio (Minimum)"));
+			migrations.add(new PropertyMovedMigration(Categories.General, Categories.Biospheres, "Lake Ratio (Maximum)"));
+			migrations.add(new PropertyMovedMigration(Categories.General, Categories.Biospheres, "Tall Grass Enabled"));
+			migrations.add(new PropertyMovedMigration(Categories.General, Categories.OreOrbs, "Ore Orb Radius"));
+			migrations.add(new PropertyRenamedMigration(Categories.Biospheres, "Dome Block", "Dome Type #0 - Block #0"));
 		}
 	}
 
@@ -933,9 +980,9 @@ public class ModConfig
 
 		if (cfgFile != null)
 		{
-			for (MigrationEntry mige: migrations)
+			for (MigrationAction mige: migrations)
 			{
-				cfgFile.moveProperty(mige.OldCategory, mige.PropertyName, mige.NewCategory);
+				mige.PerformConfigMigration(cfgFile);
 			}
 
 			if (cfgFile.hasChanged())
@@ -945,7 +992,7 @@ public class ModConfig
 		}
 	}
 
-	private void MigrateWorldProperty(GameRules rules, CustomWorldData data, String category, String propertyName)
+	private static void MigrateWorldProperty(GameRules rules, CustomWorldData data, String category, String propertyName)
 	{
 		if (rules != null && data != null)
 		{
@@ -958,12 +1005,12 @@ public class ModConfig
 		}
 	}
 
-	private void MigrateWorldProperty(CustomWorldData data, String oldCategory, String newCategory, String propertyName)
+	private static void MigrateWorldProperty(CustomWorldData data, String oldCategory, String newCategory, String oldPropertyName, String newPropertyName)
 	{
 		if (data != null)
 		{
-			String oldName = GetNewWorldProperty(oldCategory, propertyName);
-			String newName = GetNewWorldProperty(newCategory, propertyName);
+			String oldName = GetNewWorldProperty(oldCategory, oldPropertyName);
+			String newName = GetNewWorldProperty(newCategory, newPropertyName);
 
 			if (data.ContainsKey(oldName))
 			{
@@ -1005,9 +1052,9 @@ public class ModConfig
 			}
 		}
 
-		for (MigrationEntry mige: migrations)
+		for (MigrationAction mige: migrations)
 		{
-			MigrateWorldProperty(data, mige.OldCategory, mige.NewCategory, mige.PropertyName);
+			mige.PerformWorldMigration(data, cfgFile);
 		}
 
 		data.MakeNotNew();
@@ -1076,6 +1123,37 @@ public class ModConfig
 		if (index == 1) return new BlockEntry(Blx.air, 50);
 
 		return new BlockEntry(Blx.air, 0);
+	}
+
+	private static BlockEntry GetDefaultDomeBlockProperty(int domeTypeIndex, int blockIndex)
+	{
+		if (blockIndex == 0 && domeTypeIndex == 0) return new BlockEntry(Blx.glass, 10);
+		return new BlockEntry(Blx.air, 0);
+	}
+
+	private Property GetDomeBlockProperty(int domeTypeIndex, int blockIndex)
+	{
+		if (cfgFile == null) { return null; }
+
+		BlockEntry be = GetDefaultDomeBlockProperty(domeTypeIndex, blockIndex);
+
+		String domeIdxStr = Integer.toString(domeTypeIndex);
+		String blockIdxStr = Integer.toString(blockIndex);
+
+		//while (domeIdxStr.length() < 2) { domeIdxStr = "0" + domeIdxStr; }
+		//while (blockIdxStr.length() < 2) { blockIdxStr = "0" + blockIdxStr; }
+
+		Property ret = cfgFile.get
+		(
+			Categories.Biospheres,
+			"Dome Type #" + domeIdxStr + " - Block #" + blockIdxStr,
+			be.toString(),
+			"The chance that a given dome type will produce a given block.  Values have two parts, and are separated "
+			+ "by a comma.  The left side of the comma specifies the block name or Id, and the right side of the comma "
+			+ "specifies the weighted chance to produce that block as part of a given dome type."
+		);
+
+		return ret;
 	}
 
 	private Property GetRandomOreBlockEntryProperty(int index)
@@ -1163,7 +1241,7 @@ public class ModConfig
 
 		setNoiseEnabled(getNoiseEnabledWorldProperty().ReadWorldValue(data));
 		setScale(getScaleWorldProperty().ReadWorldValue(data));
-		setDomeBlock(getDomeBlockWorldProperty().ReadWorldValue(data));
+		//setDomeBlock(getDomeBlockWorldProperty().ReadWorldValue(data));
 		setOrbBlock(getOrbBlockWorldProperty().ReadWorldValue(data));
 		setBridgeSupportBlock(getBridgeSupportBlockWorldProperty().ReadWorldValue(data));
 		setBridgeRailBlock(getBridgeRailBlockWorldProperty().ReadWorldValue(data));
@@ -1241,6 +1319,36 @@ public class ModConfig
 		{
 			LoadBiomeWeightsFromFile();
 		}
+
+		for (int i = 0; i < DOMETYPE_COUNT; i++)
+		{
+			if (DomeBlocks[i] == null) { DomeBlocks[i] = new ArrayList<BlockEntry>(); }
+
+			for (int j = 0; j < DOMETYPE_BLOCK_COUNT; j++)
+			{
+				Property prop = GetDomeBlockProperty(i, j);
+				if (prop != null)
+				{
+					String keyName = GetNewWorldProperty(prop);
+
+					if (data.ContainsKey(keyName))
+					{
+						BlockEntry value = BlockEntry.Parse(data.get(keyName));
+
+						//System.err.println(keyName + " = " + value.toString());
+
+						if (DomeBlocks[i].size() > j)
+						{
+							DomeBlocks[i].set(j, value);
+						}
+						else
+						{
+							DomeBlocks[i].add(value);
+						}
+					}
+				}
+			}
+		}
 	}
 
 	private void SaveConfigurationToWorld()
@@ -1252,7 +1360,7 @@ public class ModConfig
 
 		getNoiseEnabledWorldProperty().WriteWorldValue(data);
 		getScaleWorldProperty().WriteWorldValue(data);
-		getDomeBlockWorldProperty().WriteWorldValue(data);
+		//getDomeBlockWorldProperty().WriteWorldValue(data);
 		getOrbBlockWorldProperty().WriteWorldValue(data);
 		getBridgeSupportBlockWorldProperty().WriteWorldValue(data);
 		getBridgeRailBlockWorldProperty().WriteWorldValue(data);
@@ -1312,6 +1420,26 @@ public class ModConfig
 				data.put(keyName, entry.itemWeight);
 			}
 		}
+
+		for (int i = 0; i < DOMETYPE_COUNT; i++)
+		{
+			for (int j = 0; j < DOMETYPE_BLOCK_COUNT; j++)
+			{
+				Property prop = GetDomeBlockProperty(i, j);
+				if (prop != null)
+				{
+					String keyName = GetNewWorldProperty(prop);
+					String value = "air, 0";
+
+					if (DomeBlocks[i] != null && DomeBlocks[i].size() > j)
+					{
+						value = DomeBlocks[i].get(j).toString();
+					}
+
+					data.put(keyName, value);
+				}
+			}
+		}
 	}
 
 	// #endregion
@@ -1324,7 +1452,9 @@ public class ModConfig
 
 		this.setNoiseEnabled(getNoiseEnabledProperty().getBoolean());
 		this.setScale((float)getScaleProperty().getDouble());
-		this.setDomeBlock(Utils.ParseBlock(getDomeBlockProperty().getString(), defaultDomeBlock));
+
+		//this.setDomeBlock(Utils.ParseBlock(getDomeBlockProperty().getString(), defaultDomeBlock));
+
 		this.setOrbBlock(Utils.ParseBlock(getOrbBlockProperty().getString(), defaultOrbBlock));
 		this.setBridgeSupportBlock(Utils.ParseBlock(getBridgeSupportBlockProperty().getString(),
 			defaultBridgeSupportBlock));
@@ -1341,6 +1471,7 @@ public class ModConfig
 		this.setMaxLakeRatio(getMaxLakeRatioProperty().getDouble());
 		this.setSeaLevel(getSeaLevelProperty().getInt());
 
+		LoadDomeBlocksFromFile();
 		LoadOreBlocksFromFile();
 		LoadStairwayBlocksFromFile();
 		LoadBiomeWeightsFromFile();
@@ -1349,6 +1480,34 @@ public class ModConfig
 		{
 			cfgFile.save();
 		}
+	}
+
+	private void LoadDomeBlocksFromFile()
+	{
+		for (int i = 0; i < DOMETYPE_COUNT; i++)
+		{
+			if (DomeBlocks[i] == null) { DomeBlocks[i] = new ArrayList<BlockEntry>(); }
+
+			for (int j = 0; j < DOMETYPE_BLOCK_COUNT; j++)
+			{
+				Property prop = GetDomeBlockProperty(i, j);
+
+				if (prop != null)
+				{
+					BlockEntry value = BlockEntry.Parse(prop.getString());
+
+					if (DomeBlocks[i].size() > j)
+					{
+						DomeBlocks[i].set(j, value);
+					}
+					else
+					{
+						DomeBlocks[i].add(value);
+					}
+				}
+			}
+		}
+
 	}
 
 	private void LoadOreBlocksFromFile()
@@ -1455,7 +1614,7 @@ public class ModConfig
 
 		getNoiseEnabledProperty().set(isNoiseEnabled());
 		getScaleProperty().set(getScale());
-		getDomeBlockProperty().set(Utils.GetNameOrIdForBlock(getDomeBlock()));
+		//getDomeBlockProperty().set(Utils.GetNameOrIdForBlock(getDomeBlock()));
 		getOrbBlockProperty().set(Utils.GetNameOrIdForBlock(getOrbBlock()));
 		getBridgeSupportBlockProperty().set(Utils.GetNameOrIdForBlock(getBridgeSupportBlock()));
 		getBridgeRailBlockProperty().set(Utils.GetNameOrIdForBlock(getBridgeRailBlock()));
@@ -1510,6 +1669,25 @@ public class ModConfig
 			if (prop != null)
 			{
 				prop.set(GetDefaultBiomeWeight(entry.biome));
+			}
+		}
+
+		for (int i = 0; i < DOMETYPE_COUNT; i++)
+		{
+			for (int j = 0; j < DOMETYPE_BLOCK_COUNT; j++)
+			{
+				Property prop = GetDomeBlockProperty(i, j);
+				if (prop != null)
+				{
+					String value = "air, 0";
+
+					if (DomeBlocks[i] != null && DomeBlocks[i].size() > j)
+					{
+						value = DomeBlocks[i].get(j).toString();
+					}
+
+					prop.set(value);
+				}
 			}
 		}
 
