@@ -16,7 +16,9 @@ public class ModConfigGuiFactory implements IModGuiFactory
 {
 	@Override
 	public void initialize(Minecraft minecraftInstance)
-	{}
+	{
+		/* do nothing */
+	}
 
 	@Override
 	public Class<? extends GuiScreen> mainConfigGuiClass()

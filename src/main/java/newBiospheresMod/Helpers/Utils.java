@@ -348,6 +348,7 @@ public class Utils
 		};
 	}
 
+	@SuppressWarnings("unused")
 	public static <T> boolean Any(final Iterable<T> input)
 	{
 		if (input != null)

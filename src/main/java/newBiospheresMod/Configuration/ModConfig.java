@@ -1127,7 +1127,7 @@ public class ModConfig
 
 	private static BlockEntry GetDefaultDomeBlockProperty(int domeTypeIndex, int blockIndex)
 	{
-		if (blockIndex == 0 && domeTypeIndex == 0) return new BlockEntry(Blx.glass, 10);
+		if (blockIndex == 0 && domeTypeIndex == 0) return new BlockEntry(Blx.glass_dome, 10);
 		return new BlockEntry(Blx.air, 0);
 	}
 

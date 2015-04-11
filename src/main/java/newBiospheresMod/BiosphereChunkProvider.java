@@ -546,8 +546,6 @@ public class BiosphereChunkProvider implements IChunkProvider
 			(new WorldGenFlowers(Blx.red_mushroom)).generate(this.world, rnd, x, y, z);
 		}
 
-		int l13;
-
 		if (config.isTallGrassEnabled())
 		{
 			int grassPerChunk = sphere.biome.theBiomeDecorator.grassPerChunk;
@@ -731,7 +729,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 	@Override
 	public void recreateStructures(int var1, int var2)
 	{
-
+		/* do nothing */
 	}
 
 	@Override
