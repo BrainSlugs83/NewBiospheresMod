@@ -327,20 +327,6 @@ public class ModConfig
 
 	// #endregion
 
-	// #region Block DomeBlock
-
-	/*
-	 * private static final Block defaultDomeBlock = Blx.glass; private Block domeBlock = defaultDomeBlock; public Block
-	 * getDomeBlock() { return domeBlock; } public void setDomeBlock(Block value) { if (value == null) value =
-	 * defaultDomeBlock; this.domeBlock = value; } private static Property getDomeBlockProperty() { if (cfgFile == null)
-	 * { return null; } return cfgFile.get(Categories.Biospheres, "Dome Block",
-	 * Utils.GetNameOrIdForBlock(defaultDomeBlock), "The Block to use for the generated bio-domes."); } private
-	 * BlockWorldProperty getDomeBlockWorldProperty() { return new BlockWorldProperty(getDomeBlockProperty(),
-	 * getDomeBlock(), defaultDomeBlock); }
-	 */
-
-	// #endregion
-
 	// #region Block OrbBlock
 
 	private static final Block defaultOrbBlock = Blx.glass;
@@ -778,7 +764,7 @@ public class ModConfig
 		if (value < seaLevelMinimumValue) value = seaLevelMinimumValue;
 		else if (value > seaLevelMaximumValue) value = seaLevelMaximumValue;
 
-		System.out.println("New Sea Level: " + value + ", Old: " + seaLevel);
+		//System.out.println("New Sea Level: " + value + ", Old: " + seaLevel);
 
 		this.seaLevel = value;
 	}
@@ -1127,7 +1113,7 @@ public class ModConfig
 
 	private static BlockEntry GetDefaultDomeBlockProperty(int domeTypeIndex, int blockIndex)
 	{
-		if (blockIndex == 0 && domeTypeIndex == 0) return new BlockEntry(Blx.glass_dome, 10);
+		if (blockIndex == 0 && domeTypeIndex == 0) return new BlockEntry(Blx.glass, 10);
 		return new BlockEntry(Blx.air, 0);
 	}
 

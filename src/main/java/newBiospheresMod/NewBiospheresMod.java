@@ -6,6 +6,7 @@
 
 package newBiospheresMod;
 
+import sun.misc.PostVMInitHook;
 import net.minecraft.world.WorldType;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.config.Configuration;
@@ -38,14 +39,18 @@ public class NewBiospheresMod
 		// TODO: Update this to use the new resource localization crap
 		LanguageRegistry.instance().addStringLocalization("generator.biosphere", "Biospheres");
 
-		BlockDome.register();
-
 		biosphereWorldType = new BiosphereWorldType("biosphere");
 
-		//DimensionManager.unregisterProviderType(0);
-		//DimensionManager.registerProviderType(0, BiosphereWorldProvider.class, true);
+		DimensionManager.unregisterProviderType(0);
+		DimensionManager.registerProviderType(0, BiosphereWorldProvider.class, true);
 
 		FMLCommonHandler.instance().bus().register(this);
+	}
+
+	@EventHandler
+	public void PostInit(FMLInitializationEvent event)
+	{
+		BlockDome.InitalizeAllRegisteredBlocks();
 	}
 
 	@SubscribeEvent

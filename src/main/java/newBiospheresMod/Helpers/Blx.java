@@ -1766,17 +1766,6 @@ public class Blx
 	},
 		"minecraft:double_plant", 175);
 
-	public static final Block glass_dome = LoadBlock(new Creator<Block>()
-	{
-		@Override
-		public Block create()
-		{
-			BlockDome.register();
-			return BlockDome.blockDome;
-		}
-	},
-		"glass_dome", 20);
-
 	private static Block LoadBlock(Creator<Block> getBlock, String fallbackName, int fallbackId)
 	{
 		Block returnValue = null;

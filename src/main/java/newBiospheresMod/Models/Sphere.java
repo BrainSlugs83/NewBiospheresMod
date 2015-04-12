@@ -18,6 +18,7 @@ import net.minecraft.util.WeightedRandom;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 import newBiospheresMod.BiosphereChunkProvider;
+import newBiospheresMod.BlockDome;
 import newBiospheresMod.BlockEntry;
 import newBiospheresMod.Configuration.ModConfig;
 import newBiospheresMod.Helpers.Blx;
@@ -279,7 +280,7 @@ public class Sphere
 			ret = ((BlockEntry)WeightedRandom.getRandomItem(rnd, this.chunkProvider.config.DomeBlocks[this.sphereType])).Block;
 		}
 
-		return ret;
+		return BlockDome.GetDomeBlock(ret);
 	}
 
 	public int getMainDistance(int rawX, int rawY, int rawZ)
