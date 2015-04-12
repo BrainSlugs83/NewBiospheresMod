@@ -6,7 +6,6 @@
 
 package newBiospheresMod;
 
-import sun.misc.PostVMInitHook;
 import net.minecraft.world.WorldType;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.config.Configuration;

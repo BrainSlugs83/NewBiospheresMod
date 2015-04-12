@@ -38,6 +38,8 @@ public final class BlockDome extends Block
 
 	public static void InitalizeAllRegisteredBlocks()
 	{
+		System.out.println("InitalizeAllRegisteredBlocks Entered.");
+
 		int idx = 0;
 		int failCount = 0;
 		while (true)
@@ -45,6 +47,7 @@ public final class BlockDome extends Block
 			Block block = null;
 			try
 			{
+				System.out.println("InitalizeAllRegisteredBlocks: Copying Block #" + idx);
 				block = Block.getBlockById(idx++);
 			}
 			catch (Exception ex)
@@ -65,6 +68,8 @@ public final class BlockDome extends Block
 				break;
 			}
 		}
+
+		System.out.println("InitalizeAllRegisteredBlocks Exited.");
 	}
 
 	public static Block GetDomeBlock(Block baseBlock)
