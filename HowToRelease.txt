@@ -1,0 +1,4 @@
+Update Version # in src/main/resources/mcmod.info
+Update Version # in src/main/java/newBiospheresMod/Helpers/ModConsts.java
+Update Version # in build.gradle
+Run Publish.bat

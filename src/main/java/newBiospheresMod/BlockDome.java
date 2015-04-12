@@ -1251,12 +1251,12 @@ public final class BlockDome extends Block
 		return baseBlock.canRenderInPass(pass);
 	}
 
-	@Override
-	public ItemStack getPickBlock(MovingObjectPosition target, World world, int x, int y, int z, EntityPlayer player)
-	{
-		if (baseBlock == null) { return super.getPickBlock(target, world, x, y, z, player); }
-		return baseBlock.getPickBlock(target, world, x, y, z, player);
-	}
+//	@Override
+//	public ItemStack getPickBlock(MovingObjectPosition target, World world, int x, int y, int z, EntityPlayer player)
+//	{
+//		if (baseBlock == null) { return super.getPickBlock(target, world, x, y, z, player); }
+//		return baseBlock.getPickBlock(target, world, x, y, z, player);
+//	}
 
 	@Override
 	@Deprecated
