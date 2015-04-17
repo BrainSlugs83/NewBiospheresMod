@@ -41,6 +41,8 @@ public class BiosphereMapGen extends MapGenBase
 	protected void a(int chunkX, int chunkZ, Block[] blocks, double d, double d1, double d2, float f, float f1,
 			float f2, int k, int l, double d3)
 	{
+		int chunkHeight = blocks.length / (16 * 16);
+
 		SphereChunk chunk = null;
 		Sphere sphere = null;
 
@@ -169,9 +171,9 @@ public class BiosphereMapGen extends MapGenBase
 						{
 							for (int j4 = j2 + 1; !flag2 && j4 >= i2 - 1; --j4)
 							{
-								j3 = (l3 * 16 + d12) * 128 + j4;
+								j3 = (l3 * 16 + d12) * chunkHeight + j4;
 
-								if (j4 >= 0 && j4 < 128)
+								if (j4 >= 0 && j4 < chunkHeight)
 								{
 									if (blocks[j3] == Blx.flowing_water || blocks[j3] == Blx.water
 										|| blocks[j3] == Blx.flowing_lava || blocks[j3] == Blx.lava)
@@ -198,7 +200,7 @@ public class BiosphereMapGen extends MapGenBase
 							{
 								int midY = chunk.getChunkBoundSurfaceLevel(l3, j3);
 								double d13 = (j3 + chunkZ * 16 + 0.5D - d2) / d6;
-								int k4 = (l3 * 16 + j3) * 128 + j2;
+								int k4 = (l3 * 16 + j3) * chunkHeight + j2;
 
 								for (int l4 = j2 - 1; l4 >= i2; --l4)
 								{

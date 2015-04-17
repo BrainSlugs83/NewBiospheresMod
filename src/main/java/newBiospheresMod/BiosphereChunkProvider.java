@@ -201,7 +201,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 
 				for (int rawY = ModConsts.WORLD_MAX_Y; rawY >= ModConsts.WORLD_MIN_Y; rawY--)
 				{
-					int idx = (xo << ModConsts.xShift) | (zo << ModConsts.zShift) | rawY;
+					int idx = ModConsts.GetChunkArrayIndex(xo, rawY, zo);
 					Block block = Blx.air;
 
 					int rawX = baseX + xo;
@@ -394,12 +394,13 @@ public class BiosphereChunkProvider implements IChunkProvider
 	{
 		long startedAt = System.currentTimeMillis();
 
-		Block[] blocks = new Block[16 * 16 * ModConsts.WORLD_HEIGHT];
+		Block[] blocks = new Block[ModConsts.GetChunkArraySize()];
+		byte[] metadata = new byte[ModConsts.GetChunkArraySize()];
 
 		this.GenerateChunk(x, z, blocks);
 		this.caveGen.func_151539_a(this, this.world, x, z, blocks); // func_151539_a == generate
 
-		Chunk chunk = new Chunk(this.world, blocks, x, z);
+		Chunk chunk = new Chunk(this.world, blocks, metadata, x, z);
 		chunk.generateSkylightMap();
 
 		// It's normal to see performance warnings for a few chunks at start-up and maybe every once in a while after

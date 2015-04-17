@@ -51,7 +51,7 @@ public class BiosphereWorldProvider extends WorldProviderSurface
 		int x = coords.posX;
 		int z = coords.posZ;
 
-		for (int y = 0; y < 256; y++)
+		for (int y = 0; y < ModConsts.WORLD_HEIGHT; y++)
 		{
 			Block block = world.getBlock(x, y, z);
 			if (block != Blx.air && !block.isAir(world, x, y, z))
