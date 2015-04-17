@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
+import scala.Array;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSand;
 import net.minecraft.entity.EnumCreatureType;
@@ -115,6 +116,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 		public Object provideKey(Chunk item)
 		{
 			if (item == null) { return 0; }
+			if (!item.isChunkLoaded) { return 0; }
 			return new ChunkCacheKey(item.worldObj, item.xPosition, item.zPosition);
 		}
 	});
@@ -156,7 +158,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 		}
 	}
 
-	private void GenerateChunk(int chunkX, int chunkZ, Block[] blocks)
+	private SphereChunk GenerateChunk(int chunkX, int chunkZ, Block[] blocks)
 	{
 		Arrays.fill(blocks, config.getOutsideFillerBlock());
 
@@ -181,6 +183,8 @@ public class BiosphereChunkProvider implements IChunkProvider
 				GenerateChunkInner(chunkX, chunkZ, blocks, chunk);
 			}
 		}
+
+		return chunk;
 	}
 
 	private void GenerateChunkInner(int chunkX, int chunkZ, Block[] blocks, SphereChunk chunk)
@@ -397,11 +401,27 @@ public class BiosphereChunkProvider implements IChunkProvider
 		Block[] blocks = new Block[ModConsts.GetChunkArraySize()];
 		byte[] metadata = new byte[ModConsts.GetChunkArraySize()];
 
-		this.GenerateChunk(x, z, blocks);
+		SphereChunk sphereChunk = this.GenerateChunk(x, z, blocks);
 		this.caveGen.func_151539_a(this, this.world, x, z, blocks); // func_151539_a == generate
 
 		Chunk chunk = new Chunk(this.world, blocks, metadata, x, z);
 		chunk.generateSkylightMap();
+
+		// Fix for Issue #24:
+		if (sphereChunk != null)
+		{
+			if (sphereChunk.masterSphere != null)
+			{
+				if (sphereChunk.masterSphere.biome != null)
+				{
+					//System.out.println("Biome at " + sphereChunk.chunkX + ", " + sphereChunk.chunkZ + ": " + sphereChunk.masterSphere.biome.biomeName);
+
+					byte[] biomes = new byte[256];
+					Arrays.fill(biomes, (byte)(sphereChunk.masterSphere.biome.biomeID & 255));
+					chunk.setBiomeArray(biomes);
+				}
+			}
+		}
 
 		// It's normal to see performance warnings for a few chunks at start-up and maybe every once in a while after
 		// that, but the average should drop down to less than a millisecond within a minute or so.

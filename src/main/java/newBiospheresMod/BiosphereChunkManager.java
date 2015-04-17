@@ -23,16 +23,19 @@ public class BiosphereChunkManager extends WorldChunkManager
 	private final ModConfig config;
 
 	private final long seed;
-	private final Random rnd;
+	private static long lastSeed = 0;
 
-	private static long getNewSeed()
-	{
-		return UUID.randomUUID().hashCode() | (((long)UUID.randomUUID().hashCode()) << 32);
-	}
+	//private final Random rnd;
 
+//	private static long getNewSeed()
+//	{
+//		long uuid = UUID.randomUUID().hashCode()
+//		return uuid | (uuid << 32);
+//	}
+//
 	public BiosphereChunkManager()
 	{
-		this(getNewSeed(), NewBiospheresMod.biosphereWorldType);
+		this(lastSeed, NewBiospheresMod.biosphereWorldType);
 	}
 
 	public BiosphereChunkManager(World world)
@@ -51,7 +54,8 @@ public class BiosphereChunkManager extends WorldChunkManager
 
 		this.world = world;
 		this.seed = worldSeed;
-		this.rnd = new Random(this.seed);
+		this.lastSeed = worldSeed;
+		//this.rnd = new Random(this.seed);
 		this.config = ModConfig.get(world);
 	}
 
@@ -134,6 +138,7 @@ public class BiosphereChunkManager extends WorldChunkManager
 	/**
 	 * Returns the BiomeGenBase related to the x, z position on the world.
 	 */
+
 	@Override
 	public BiomeGenBase getBiomeGenAt(int x, int z)
 	{
@@ -141,11 +146,12 @@ public class BiosphereChunkManager extends WorldChunkManager
 		int l = z >> 4;
 		int i1 = (k - (int)Math.floor(Math.IEEEremainder(k, config.getScaledGridSize())) << 4) + 8;
 		int j1 = (l - (int)Math.floor(Math.IEEEremainder(l, config.getScaledGridSize())) << 4) + 8;
-		this.rnd.setSeed(this.seed);
-		long l1 = this.rnd.nextLong() / 2L * 2L + 1L;
-		long l2 = this.rnd.nextLong() / 2L * 2L + 1L;
-		this.rnd.setSeed((i1 * l1 + j1 * l2) * 7215145L ^ this.seed);
-		return ((BiomeEntry)WeightedRandom.getRandomItem(this.rnd, config.AllBiomes)).biome;
+
+		Random rnd = new Random(this.seed);
+		long l1 = rnd.nextLong() / 2L * 2L + 1L;
+		long l2 = rnd.nextLong() / 2L * 2L + 1L;
+		rnd .setSeed((i1 * l1 + j1 * l2) * 7215145L ^ this.seed);
+		return ((BiomeEntry)WeightedRandom.getRandomItem(rnd, config.AllBiomes)).biome;
 	}
 
 	// /**
