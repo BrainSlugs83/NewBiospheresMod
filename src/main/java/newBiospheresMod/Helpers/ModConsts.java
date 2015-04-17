@@ -6,8 +6,6 @@
 
 package newBiospheresMod.Helpers;
 
-import com.sun.media.sound.RIFFInvalidDataException;
-
 public class ModConsts
 {
 	public static final String ModId = "New Biospheres Mod";
