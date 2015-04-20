@@ -59,7 +59,7 @@ public final class BlockDome extends Block
 			}
 			else
 			{
-				GetDomeBlock(block);
+				GetDomeBlock(new BlockData(block));
 				failCount = 0;
 			}
 
@@ -72,20 +72,20 @@ public final class BlockDome extends Block
 		System.out.println("InitalizeAllRegisteredBlocks Exited.");
 	}
 
-	public static Block GetDomeBlock(Block baseBlock)
+	public static BlockData GetDomeBlock(BlockData baseBlock)
 	{
-		if (baseBlock == null || baseBlock == Blx.air) { return Blx.air; }
-		if (baseBlock instanceof BlockDome) { return baseBlock; }
+		if (BlockData.IsNullOrEmpty(baseBlock)) { return BlockData.Empty; }
+		if (baseBlock.Block instanceof BlockDome) { return baseBlock; }
 
 		try
 		{
-			BlockDome ret = InitializedBlocks.get(baseBlock);
+			BlockDome ret = InitializedBlocks.get(baseBlock.Block);
 			if (ret == null)
 			{
 				ret = InitializedBlocks.putIfAbsent
 				(
-					baseBlock,
-					new BlockDome(baseBlock)
+					baseBlock.Block,
+					new BlockDome(baseBlock.Block)
 				);
 
 				if (ret == null)
@@ -96,7 +96,7 @@ public final class BlockDome extends Block
 				ret.InitBlock();
 			}
 
-			return ret;
+			return baseBlock.setBlock(ret);
 		}
 		catch (Exception e)
 		{

@@ -158,7 +158,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 		}
 	}
 
-	private SphereChunk GenerateChunk(int chunkX, int chunkZ, Block[] blocks)
+	private SphereChunk GenerateChunk(int chunkX, int chunkZ, BlockData[] blocks)
 	{
 		Arrays.fill(blocks, config.getOutsideFillerBlock());
 
@@ -187,12 +187,12 @@ public class BiosphereChunkProvider implements IChunkProvider
 		return chunk;
 	}
 
-	private void GenerateChunkInner(int chunkX, int chunkZ, Block[] blocks, SphereChunk chunk)
+	private void GenerateChunkInner(int chunkX, int chunkZ, BlockData[] blocks, SphereChunk chunk)
 	{
 		final int baseX = chunkX << 4;
 		final int baseZ = chunkZ << 4;
 		final int bridgeWidth = config.getBridgeWidth();
-		final Block outsideFillerBlock = config.getOutsideFillerBlock();
+		final BlockData outsideFillerBlock = config.getOutsideFillerBlock();
 
 		Sphere sphere = chunk.masterSphere;
 		Random rnd = chunk.GetPhaseRandom("GenerateChunk");
@@ -206,7 +206,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 				for (int rawY = ModConsts.WORLD_MAX_Y; rawY >= ModConsts.WORLD_MIN_Y; rawY--)
 				{
 					int idx = ModConsts.GetChunkArrayIndex(xo, rawY, zo);
-					Block block = Blx.air;
+					BlockData block = BlockData.Empty;
 
 					int rawX = baseX + xo;
 					int rawZ = baseZ + zo;
@@ -217,7 +217,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 
 					if (sphereDistance > sphere.scaledSphereRadius)
 					{
-						Block stairwayBlock = sphere.getOrbStairwayBlock(rawX, rawY, rawZ);
+						BlockData stairwayBlock = sphere.getOrbStairwayBlock(rawX, rawY, rawZ);
 
 						if (stairwayBlock != null)
 						{
@@ -240,11 +240,11 @@ public class BiosphereChunkProvider implements IChunkProvider
 						{
 							if (rawY == sphere.lakeLocation.posY)
 							{
-								block = sphere.biome.topBlock;
+								block = new BlockData(sphere.biome.topBlock);
 							}
 							else if (rawY < sphere.lakeLocation.posY)
 							{
-								block = sphere.biome.fillerBlock;
+								block = new BlockData(sphere.biome.fillerBlock);
 							}
 						}
 						else if (sphere.hasLake && config.isNoiseEnabled() && sphere.biome != BiomeGenBase.desert
@@ -252,7 +252,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 						{
 							if (rawY == sphere.lakeLocation.posY && sphere.biome == BiomeGenBase.icePlains)
 							{
-								block = Blx.ice;
+								block = new BlockData(Blx.ice);
 							}
 							else if (rawY <= sphere.lakeLocation.posY)
 							{
@@ -281,7 +281,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 							&& (Math.abs(rawX - sphere.sphereLocation.posX) < bridgeWidth || Math.abs(rawZ
 								- sphere.sphereLocation.posZ) < bridgeWidth))
 						{
-							block = Blx.air;
+							block = BlockData.Empty;
 						}
 						else if (config.doesNeedProtectionGlass() && sphereDistance > sphere.scaledSphereRadius)
 						{
@@ -297,14 +297,14 @@ public class BiosphereChunkProvider implements IChunkProvider
 					}
 					else if (sphere.scaledSphereRadius == sphereDistance)
 					{
-						block = Blx.stone;
+						block = new BlockData(Blx.stone);
 					}
 					else if (sphere.hasLake && sphere.biome != BiomeGenBase.desert
 						&& lakeDistance <= sphere.scaledLakeRadius)
 					{
 						if (rawY == sphere.lakeLocation.posY && sphere.biome == BiomeGenBase.icePlains)
 						{
-							block = Blx.ice;
+							block = new BlockData(Blx.ice);
 						}
 						else if (rawY <= sphere.lakeLocation.posY)
 						{
@@ -316,26 +316,26 @@ public class BiosphereChunkProvider implements IChunkProvider
 					{
 						if (ModConsts.DEBUG)
 						{
-							block = Blx.glowstone;
+							block = new BlockData(Blx.glowstone);
 						}
 						else
 						{
-							block = (sphere.lavaLake ? Blx.gravel : Blx.sand);
+							block = new BlockData(sphere.lavaLake ? Blx.gravel : Blx.sand);
 						}
 					}
 					else if (sphereDistance < sphere.scaledSphereRadius)
 					{
 						if (rawY == midY)
 						{
-							block = sphere.biome.topBlock;
+							block = new BlockData(sphere.biome.topBlock);
 						}
 						else if (rawY == midY - 1)
 						{
-							block = sphere.biome.fillerBlock;
+							block = new BlockData(sphere.biome.fillerBlock);
 						}
 						else
 						{
-							block = Blx.stone;
+							block = new BlockData(Blx.stone);
 						}
 					}
 					else if (rawY == midY
@@ -398,10 +398,12 @@ public class BiosphereChunkProvider implements IChunkProvider
 	{
 		long startedAt = System.currentTimeMillis();
 
-		Block[] blocks = new Block[ModConsts.GetChunkArraySize()];
-		byte[] metadata = new byte[ModConsts.GetChunkArraySize()];
+		BlockData[] blockData = new BlockData[ModConsts.GetChunkArraySize()];
+		SphereChunk sphereChunk = this.GenerateChunk(x, z, blockData);
 
-		SphereChunk sphereChunk = this.GenerateChunk(x, z, blocks);
+		Block[] blocks = BlockData.getBlockArray(blockData);
+		byte[] metadata = BlockData.getMetadataArray(blockData);
+
 		this.caveGen.func_151539_a(this, this.world, x, z, blocks); // func_151539_a == generate
 
 		Chunk chunk = new Chunk(this.world, blocks, metadata, x, z);
@@ -417,7 +419,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 					//System.out.println("Biome at " + sphereChunk.chunkX + ", " + sphereChunk.chunkZ + ": " + sphereChunk.masterSphere.biome.biomeName);
 
 					byte[] biomes = new byte[256];
-					Arrays.fill(biomes, (byte)(sphereChunk.masterSphere.biome.biomeID & 255));
+					Arrays.fill(biomes, (byte)(sphereChunk.masterSphere.biome.biomeID & 0xFF));
 					chunk.setBiomeArray(biomes);
 				}
 			}

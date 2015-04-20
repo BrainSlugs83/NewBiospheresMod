@@ -19,6 +19,7 @@ import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import newBiospheresMod.BiomeEntry;
 import newBiospheresMod.BiosphereWorldType;
+import newBiospheresMod.BlockData;
 import newBiospheresMod.BlockEntry;
 import newBiospheresMod.Helpers.Blx;
 import newBiospheresMod.Helpers.Creator;
@@ -225,23 +226,23 @@ public class ModConfig
 		}
 	}
 
-	private class BlockWorldProperty extends WorldProperty<Block>
+	private class BlockWorldProperty extends WorldProperty<BlockData>
 	{
-		BlockWorldProperty(Property property, Block currentValue, Block defaultValue)
+		BlockWorldProperty(Property property, BlockData currentValue, BlockData defaultValue)
 		{
 			super(property, currentValue, defaultValue);
 		}
 
 		@Override
-		protected Block Convert(String input, CustomWorldData data) throws Throwable
+		protected BlockData Convert(String input, CustomWorldData data) throws Throwable
 		{
-			return Utils.ParseBlock(input, this.getFallbackValue(data));
+			return BlockData.Parse(input, this.getFallbackValue(data));
 		}
 
 		@Override
-		protected String Convert(Block input, CustomWorldData data)
+		protected String Convert(BlockData input, CustomWorldData data)
 		{
-			return Utils.GetNameOrIdForBlock(input);
+			return input == null ? BlockData.Empty.toString() : input.toString();
 		}
 	}
 
@@ -329,18 +330,17 @@ public class ModConfig
 
 	// #region Block OrbBlock
 
-	private static final Block defaultOrbBlock = Blx.glass;
-	private Block orbBlock = defaultOrbBlock;
+	private static final BlockData defaultOrbBlock = new BlockData(Blx.glass);
+	private BlockData orbBlock = defaultOrbBlock;
 
-	public Block getOrbBlock()
+	public BlockData getOrbBlock()
 	{
 		return orbBlock;
 	}
 
-	public void setOrbBlock(Block value)
+	public void setOrbBlock(BlockData value)
 	{
-		if (value == null) value = defaultOrbBlock;
-
+		if (value == null) { value = defaultOrbBlock; }
 		this.orbBlock = value;
 	}
 
@@ -348,7 +348,7 @@ public class ModConfig
 	{
 		if (cfgFile == null) { return null; }
 
-		return cfgFile.get(Categories.OreOrbs, "Ore Orb Shell Block", Utils.GetNameOrIdForBlock(defaultOrbBlock),
+		return cfgFile.get(Categories.OreOrbs, "Ore Orb Shell Block", defaultOrbBlock.toString(),
 			"The Block to use for the shell of the generated Ore Orbs.");
 	}
 
@@ -361,18 +361,17 @@ public class ModConfig
 
 	// #region Block BridgeSupportBlock
 
-	private static final Block defaultBridgeSupportBlock = Blx.planks;
-	private Block bridgeSupportBlock = defaultBridgeSupportBlock;
+	private static final BlockData defaultBridgeSupportBlock = new BlockData(Blx.planks);
+	private BlockData bridgeSupportBlock = defaultBridgeSupportBlock;
 
-	public Block getBridgeSupportBlock()
+	public BlockData getBridgeSupportBlock()
 	{
 		return bridgeSupportBlock;
 	}
 
-	public void setBridgeSupportBlock(Block value)
+	public void setBridgeSupportBlock(BlockData value)
 	{
-		if (value == null) value = defaultBridgeSupportBlock;
-
+		if (value == null) { value = defaultBridgeSupportBlock; }
 		this.bridgeSupportBlock = value;
 	}
 
@@ -380,33 +379,39 @@ public class ModConfig
 	{
 		if (cfgFile == null) { return null; }
 
-		return cfgFile.get(Categories.General, "Bridge Support Block",
-			Utils.GetNameOrIdForBlock(defaultBridgeSupportBlock),
-			"The Block to use for bridges between bio-domes and stairways to ore-orbs.");
+		return cfgFile.get
+		(
+			Categories.General, "Bridge Support Block",
+			defaultBridgeSupportBlock.toString(),
+			"The Block to use for bridges between bio-domes and stairways to ore-orbs."
+		);
 	}
 
 	private BlockWorldProperty getBridgeSupportBlockWorldProperty()
 	{
-		return new BlockWorldProperty(getBridgeSupportBlockProperty(), getBridgeSupportBlock(),
-			defaultBridgeSupportBlock);
+		return new BlockWorldProperty
+		(
+			getBridgeSupportBlockProperty(),
+			getBridgeSupportBlock(),
+			defaultBridgeSupportBlock
+		);
 	}
 
 	// #endregion
 
 	// #region Block BridgeRailBlock
 
-	private static final Block defaultBridgeRailBlock = Blx.fence;
-	private Block bridgeRailBlock = defaultBridgeRailBlock;
+	private static final BlockData defaultBridgeRailBlock = new BlockData(Blx.fence);
+	private BlockData bridgeRailBlock = defaultBridgeRailBlock;
 
-	public Block getBridgeRailBlock()
+	public BlockData getBridgeRailBlock()
 	{
 		return bridgeRailBlock;
 	}
 
-	public void setBridgeRailBlock(Block value)
+	public void setBridgeRailBlock(BlockData value)
 	{
-		if (value == null) value = defaultBridgeRailBlock;
-
+		if (value == null) { value = defaultBridgeRailBlock; }
 		this.bridgeRailBlock = value;
 	}
 
@@ -414,33 +419,43 @@ public class ModConfig
 	{
 		if (cfgFile == null) { return null; }
 
-		return cfgFile.get(Categories.General, "Bridge Rail Block", Utils.GetNameOrIdForBlock(defaultBridgeRailBlock),
-			"The Block to use for the rails on the bridges between bio-domes.");
+		return cfgFile.get
+		(
+			Categories.General,
+			"Bridge Rail Block",
+			defaultBridgeRailBlock.toString(),
+			"The Block to use for the rails on the bridges between bio-domes."
+		);
 	}
 
 	private BlockWorldProperty getBridgeRailBlockWorldProperty()
 	{
-		return new BlockWorldProperty(getBridgeRailBlockProperty(), getBridgeRailBlock(), defaultBridgeRailBlock);
+		return new BlockWorldProperty
+		(
+			getBridgeRailBlockProperty(),
+			getBridgeRailBlock(),
+			defaultBridgeRailBlock
+		);
 	}
 
 	// #endregion
 
 	// #region Block OutsideFillerBlock
 
-	private static final Block defaultOutsideFillerBlock = Blx.air;
-	private Block outsideFillerBlock = defaultOutsideFillerBlock;
+	private static final BlockData defaultOutsideFillerBlock = new BlockData(Blx.air);
+	private BlockData outsideFillerBlock = defaultOutsideFillerBlock;
 
-	public Block getOutsideFillerBlock()
+	public BlockData getOutsideFillerBlock()
 	{
 		return outsideFillerBlock;
 	}
 
-	public void setOutsideFillerBlock(Block value)
+	public void setOutsideFillerBlock(BlockData value)
 	{
-		if (value == null) value = defaultOutsideFillerBlock;
+		if (value == null) { value = defaultOutsideFillerBlock; }
 
-		// if (value == Blx.lava) value = Blx.flowing_lava;
-		// else if (value == Blx.water) value = Blx.flowing_water;
+		//if (value.Block == Blx.lava) { value = value.setBlock(Blx.flowing_lava); }
+		//else if (value.Block == Blx.water) { value = value.setBlock(Blx.flowing_water); }
 
 		outsideFillerBlock = value;
 	}
@@ -449,15 +464,23 @@ public class ModConfig
 	{
 		if (cfgFile == null) { return null; }
 
-		return cfgFile.get(Categories.General, "Outside Filler Block",
-			Utils.GetNameOrIdForBlock(defaultOutsideFillerBlock),
-			"The block used to fill the area outside of the domes [air, water, and lava are good choices].");
+		return cfgFile.get
+		(
+			Categories.General,
+			"Outside Filler Block",
+			defaultOutsideFillerBlock.toString(),
+			"The block used to fill the area outside of the domes [air, water, and lava are good choices]."
+		);
 	}
 
 	private BlockWorldProperty getOutsideFillerBlockWorldProperty()
 	{
-		return new BlockWorldProperty(getOutsideFillerBlockProperty(), getOutsideFillerBlock(),
-			defaultOutsideFillerBlock);
+		return new BlockWorldProperty
+		(
+			getOutsideFillerBlockProperty(),
+			getOutsideFillerBlock(),
+			defaultOutsideFillerBlock
+		);
 	}
 
 	// #endregion
@@ -818,7 +841,13 @@ public class ModConfig
 
 	public boolean doesNeedProtectionGlass()
 	{
-		return getOutsideFillerBlock() != Blx.air;
+		BlockData block = getOutsideFillerBlock();
+		if (block != null)
+		{
+			return block.Block != Blx.air;
+		}
+
+		return false;
 	}
 
 	// #endregion
@@ -1088,33 +1117,33 @@ public class ModConfig
 
 	private static BlockEntry GetDefaultOreBlockEntry(int index)
 	{
-		if (index == 0) return new BlockEntry(Blx.lapis_ore, 5);
-		if (index == 1) return new BlockEntry(Blx.emerald_ore, 5);
-		if (index == 2) return new BlockEntry(Blx.diamond_ore, 5);
-		if (index == 3) return new BlockEntry(Blx.iron_ore, 10);
-		if (index == 4) return new BlockEntry(Blx.gold_ore, 10);
-		if (index == 5) return new BlockEntry(Blx.coal_ore, 15);
-		if (index == 6) return new BlockEntry(Blx.redstone_ore, 15);
-		if (index == 7) return new BlockEntry(Blx.quartz_ore, 10);
-		if (index == 8) return new BlockEntry(Blx.gravel, 100);
-		if (index == 9) return new BlockEntry(Blx.lava, 15);
-		if (index == 10) return new BlockEntry(Blx.stone, 310);
+		if (index == 0) return new BlockEntry(Blx.lapis_ore, 0, 5);
+		if (index == 1) return new BlockEntry(Blx.emerald_ore, 0, 5);
+		if (index == 2) return new BlockEntry(Blx.diamond_ore, 0, 5);
+		if (index == 3) return new BlockEntry(Blx.iron_ore, 0, 10);
+		if (index == 4) return new BlockEntry(Blx.gold_ore, 0, 10);
+		if (index == 5) return new BlockEntry(Blx.coal_ore, 0, 15);
+		if (index == 6) return new BlockEntry(Blx.redstone_ore, 0, 15);
+		if (index == 7) return new BlockEntry(Blx.quartz_ore, 0, 10);
+		if (index == 8) return new BlockEntry(Blx.gravel, 0, 100);
+		if (index == 9) return new BlockEntry(Blx.lava, 0, 15);
+		if (index == 10) return new BlockEntry(Blx.stone, 0, 310);
 
-		return new BlockEntry(Blx.air, 0);
+		return new BlockEntry(Blx.air, 0, 0);
 	}
 
 	private static BlockEntry GetDefaultStairBlockEntry(int index)
 	{
-		if (index == 0) return new BlockEntry(Blx.planks, 50);
-		if (index == 1) return new BlockEntry(Blx.air, 50);
+		if (index == 0) return new BlockEntry(Blx.planks, 0, 50);
+		if (index == 1) return new BlockEntry(Blx.air, 0, 50);
 
-		return new BlockEntry(Blx.air, 0);
+		return new BlockEntry(Blx.air, 0, 0);
 	}
 
 	private static BlockEntry GetDefaultDomeBlockProperty(int domeTypeIndex, int blockIndex)
 	{
-		if (blockIndex == 0 && domeTypeIndex == 0) return new BlockEntry(Blx.glass, 10);
-		return new BlockEntry(Blx.air, 0);
+		if (blockIndex == 0 && domeTypeIndex == 0) return new BlockEntry(Blx.glass, 0, 10);
+		return new BlockEntry(Blx.air, 0, 0);
 	}
 
 	private Property GetDomeBlockProperty(int domeTypeIndex, int blockIndex)
@@ -1441,12 +1470,42 @@ public class ModConfig
 
 		//this.setDomeBlock(Utils.ParseBlock(getDomeBlockProperty().getString(), defaultDomeBlock));
 
-		this.setOrbBlock(Utils.ParseBlock(getOrbBlockProperty().getString(), defaultOrbBlock));
-		this.setBridgeSupportBlock(Utils.ParseBlock(getBridgeSupportBlockProperty().getString(),
-			defaultBridgeSupportBlock));
-		this.setBridgeRailBlock(Utils.ParseBlock(getBridgeRailBlockProperty().getString(), defaultBridgeRailBlock));
-		this.setOutsideFillerBlock(Utils.ParseBlock(getOutsideFillerBlockProperty().getString(),
-			defaultOutsideFillerBlock));
+		this.setOrbBlock
+		(
+			BlockData.Parse
+			(
+				getOrbBlockProperty().getString(),
+				defaultOrbBlock
+			)
+		);
+
+		this.setBridgeSupportBlock
+		(
+			BlockData.Parse
+			(
+				getBridgeSupportBlockProperty().getString(),
+				defaultBridgeSupportBlock
+			)
+		);
+
+		this.setBridgeRailBlock
+		(
+			BlockData.Parse
+			(
+				getBridgeRailBlockProperty().getString(),
+				defaultBridgeRailBlock
+			)
+		);
+
+		this.setOutsideFillerBlock
+		(
+			BlockData.Parse
+			(
+				getOutsideFillerBlockProperty().getString(),
+				defaultOutsideFillerBlock
+			)
+		);
+
 		this.setTallGrassEnabled(getTallGrassEnabledProperty().getBoolean());
 		this.setGridSize(getGridSizeProperty().getInt());
 		this.setBridgeWidth(getBridgeWidthProperty().getInt());
@@ -1525,7 +1584,7 @@ public class ModConfig
 
 		if (oreCount <= 0)
 		{
-			OreOrbBlocks.add(new BlockEntry(Blx.stone, 1));
+			OreOrbBlocks.add(new BlockEntry(Blx.stone, 0, 1));
 		}
 	}
 
@@ -1558,7 +1617,7 @@ public class ModConfig
 
 		if (blockCount <= 0)
 		{
-			StairwayBlocks.add(new BlockEntry(Blx.air, 1));
+			StairwayBlocks.add(new BlockEntry(Blx.air, 0, 1));
 		}
 	}
 
@@ -1601,10 +1660,10 @@ public class ModConfig
 		getNoiseEnabledProperty().set(isNoiseEnabled());
 		getScaleProperty().set(getScale());
 		//getDomeBlockProperty().set(Utils.GetNameOrIdForBlock(getDomeBlock()));
-		getOrbBlockProperty().set(Utils.GetNameOrIdForBlock(getOrbBlock()));
-		getBridgeSupportBlockProperty().set(Utils.GetNameOrIdForBlock(getBridgeSupportBlock()));
-		getBridgeRailBlockProperty().set(Utils.GetNameOrIdForBlock(getBridgeRailBlock()));
-		getOutsideFillerBlockProperty().set(Utils.GetNameOrIdForBlock(getOutsideFillerBlock()));
+		getOrbBlockProperty().set(getOrbBlock().toString());
+		getBridgeSupportBlockProperty().set(getBridgeSupportBlock().toString());
+		getBridgeRailBlockProperty().set(getBridgeRailBlock().toString());
+		getOutsideFillerBlockProperty().set(getOutsideFillerBlock().toString());
 		getTallGrassEnabledProperty().set(isTallGrassEnabled());
 		getGridSizeProperty().set(getGridSize());
 		getBridgeWidthProperty().set(getBridgeWidth());

@@ -18,6 +18,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldSavedData;
 import net.minecraft.world.storage.MapStorage;
+import newBiospheresMod.BlockData;
 import newBiospheresMod.Helpers.Blx;
 import newBiospheresMod.Helpers.ModConsts;
 import newBiospheresMod.Helpers.Utils;
@@ -200,9 +201,9 @@ public class CustomWorldData extends WorldSavedData
 		put(key, Double.toString(value));
 	}
 
-	public void put(String key, Block value)
+	public void put(String key, BlockData value)
 	{
-		put(key, Utils.GetNameOrIdForBlock(value));
+		put(key, value.toString());
 	}
 
 	public boolean getBool(String key)
@@ -285,18 +286,18 @@ public class CustomWorldData extends WorldSavedData
 		return defaultValue;
 	}
 
-	public Block getBlock(String key)
+	public BlockData getBlock(String key)
 	{
-		return getBlock(key, Blx.air);
+		return getBlock(key, BlockData.Empty);
 	}
 
-	public Block getBlock(String key, Block defaultValue)
+	public BlockData getBlock(String key, BlockData defaultValue)
 	{
 		if (ContainsKey(key))
 		{
 			try
 			{
-				return Utils.ParseBlock(get(key), defaultValue);
+				return BlockData.Parse(get(key), defaultValue);
 			}
 			catch (Throwable ignore)
 			{ /* do nothing */}

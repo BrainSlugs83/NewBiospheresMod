@@ -7,92 +7,94 @@
 package newBiospheresMod.Helpers;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
-import net.minecraft.block.Block;
+import net.minecraft.block.*;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ChunkCoordinates;
-import net.minecraft.world.GameRules;
-import net.minecraft.world.World;
-import net.minecraft.world.storage.WorldInfo;
+import net.minecraft.world.*;
+import net.minecraft.world.storage.*;
+import newBiospheresMod.BlockData;
 
 public class Utils
 {
-	public static Block ParseBlock(String blockNameOrId)
+	public static void Assert(boolean test)
 	{
-		return ParseBlock(blockNameOrId, Blx.air);
+		Assert(test, null, false, 0);
 	}
 
-	public static Block ParseBlock(String blockNameOrId, Block fallbackValue)
+	public static void Assert(boolean test, String failMessage)
 	{
-		Block returnValue = null;
+		Assert(test, failMessage, false, 0);
+	}
 
-		try
-		{
-			int id = Integer.parseInt(blockNameOrId);
-			returnValue = Block.getBlockById(id);
-		}
-		catch (Throwable ignore)
-		{
-			// do nothing
-		}
+	public static void Assert(boolean test, String failMessage, boolean shouldExplode)
+	{
+		Assert(test, failMessage, shouldExplode, 0);
+	}
 
-		try
+	public static void Assert(boolean test, int callerOffset)
+	{
+		Assert(test, null, false, callerOffset);
+	}
+
+	public static void Assert(boolean test, String failMessage, int callerOffset)
+	{
+		Assert(test, failMessage, false, callerOffset);
+	}
+
+	public static void Assert(boolean test, String failMessage, boolean shouldExplode, int callerOffset)
+	{
+		if (!test)
 		{
-			if (returnValue == null)
+			// Assert Failed at this point, not too worried about performance
+
+			StackTraceElement[] stack = Thread.currentThread().getStackTrace();
+			StackTraceElement caller = null;
+
+			int callerIdx;
+			for (callerIdx = 1; callerIdx < stack.length; callerIdx++)
 			{
-				returnValue = Block.getBlockFromName(blockNameOrId);
+				caller = stack[callerIdx];
+				if (caller.getMethodName() != "Assert") { break; }
 			}
+
+			if (callerOffset != 0)
+			{
+				caller = stack[callerIdx + callerOffset];
+			}
+
+			StringBuilder sb = new StringBuilder();
+			sb.append(ModConsts.ModId);
+			sb.append("(");
+			sb.append(ModConsts.ModVersion);
+			sb.append(") ASSERT FAILED! @ ");
+			sb.append(caller.getClassName());
+			sb.append("::");
+			sb.append(caller.getMethodName());
+			sb.append(" (Line: ");
+			sb.append(caller.getLineNumber());
+			sb.append(")");
+
+			if (failMessage != null && failMessage.length() > 0)
+			{
+				sb.append(": ");
+				sb.append(failMessage);
+			}
+
+			String err = sb.toString();
+			System.out.println(err);
+			if (shouldExplode) { throw new Error(err); }
 		}
-		catch (Throwable e)
-		{
-			// do nothing
-		}
-
-		if (returnValue == null)
-		{
-			returnValue = fallbackValue;
-		}
-
-		return returnValue;
-	}
-
-	public static String GetNameOrIdForBlock(Block block)
-	{
-		if (block == null) { return "air"; }
-
-		String ret = null;
-
-		try
-		{
-			ret = Block.blockRegistry.getNameForObject(block);
-		}
-		catch (Exception ignore)
-		{ /* do nothing */
-		}
-
-		if (ret == null || ret.length() < 1)
-		{
-			ret = Integer.toString(Block.getIdFromBlock(block));
-		}
-
-		if (ret != null && ret.startsWith("minecraft:"))
-		{
-			ret = ret.substring(10);
-		}
-
-		return ret;
 	}
 
 	public static String GetName(Object obj)
 	{
 		if (obj == null) { return "(null)"; }
 
-		if (obj instanceof Block) { return GetNameOrIdForBlock((Block)obj); }
+		if (obj instanceof BlockData) { return ((BlockData)obj).toString(); }
+		if (obj instanceof Block) { return BlockData.toString((Block)obj, 0); }
 
 		String name = obj.getClass().getSimpleName();
 		if (name == null || name.length() < 1)

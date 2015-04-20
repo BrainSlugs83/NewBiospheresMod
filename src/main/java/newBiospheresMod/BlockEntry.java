@@ -7,18 +7,27 @@ import newBiospheresMod.Helpers.Utils;
 
 public class BlockEntry extends WeightedRandom.Item
 {
-	public final Block Block;
+	public final BlockData Block;
 
-	public BlockEntry(Block block, int i)
+	public BlockEntry(Block block, int metadata, int weight)
 	{
-		super(i);
+		this(new BlockData(block, metadata), weight);
+	}
+
+	public BlockEntry(BlockData block, int weight)
+	{
+		super(weight);
+
+		if (block == null)
+		{ block = BlockData.Empty; }
+
 		this.Block = block;
 	}
 
 	@Override
 	public String toString()
 	{
-		return Utils.GetNameOrIdForBlock(Block) + ", " + this.itemWeight;
+		return this.Block + ", " + this.itemWeight;
 	}
 
 	public static BlockEntry Parse(String input)
@@ -58,7 +67,7 @@ public class BlockEntry extends WeightedRandom.Item
 					iWeight = 0;
 				}
 
-				return new BlockEntry(Utils.ParseBlock(blockName), iWeight);
+				return new BlockEntry(BlockData.Parse(blockName), iWeight);
 			}
 			catch (Throwable ignore)
 			{
@@ -66,6 +75,6 @@ public class BlockEntry extends WeightedRandom.Item
 			}
 		}
 
-		return new BlockEntry(Blx.air, 0);
+		return new BlockEntry(BlockData.Empty, 0);
 	}
 }

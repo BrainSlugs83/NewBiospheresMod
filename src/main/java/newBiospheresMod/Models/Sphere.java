@@ -18,6 +18,7 @@ import net.minecraft.util.WeightedRandom;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 import newBiospheresMod.BiosphereChunkProvider;
+import newBiospheresMod.BlockData;
 import newBiospheresMod.BlockDome;
 import newBiospheresMod.BlockEntry;
 import newBiospheresMod.Configuration.ModConfig;
@@ -129,7 +130,7 @@ public class Sphere
 	public final int bridgeWidth;
 
 	private TopDownBoundingBox orbStairwayBox;
-	private Map<ChunkCoordinates, Block> orbStairwayBlx;
+	private Map<ChunkCoordinates, BlockData> orbStairwayBlx;
 
 	private List<TopDownBoundingBox> boundingBoxes = null;
 
@@ -264,9 +265,11 @@ public class Sphere
 
 	// #region Public Methods
 
-	public Block getDomeBlock(int x, int y, int z)
+	private static final BlockData glassDomeBlock = new BlockData(Blx.glass);
+
+	public BlockData getDomeBlock(int x, int y, int z)
 	{
-		Block ret = Blx.glass;
+		BlockData ret = glassDomeBlock;
 
 		if (SphereTypeValid(this.sphereType))
 		{
@@ -346,10 +349,13 @@ public class Sphere
 		return this.seaLevel;
 	}
 
-	public Block GetLakeBlock()
+	private static final BlockData flowing_lava = new BlockData(Blx.flowing_lava);
+	private static final BlockData flowing_water = new BlockData(Blx.flowing_water);
+
+	public BlockData GetLakeBlock()
 	{
-		if (!this.hasLake) { return Blx.air; }
-		return (this.lavaLake ? Blx.flowing_lava : Blx.flowing_water);
+		if (!this.hasLake) { return BlockData.Empty; }
+		return this.lavaLake ? flowing_lava : flowing_water;
 	}
 
 	public List<TopDownBoundingBox> getBoundingBoxes()
@@ -383,7 +389,7 @@ public class Sphere
 		return boundingBoxes;
 	}
 
-	public Block getOrbStairwayBlock(int x, int y, int z)
+	public BlockData getOrbStairwayBlock(int x, int y, int z)
 	{
 		if (orbStairwayBox == null) { return null; }
 		if (!orbStairwayBox.CollidesWith(x, z)) { return null; }
@@ -562,7 +568,7 @@ public class Sphere
 		final int tox = (orbDistX == 0 ? 0 : ((orbDistX > 0) ? 1 : -1));
 		final int toz = (orbDistZ == 0 ? 0 : ((orbDistZ > 0) ? 1 : -1));
 
-		orbStairwayBlx = new HashMap<ChunkCoordinates, Block>();
+		orbStairwayBlx = new HashMap<ChunkCoordinates, BlockData>();
 
 		if (orbDistZ == 0)
 		{
@@ -573,14 +579,14 @@ public class Sphere
 				{
 					for (int z = orbLocation.posZ - bridgeWidth; z <= orbLocation.posZ + bridgeWidth; z++)
 					{
-						Block block = ((BlockEntry)WeightedRandom.getRandomItem(rnd, stairwayBlocks)).Block;
-						if (block != Blx.air)
+						BlockData block = ((BlockEntry)WeightedRandom.getRandomItem(rnd, stairwayBlocks)).Block;
+						if (!BlockData.IsNullOrEmpty(block))
 						{
 							orbStairwayBlx.put(Utils.GetCoords(x, y, z), block);
 						}
 
 						block = ((BlockEntry)WeightedRandom.getRandomItem(rnd, stairwayBlocks)).Block;
-						if (block != Blx.air)
+						if (!BlockData.IsNullOrEmpty(block))
 						{
 							orbStairwayBlx.put(Utils.GetCoords(x + tox, y, z + toz), block);
 						}
@@ -599,14 +605,14 @@ public class Sphere
 				{
 					for (int x = orbLocation.posX - bridgeWidth; x <= orbLocation.posX + bridgeWidth; x++)
 					{
-						Block block = ((BlockEntry)WeightedRandom.getRandomItem(rnd, stairwayBlocks)).Block;
-						if (block != Blx.air)
+						BlockData block = ((BlockEntry)WeightedRandom.getRandomItem(rnd, stairwayBlocks)).Block;
+						if (!BlockData.IsNullOrEmpty(block))
 						{
 							orbStairwayBlx.put(Utils.GetCoords(x, y, z), block);
 						}
 
 						block = ((BlockEntry)WeightedRandom.getRandomItem(rnd, stairwayBlocks)).Block;
-						if (block != Blx.air)
+						if (!BlockData.IsNullOrEmpty(block))
 						{
 							orbStairwayBlx.put(Utils.GetCoords(x + tox, y, z + toz), block);
 						}
