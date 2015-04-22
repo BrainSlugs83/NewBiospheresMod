@@ -34,7 +34,7 @@ public final class BlockDome extends Block
 {
 	// #region Static Methods and Fields
 
-	private static final ConcurrentHashMap<Block, BlockDome> InitializedBlocks = new ConcurrentHashMap<Block, BlockDome>();
+	private static final ConcurrentHashMap<Block, BlockData> InitializedBlocks = new ConcurrentHashMap<Block, BlockData>();
 
 	public static void InitalizeAllRegisteredBlocks()
 	{
@@ -79,24 +79,24 @@ public final class BlockDome extends Block
 
 		try
 		{
-			BlockDome ret = InitializedBlocks.get(baseBlock.Block);
+			BlockData ret = InitializedBlocks.get(baseBlock.Block);
 			if (ret == null)
 			{
 				ret = InitializedBlocks.putIfAbsent
 				(
 					baseBlock.Block,
-					new BlockDome(baseBlock.Block)
+					baseBlock.setBlock(new BlockDome(baseBlock.Block))
 				);
 
 				if (ret == null)
 				{
-					ret = InitializedBlocks.get(baseBlock);
+					ret = InitializedBlocks.get(baseBlock.Block);
 				}
 
-				ret.InitBlock();
+				((BlockDome)ret.Block).InitBlock();
 			}
 
-			return baseBlock.setBlock(ret);
+			return ret;
 		}
 		catch (Exception e)
 		{
