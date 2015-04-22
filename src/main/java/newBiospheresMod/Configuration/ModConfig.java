@@ -72,13 +72,12 @@ public class ModConfig
 
 		if (cfgFile != null)
 		{
-			cfgFile
-				.setCategoryComment(
-					Categories.General,
-					ModConsts.ModId
-						+ " "
-						+ ModConsts.ModVersion
-						+ ": Note, these settings only affect new Worlds; previously created Worlds will persist with their existing settings.");
+			cfgFile.setCategoryComment
+			(
+				Categories.General,
+				ModConsts.ModId + " " + ModConsts.ModVersion
+				+ ": Note, these settings only affect new Worlds; previously created Worlds will persist with their existing settings."
+			);
 		}
 	}
 

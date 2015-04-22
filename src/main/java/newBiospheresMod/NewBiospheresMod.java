@@ -6,11 +6,16 @@
 
 package newBiospheresMod;
 
+import java.io.File;
+
+import com.google.common.io.Files;
+
 import net.minecraft.world.WorldType;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.config.Configuration;
 import newBiospheresMod.Configuration.ModConfig;
 import newBiospheresMod.Helpers.ModConsts;
+import newBiospheresMod.Helpers.Utils;
 import cpw.mods.fml.client.event.ConfigChangedEvent;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
@@ -28,7 +33,29 @@ public class NewBiospheresMod
 	@EventHandler
 	public void PreInit(FMLPreInitializationEvent event)
 	{
-		ModConfig.setConfigFile(new Configuration(event.getSuggestedConfigurationFile(), ModConsts.ModVersion));
+		// Migrate the Configuration File forward to the new Mod Id.
+
+		// TODO: Move this somewhere more fitting
+		File configFile = event.getSuggestedConfigurationFile();
+		if (!configFile.exists())
+		{
+			File oldConfigFile = new File(configFile.getParent() + File.separator + ModConsts.OldModId + "." + Utils.GetFileExtension(configFile.getPath()));
+			if (oldConfigFile.exists())
+			{
+				try
+				{
+					Files.move(oldConfigFile, configFile);
+				}
+				catch (Exception e)
+				{
+					System.out.println("Unable to move config file; attempting to use old config file in place.");
+					configFile = oldConfigFile;
+				}
+			}
+		}
+
+		// Load the Configuration File
+		ModConfig.setConfigFile(new Configuration(configFile, ModConsts.ModVersion));
 		ModConfig.updateFile();
 	}
 

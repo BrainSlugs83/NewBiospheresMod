@@ -552,4 +552,30 @@ public class Utils
 	}
 
 	// #endregion
+
+	// #region File System Utilities
+
+	public static String GetFileExtension(String path)
+	{
+		String extension = "";
+
+		if (path != null && path.length() > 0)
+		{
+			int idx = path.lastIndexOf('.');
+			if (idx >= 0)
+			{
+				int lastSlashIdx = path.lastIndexOf(java.io.File.separatorChar);
+
+				if (idx > lastSlashIdx)
+				{
+					extension = path.substring(idx + 1);
+				}
+			}
+		}
+
+		return extension;
+	}
+
+	// #endregion
+
 }

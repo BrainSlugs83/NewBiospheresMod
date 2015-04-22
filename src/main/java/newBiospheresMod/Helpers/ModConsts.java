@@ -8,7 +8,8 @@ package newBiospheresMod.Helpers;
 
 public class ModConsts
 {
-	public static final String ModId = "New Biospheres Mod";
+	public static final String OldModId = "New Biospheres Mod";
+	public static final String ModId = "NewBiospheresMod";
 	public static final String ModVersion = "0.85";
 
 	public static final int WORLD_HEIGHT = 256;
