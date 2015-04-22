@@ -6,6 +6,8 @@
 
 package newBiospheresMod.Helpers;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.util.*;
 
@@ -19,6 +21,14 @@ import newBiospheresMod.BlockData;
 
 public class Utils
 {
+	
+	public static String getStackTrace(final Throwable throwable) {
+	     final StringWriter sw = new StringWriter();
+	     final PrintWriter pw = new PrintWriter(sw, true);
+	     throwable.printStackTrace(pw);
+	     return sw.getBuffer().toString();
+	}
+	
 	public static void Assert(boolean test)
 	{
 		Assert(test, null, false, 0);
