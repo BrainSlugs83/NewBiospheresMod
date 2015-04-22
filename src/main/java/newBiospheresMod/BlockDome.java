@@ -76,6 +76,7 @@ public final class BlockDome extends Block
 	{
 		if (BlockData.IsNullOrEmpty(baseBlock)) { return BlockData.Empty; }
 		if (baseBlock.Block instanceof BlockDome) { return baseBlock; }
+		if (baseBlock.Block == Blx.anvil) { return baseBlock; } // Quick hack to fixes issue #15.
 
 		try
 		{
@@ -155,8 +156,7 @@ public final class BlockDome extends Block
 
 		this.enableStats = baseBlock.getEnableStats();
 
-		this.setBlockName(getRegularBlockName(baseBlock) + "Dome");
-		// setUnlocalizedName(getRegularBlockName(BaseBlock) + "Dome");
+		this.setBlockName(getRegularBlockName(baseBlock));
 
 		synchronized(NewBiospheresMod.biosphereWorldType)
 		{
@@ -247,6 +247,13 @@ public final class BlockDome extends Block
 	// #endregion
 
 	// #region General Chameleon Methods
+
+	@Override
+	public String getLocalizedName()
+	{
+		if (baseBlock == null) { return super.getLocalizedName(); }
+		return baseBlock.getLocalizedName();
+	}
 
 	@Override
 	public boolean func_149730_j()
