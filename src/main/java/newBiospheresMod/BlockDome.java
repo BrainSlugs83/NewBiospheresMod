@@ -37,36 +37,34 @@ public final class BlockDome extends Block
 	private static final ConcurrentHashMap<Block, BlockData> InitializedBlocks = new ConcurrentHashMap<Block, BlockData>();
 
 	public static void InitalizeAllRegisteredBlocks()
-	{
+	{		
 		System.out.println("InitalizeAllRegisteredBlocks Entered.");
-
-		int idx = 0;
-		int failCount = 0;
-		while (true)
-		{
-			Block block = null;
-			try
-			{
-				System.out.println("InitalizeAllRegisteredBlocks: Copying Block #" + idx);
-				block = Block.getBlockById(idx++);
-			}
-			catch (Exception ex)
-			{ /* do nothing */}
-
-			if (block == null || block == Blx.air)
-			{
-				failCount++;
-			}
+		List<Block> toAdd = new ArrayList<Block>();
+		// We have to get the blocks to mirror, *then* add the new blocks
+		// Otherwise we're modifying the block registry while we are
+		// iterating over it, which is unsafe (and generally crashes or loops
+		// "infinitely")
+		for (Block block : GameData.getBlockRegistry().typeSafeIterable())
+			if (block != null && !(block instanceof BlockDome))
+				toAdd.add(block);
 			else
+				System.out.println("InitalizeAllRegisteredBlocks: Weird block?");
+		
+		// This is not really needed, as the block registry sorts by ID anyways
+		// But that's an implementation detail, and we want to be safe as 
+		// otherwise we could (in principle) load something as the wrong block 
+		// due to load order changes.
+		
+		toAdd.sort(new Comparator<Block>() {
+			@Override
+			public int compare(Block arg0, Block arg1)
 			{
-				GetDomeBlock(new BlockData(block));
-				failCount = 0;
-			}
-
-			if (failCount >= 10)
-			{
-				break;
-			}
+				return Integer.compare(Block.getIdFromBlock(arg0),
+										Block.getIdFromBlock(arg1));
+			}});
+		for (Block block : toAdd) {
+			System.out.println("InitalizeAllRegisteredBlocks: Copying Block " + block.getLocalizedName() + " with id of #" + Block.getIdFromBlock(block));
+			GetDomeBlock(new BlockData(block));
 		}
 
 		System.out.println("InitalizeAllRegisteredBlocks Exited.");
