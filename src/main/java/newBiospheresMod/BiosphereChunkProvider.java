@@ -633,9 +633,9 @@ public class BiosphereChunkProvider implements IChunkProvider
 				int x = absX + rnd.nextInt(16) + 8;
 				int z = absZ + rnd.nextInt(16) + 8;
 				int y = getBioHeightValue(x, z);
-				y = rnd.nextInt(y*2);
 				if (y <= 0)
 					continue;
+				y = rnd.nextInt(y*2);
 	            WorldGenerator worldgenerator = sphere.biome.getRandomWorldGenForGrass(rnd);
 	            worldgenerator.generate(world, rnd, x, y, z);
 			}
@@ -646,9 +646,9 @@ public class BiosphereChunkProvider implements IChunkProvider
 			int x = absX + rnd.nextInt(16) + 8;
 			int z = absZ + rnd.nextInt(16) + 8;
 			int y = getBioHeightValue(x, z);
-			y = rnd.nextInt(y*2);
 			if (y <= 0)
 				continue;
+			y = rnd.nextInt(y*2);
 			(new WorldGenReed()).generate(this.world, rnd, x, y, z);
 		}
 
@@ -656,10 +656,11 @@ public class BiosphereChunkProvider implements IChunkProvider
 		{
 			int x = absX + rnd.nextInt(16) + 8;
 			int z = absZ + rnd.nextInt(16) + 8;
-			int y = rnd.nextInt(getBioHeightValue(x, z));
-
-			if (y > 0)
+			int y = getBioHeightValue(x, z);
+			if (y > 0) {
+				y = rnd.nextInt(y);
 				(new WorldGenPumpkin()).generate(this.world, rnd, x, y, z);
+			}
 		}
 		
 		for (int i = 0; i < sphere.biome.theBiomeDecorator.cactiPerChunk; i++)
@@ -707,18 +708,18 @@ public class BiosphereChunkProvider implements IChunkProvider
 			{
 				for (int xo = 0; xo < 16; xo++)
 				{
-					int midY = chunk.getChunkBoundSurfaceLevel(xo, zo);
 
 					int x = xo + absX;
 					int z = zo + absZ;
-					int y = midY + 1;
-
-					int distanceSquared = sphere.getMainDistance(x, midY, z);
-
-					if (distanceSquared <= sphere.scaledSphereRadius && this.world.isBlockFreezable(x, y, z))
-					{
-						this.world.setBlock(x, y, z, Blx.snow);
-					}
+					int y = this.world.getHeightValue(x, z) + 16;
+					while (y > 0 && (world.isAirBlock(x, --y, z) || (world.getBlock(x, y, z) instanceof BlockDome))) {}
+					if (y <= 0)
+						continue;
+					if (world.isBlockFreezable(x, y, z))
+						world.setBlock(x, y, z, Blx.ice);
+					else if (world.func_147478_e(x, y, z, false) && 
+						Blocks.snow_layer.canPlaceBlockAt(world, x, y+1, z))
+	                    	world.setBlock(x, y+1, z, Blocks.snow_layer, 0, 2);
 				}
 			}
 		}
@@ -729,7 +730,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 			if (y <= 0)
 				continue;
 			while (y < world.getActualHeight() && !world.isAirBlock(x, ++y, z)) {}
-			while (y > 0 && world.isAirBlock(x, --y - 1, z)) {}
+			while (y > 0 && (world.isAirBlock(x, --y - 1, z) || world.getBlock(x, y, z) instanceof BlockDome)) {}
 			(new WorldGenWaterlily()).generate(this.world, rnd, x, y+1, z);
 		}
 			
