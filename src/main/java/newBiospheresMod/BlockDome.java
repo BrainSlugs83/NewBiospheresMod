@@ -26,6 +26,7 @@ import net.minecraftforge.common.*;
 import net.minecraftforge.common.util.*;
 import newBiospheresMod.Helpers.Blx;
 import newBiospheresMod.Helpers.ModConsts;
+import newBiospheresMod.Helpers.Predicate;
 import newBiospheresMod.Helpers.Utils;
 import cpw.mods.fml.common.registry.*;
 import cpw.mods.fml.relauncher.*;
@@ -40,32 +41,13 @@ public final class BlockDome extends Block
 	{
 		System.out.println("InitalizeAllRegisteredBlocks Entered.");
 
-		int idx = 0;
-		int failCount = 0;
-		while (true)
+		// Iterate all blocks, initializing a DomeBlock copy of it.
+		for (Block block : Blx.getAllBlocks())
 		{
-			Block block = null;
-			try
+			if (!(block instanceof BlockDome))
 			{
-				System.out.println("InitalizeAllRegisteredBlocks: Copying Block #" + idx);
-				block = Block.getBlockById(idx++);
-			}
-			catch (Exception ex)
-			{ /* do nothing */}
-
-			if (block == null || block == Blx.air)
-			{
-				failCount++;
-			}
-			else
-			{
+				System.out.println("InitalizeAllRegisteredBlocks: Copying Block " + block.getLocalizedName() + " with id of #" + Block.getIdFromBlock(block));
 				GetDomeBlock(new BlockData(block));
-				failCount = 0;
-			}
-
-			if (failCount >= 10)
-			{
-				break;
 			}
 		}
 

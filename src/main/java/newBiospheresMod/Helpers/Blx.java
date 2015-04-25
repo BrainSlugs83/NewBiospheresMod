@@ -6,6 +6,11 @@
 
 package newBiospheresMod.Helpers;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
+import cpw.mods.fml.common.registry.GameData;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import newBiospheresMod.BlockData;
@@ -2295,5 +2300,53 @@ public class Blx
 		}
 
 		return returnValue;
+	}
+
+	public static ArrayList<Block> getAllBlocks()
+	{
+		return getAllBlocks(null);
+	}
+
+	public static ArrayList<Block> getAllBlocks(final Predicate<Block> whereClause)
+	{
+		// Copy all of the blocks into a new static collection for the caller
+		// to safely iterate.  This allows the caller to modify the block
+		// registry in a safe manner while iterating over the returned collection
+		// avoiding crashing due to corruption or stack overflows, etc.
+
+		ArrayList<Block> allBlocks = Utils.ToList
+		(
+			Utils.Where
+			(
+				GameData.getBlockRegistry().typeSafeIterable(),
+				Utils.And
+				(
+					Utils.NotNull(Block.class),
+					whereClause
+				)
+			)
+		);
+
+		// This is not really needed, as the block registry sorts by ID anyways
+		// But that's an implementation detail, and we want to be safe as
+		// otherwise we could (in principle) load something as the wrong block
+		// due to load order changes.
+		allBlocks.sort
+		(
+			new Comparator<Block>()
+			{
+				@Override
+				public int compare(Block arg0, Block arg1)
+				{
+					return Integer.compare
+					(
+						Block.getIdFromBlock(arg0),
+						Block.getIdFromBlock(arg1)
+					);
+				}
+			}
+		);
+
+		return allBlocks;
 	}
 }

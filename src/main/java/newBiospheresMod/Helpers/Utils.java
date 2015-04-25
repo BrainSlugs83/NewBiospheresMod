@@ -453,6 +453,7 @@ public class Utils
 	{
 		final ArrayList<Predicate<T>> clauses = FilterPredicates(_clauses);
 		if (clauses.size() < 1) { return null; }
+		if (clauses.size() == 1) { return clauses.get(0); }
 
 		return new Predicate<T>()
 		{
@@ -473,6 +474,7 @@ public class Utils
 	{
 		final ArrayList<Predicate<T>> clauses = FilterPredicates(_clauses);
 		if (clauses.size() < 1) { return null; }
+		if (clauses.size() == 1) { return clauses.get(0); }
 
 		return new Predicate<T>()
 		{
