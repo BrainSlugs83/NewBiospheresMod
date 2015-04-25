@@ -26,6 +26,7 @@ import net.minecraftforge.common.*;
 import net.minecraftforge.common.util.*;
 import newBiospheresMod.Helpers.Blx;
 import newBiospheresMod.Helpers.ModConsts;
+import newBiospheresMod.Helpers.Predicate;
 import newBiospheresMod.Helpers.Utils;
 import cpw.mods.fml.common.registry.*;
 import cpw.mods.fml.relauncher.*;
@@ -37,34 +38,17 @@ public final class BlockDome extends Block
 	private static final ConcurrentHashMap<Block, BlockData> InitializedBlocks = new ConcurrentHashMap<Block, BlockData>();
 
 	public static void InitalizeAllRegisteredBlocks()
-	{		
+	{
 		System.out.println("InitalizeAllRegisteredBlocks Entered.");
-		List<Block> toAdd = new ArrayList<Block>();
-		// We have to get the blocks to mirror, *then* add the new blocks
-		// Otherwise we're modifying the block registry while we are
-		// iterating over it, which is unsafe (and generally crashes or loops
-		// "infinitely")
-		for (Block block : GameData.getBlockRegistry().typeSafeIterable())
-			if (block != null && !(block instanceof BlockDome))
-				toAdd.add(block);
-			else
-				System.out.println("InitalizeAllRegisteredBlocks: Weird block?");
-		
-		// This is not really needed, as the block registry sorts by ID anyways
-		// But that's an implementation detail, and we want to be safe as 
-		// otherwise we could (in principle) load something as the wrong block 
-		// due to load order changes.
-		
-		toAdd.sort(new Comparator<Block>() {
-			@Override
-			public int compare(Block arg0, Block arg1)
+
+		// Iterate all blocks, initializing a DomeBlock copy of it.
+		for (Block block : Blx.getAllBlocks())
+		{
+			if (!(block instanceof BlockDome))
 			{
-				return Integer.compare(Block.getIdFromBlock(arg0),
-										Block.getIdFromBlock(arg1));
-			}});
-		for (Block block : toAdd) {
-			System.out.println("InitalizeAllRegisteredBlocks: Copying Block " + block.getLocalizedName() + " with id of #" + Block.getIdFromBlock(block));
-			GetDomeBlock(new BlockData(block));
+				System.out.println("InitalizeAllRegisteredBlocks: Copying Block " + block.getLocalizedName() + " with id of #" + Block.getIdFromBlock(block));
+				GetDomeBlock(new BlockData(block));
+			}
 		}
 
 		System.out.println("InitalizeAllRegisteredBlocks Exited.");
