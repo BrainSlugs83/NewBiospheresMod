@@ -284,6 +284,59 @@ public class Utils
 
 	// #region LINQ-like helpers
 
+	public static <T> ArrayList<T> ToList(final Iterable<T> input)
+	{
+		ArrayList<T> output = new ArrayList<T>();
+		if (input != null)
+		{
+			for (T item: input)
+			{
+				output.add(item);
+			}
+		}
+
+		return output;
+	}
+
+	public static <T> Iterable<T> ToIterable(final T[] input)
+	{
+		return new Iterable<T>()
+		{
+			@Override
+			public Iterator<T> iterator()
+			{
+				return new Iterator<T>()
+				{
+					private int idx = 0;
+
+					@Override
+					public boolean hasNext()
+					{
+						return (input != null && idx < input.length);
+					}
+
+					@Override
+					public T next()
+					{
+						if (hasNext())
+						{
+							return input[idx++];
+						}
+
+						return null;
+					}
+
+					@Override
+					public void remove()
+					{
+						throw new UnsupportedOperationException("remove not supported");
+					}
+				};
+			}
+
+		};
+	}
+
 	public static <T> Iterable<T> Where(final Iterable<T> input, final Predicate<T> predicate)
 	{
 		if (predicate == null && input != null) { return input; }
@@ -347,6 +400,92 @@ public class Utils
 				};
 			}
 
+		};
+	}
+
+	public static <T> Predicate<T> NotNull()
+	{
+		return new Predicate<T>()
+		{
+			@Override
+			public boolean test(T value)
+			{
+				return value != null;
+			}
+		};
+	}
+
+	public static <T> Predicate<T> NotNull(Class<T> clazz)
+	{
+		// Man, the Java type system is a fucking nightmare.
+
+		return new Predicate<T>()
+		{
+			@Override
+			public boolean test(T value)
+			{
+				return value != null;
+			}
+		};
+	}
+
+	private static <T> ArrayList<Predicate<T>> FilterPredicates(Predicate<T> ... _clauses)
+	{
+		ArrayList<Predicate<T>> clauses = new ArrayList<Predicate<T>>();
+
+		if (_clauses != null && _clauses.length > 0)
+		{
+			// Pre-Filter the nulls, quickly
+
+			for(Predicate<T> clause: _clauses)
+			{
+				if (clause != null)
+				{
+					clauses.add(clause);
+				}
+			}
+		}
+
+		return clauses;
+	}
+
+	public static <T> Predicate<T> And(Predicate<T> ... _clauses)
+	{
+		final ArrayList<Predicate<T>> clauses = FilterPredicates(_clauses);
+		if (clauses.size() < 1) { return null; }
+
+		return new Predicate<T>()
+		{
+			@Override
+			public boolean test(T value)
+			{
+				for(Predicate<T> clause: clauses)
+				{
+					if (!clause.test(value)) { return false; }
+				}
+
+				return true;
+			}
+		};
+	}
+
+	public static <T> Predicate<T> Or(Predicate<T> ... _clauses)
+	{
+		final ArrayList<Predicate<T>> clauses = FilterPredicates(_clauses);
+		if (clauses.size() < 1) { return null; }
+
+		return new Predicate<T>()
+		{
+			@Override
+			public boolean test(T value)
+			{
+				for(Predicate<T> clause: clauses)
+				{
+					if (clause.test(value)) { return true; }
+				}
+
+				return false;
+			}
 		};
 	}
 
