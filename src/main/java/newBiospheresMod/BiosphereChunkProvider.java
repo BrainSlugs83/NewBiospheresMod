@@ -12,8 +12,11 @@ import java.util.Random;
 
 import scala.Array;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockFlower;
 import net.minecraft.block.BlockSand;
+import net.minecraft.block.material.Material;
 import net.minecraft.entity.EnumCreatureType;
+import net.minecraft.init.Blocks;
 import net.minecraft.util.IProgressUpdate;
 import net.minecraft.util.WeightedRandom;
 import net.minecraft.world.ChunkPosition;
@@ -27,12 +30,14 @@ import net.minecraft.world.gen.NoiseGeneratorOctaves;
 import net.minecraft.world.gen.feature.WorldGenBigMushroom;
 import net.minecraft.world.gen.feature.WorldGenCactus;
 import net.minecraft.world.gen.feature.WorldGenClay;
+import net.minecraft.world.gen.feature.WorldGenDeadBush;
 import net.minecraft.world.gen.feature.WorldGenFire;
 import net.minecraft.world.gen.feature.WorldGenFlowers;
 import net.minecraft.world.gen.feature.WorldGenMinable;
 import net.minecraft.world.gen.feature.WorldGenPumpkin;
 import net.minecraft.world.gen.feature.WorldGenReed;
 import net.minecraft.world.gen.feature.WorldGenTallGrass;
+import net.minecraft.world.gen.feature.WorldGenWaterlily;
 import net.minecraft.world.gen.feature.WorldGenerator;
 import newBiospheresMod.Configuration.ModConfig;
 import newBiospheresMod.Helpers.AvgCalc;
@@ -235,7 +240,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 								block = sphere.getDomeBlock(rawX, rawY, rawZ);
 							}
 						}
-						else if (sphere.hasLake && config.isNoiseEnabled() && sphere.biome != BiomeGenBase.desert
+						else if (sphere.hasLake && config.isNoiseEnabled() && sphere.biome.getFloatRainfall() > 0
 							&& (lakeDistance > sphere.scaledLakeRadius && lakeDistance <= sphere.scaledLakeEdgeRadius))
 						{
 							if (rawY == sphere.lakeLocation.posY)
@@ -247,7 +252,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 								block = new BlockData(sphere.biome.fillerBlock);
 							}
 						}
-						else if (sphere.hasLake && config.isNoiseEnabled() && sphere.biome != BiomeGenBase.desert
+						else if (sphere.hasLake && config.isNoiseEnabled() && sphere.biome.getFloatRainfall() > 0
 							&& lakeDistance <= sphere.scaledLakeRadius)
 						{
 							if (rawY == sphere.lakeLocation.posY && sphere.biome == BiomeGenBase.icePlains)
@@ -299,7 +304,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 					{
 						block = new BlockData(Blx.stone);
 					}
-					else if (sphere.hasLake && sphere.biome != BiomeGenBase.desert
+					else if (sphere.hasLake && sphere.biome.getFloatRainfall() > 0
 						&& lakeDistance <= sphere.scaledLakeRadius)
 					{
 						if (rawY == sphere.lakeLocation.posY && sphere.biome == BiomeGenBase.icePlains)
@@ -312,7 +317,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 						}
 					}
 					else if (sphere.hasLake && rawY < sphere.lakeLocation.posY - 1
-						&& sphere.biome != BiomeGenBase.desert && lakeDistance <= sphere.scaledLakeEdgeRadius)
+						&& sphere.biome.getFloatRainfall() > 0 && lakeDistance <= sphere.scaledLakeEdgeRadius)
 					{
 						if (ModConsts.DEBUG)
 						{
@@ -476,14 +481,6 @@ public class BiosphereChunkProvider implements IChunkProvider
 		int absX = chunkX << 4;
 		int absZ = chunkZ << 4;
 
-		for (int i = 0; i < 10; i++)
-		{
-			int x = absX + rnd.nextInt(16);
-			int y = rnd.nextInt(ModConsts.WORLD_HEIGHT);
-			int z = absZ + rnd.nextInt(16);
-			(new WorldGenClay(4)).generate(this.world, rnd, x, y, z);
-		}
-
 		for (int i = 0; i < 20; i++)
 		{
 			int x = absX + rnd.nextInt(16);
@@ -515,6 +512,33 @@ public class BiosphereChunkProvider implements IChunkProvider
 			int z = absZ + rnd.nextInt(16);
 			(new WorldGenMinable(Blx.redstone_ore, 7)).generate(this.world, rnd, x, y, z);
 		}
+		
+		for (int i = 0; i < sphere.biome.theBiomeDecorator.sandPerChunk2; i++)
+		{
+				int x = absX + rnd.nextInt(16) + 8;
+				int z = absZ + rnd.nextInt(16) + 8;
+				int y = getBioTopSolidOrLiquidBlock(x, z);
+				sphere.biome.theBiomeDecorator.sandGen.generate(this.world, rnd, x, y, z);
+		}
+		
+		for (int i = 0; i < sphere.biome.theBiomeDecorator.clayPerChunk; i++)
+		{
+				int x = absX + rnd.nextInt(16) + 8;
+				int z = absZ + rnd.nextInt(16) + 8;
+				int y = getBioTopSolidOrLiquidBlock(x, z);
+				if (y <= 0)
+					continue;
+				sphere.biome.theBiomeDecorator.clayGen.generate(this.world, rnd, x, y, z);
+		}
+		for (int i = 0; i < sphere.biome.theBiomeDecorator.sandPerChunk; i++)
+		{
+				int x = absX + rnd.nextInt(16) + 8;
+				int z = absZ + rnd.nextInt(16) + 8;
+				int y = getBioTopSolidOrLiquidBlock(x, z);
+				if (y <= 0)
+					continue;
+				sphere.biome.theBiomeDecorator.gravelAsSandGen.generate(this.world, rnd, x, y, z);
+		}
 
 		int treesPerChunk = sphere.biome.theBiomeDecorator.treesPerChunk;
 
@@ -528,6 +552,8 @@ public class BiosphereChunkProvider implements IChunkProvider
 			int x = absX + rnd.nextInt(16) + 8;
 			int z = absZ + rnd.nextInt(16) + 8;
 			int y = this.world.getHeightValue(x, z);
+			if (y <= 0)
+				continue;
 
 			// func_150567_a == getRandomWorldGenForTrees
 			WorldGenerator gen = sphere.biome.func_150567_a(rnd);
@@ -535,157 +561,197 @@ public class BiosphereChunkProvider implements IChunkProvider
 			gen.setScale(config.getScale(), config.getScale(), config.getScale());
 			gen.generate(this.world, rnd, x, y, z);
 		}
-
-		for (int i = 0; i < 2; i++)
+		
+		for (int i = 0; i < sphere.biome.theBiomeDecorator.bigMushroomsPerChunk; i++)
 		{
-			int x = absX + rnd.nextInt(16) + 8;
-			int y = rnd.nextInt(ModConsts.WORLD_HEIGHT);
-			int z = absZ + rnd.nextInt(16) + 8;
-
-			(new WorldGenFlowers(Blx.yellow_flower)).generate(this.world, rnd, x, y, z);
+				int x = absX + rnd.nextInt(16) + 8;
+				int z = absZ + rnd.nextInt(16) + 8;
+				int y = getBioHeightValue(x, z);
+				if (y <= 0)
+					continue;
+				sphere.biome.theBiomeDecorator.bigMushroomGen.generate(this.world, rnd, x, y, z);
+			
 		}
 
-		if (rnd.nextInt(2) == 0)
+		for (int i = 0; i < sphere.biome.theBiomeDecorator.flowersPerChunk; i++)
 		{
 			int x = absX + rnd.nextInt(16) + 8;
-			int y = rnd.nextInt(ModConsts.WORLD_HEIGHT);
 			int z = absZ + rnd.nextInt(16) + 8;
-			(new WorldGenFlowers(Blx.red_flower)).generate(this.world, rnd, x, y, z);
+			int y = getBioHeightValue(x, z);
+			if (y <= 0)
+				continue;
+			y = rnd.nextInt(y + 32);
+			String s = sphere.biome.func_150572_a(rnd, x, y, z);
+            BlockFlower f = BlockFlower.func_149857_e(s);
+            if (f.getMaterial() != Material.air)
+            	(new WorldGenFlowers(f)).generate(this.world, rnd, x, y, z);
 		}
+		
+		for (int i = 0; i <= sphere.biome.theBiomeDecorator.mushroomsPerChunk; i++)
+		{
+			int x = absX + rnd.nextInt(16) + 8;
+			int z = absZ + rnd.nextInt(16) + 8;
+			int y = getBioHeightValue(x, z);
+			if (y <= 0)
+				continue;
+			if (i == 0)
+				y = rnd.nextInt(y*2);
+			
+			if (rnd.nextInt(4) == 0)
+            {
+				sphere.biome.theBiomeDecorator.mushroomBrownGen.generate(world, rnd, x, y, z);
+            }
+			
+			if (rnd.nextInt(8) == 0)
+            {
+				if (i != 0)
+					y = rnd.nextInt(y*2);
+				sphere.biome.theBiomeDecorator.mushroomRedGen.generate(world, rnd, x, y, z);
+            }
+		}
+		
 
-		if (rnd.nextInt(4) == 0)
+		for (int i = 0; i < sphere.biome.theBiomeDecorator.deadBushPerChunk; i++)
 		{
-			int x = absX + rnd.nextInt(16) + 8;
-			int y = rnd.nextInt(ModConsts.WORLD_HEIGHT);
-			int z = absZ + rnd.nextInt(16) + 8;
-			(new WorldGenFlowers(Blx.brown_mushroom)).generate(this.world, rnd, x, y, z);
+				int x = absX + rnd.nextInt(16) + 8;
+				int z = absZ + rnd.nextInt(16) + 8;
+				int y = getBioHeightValue(x, z);
+				if (y <= 0)
+					continue;
+				y = rnd.nextInt(y*2);
+				(new WorldGenDeadBush(Blocks.deadbush)).generate(this.world, rnd, x, y, z);
+			
 		}
+		
 
-		if (rnd.nextInt(8) == 0)
-		{
-			int x = absX + rnd.nextInt(16) + 8;
-			int y = rnd.nextInt(ModConsts.WORLD_HEIGHT);
-			int z = absZ + rnd.nextInt(16) + 8;
-			(new WorldGenFlowers(Blx.red_mushroom)).generate(this.world, rnd, x, y, z);
-		}
 
 		if (config.isTallGrassEnabled())
 		{
 			int grassPerChunk = sphere.biome.theBiomeDecorator.grassPerChunk;
-
 			for (int i = 0; i < grassPerChunk; i++)
 			{
-				byte metadata = 1; // grass height maybe?
-
-				if (sphere.biome == BiomeGenBase.desert && rnd.nextInt(3) != 0)
-				{
-					metadata = 2;
-				}
-
 				int x = absX + rnd.nextInt(16) + 8;
-				int y = rnd.nextInt(ModConsts.WORLD_HEIGHT);
 				int z = absZ + rnd.nextInt(16) + 8;
-
-				(new WorldGenTallGrass(Blx.tallgrass, metadata)).generate(this.world, rnd, x, y, z);
+				int y = getBioHeightValue(x, z);
+				if (y <= 0)
+					continue;
+				y = rnd.nextInt(y*2);
+	            WorldGenerator worldgenerator = sphere.biome.getRandomWorldGenForGrass(rnd);
+	            worldgenerator.generate(world, rnd, x, y, z);
 			}
 		}
 
-		for (int i = 0; i < 20; i++)
+		for (int i = 0; i < sphere.biome.theBiomeDecorator.reedsPerChunk + 10; i++)
 		{
 			int x = absX + rnd.nextInt(16) + 8;
-			int y = rnd.nextInt(ModConsts.WORLD_HEIGHT);
 			int z = absZ + rnd.nextInt(16) + 8;
+			int y = getBioHeightValue(x, z);
+			if (y <= 0)
+				continue;
+			y = rnd.nextInt(y*2);
 			(new WorldGenReed()).generate(this.world, rnd, x, y, z);
 		}
 
 		if (rnd.nextInt(32) == 0)
 		{
 			int x = absX + rnd.nextInt(16) + 8;
-			int y = rnd.nextInt(ModConsts.WORLD_HEIGHT);
 			int z = absZ + rnd.nextInt(16) + 8;
-			(new WorldGenPumpkin()).generate(this.world, rnd, x, y, z);
-		}
-
-		if (sphere.biome == BiomeGenBase.desert)
-		{
-			int count = rnd.nextInt(5);
-
-			for (int i = 0; i < count; i++)
-			{
-				int x = absX + rnd.nextInt(16) + 8;
-				int z = absZ + rnd.nextInt(16) + 8;
-				int y = this.world.getHeightValue(x, z);
-
-				(new WorldGenCactus()).generate(this.world, rnd, x, y, z);
+			int y = getBioHeightValue(x, z);
+			if (y > 0) {
+				y = rnd.nextInt(y);
+				(new WorldGenPumpkin()).generate(this.world, rnd, x, y, z);
 			}
 		}
-		else if (sphere.biome == BiomeGenBase.hell)
+		
+		for (int i = 0; i < sphere.biome.theBiomeDecorator.cactiPerChunk; i++)
+		{
+				int x = absX + rnd.nextInt(16) + 8;
+				int z = absZ + rnd.nextInt(16) + 8;
+				int y = getBioHeightValue(x, z);
+				if (y <= 0)
+					continue;
+				y = rnd.nextInt(y*2);
+				(new WorldGenCactus()).generate(this.world, rnd, x, y, z);
+			
+		}
+
+		if (sphere.biome == BiomeGenBase.hell)
 		{
 			if (rnd.nextBoolean())
 			{
 				int x = absX + rnd.nextInt(16) + 8;
 				int z = absZ + rnd.nextInt(16) + 8;
 				int y = this.world.getHeightValue(x, z);
-
-				(new WorldGenFire()).generate(this.world, rnd, x, y, z);
+				if (y > 0)
+					(new WorldGenFire()).generate(this.world, rnd, x, y, z);
 			}
-		}
-		else if (sphere.biome == BiomeGenBase.mushroomIsland)
-		{
-			for (int i = 0; i < 2; i++)
-			{
+			if (rnd.nextBoolean())
+	        {
 				int x = absX + rnd.nextInt(16) + 8;
 				int z = absZ + rnd.nextInt(16) + 8;
 				int y = this.world.getHeightValue(x, z);
-
-				(new WorldGenBigMushroom()).generate(this.world, rnd, x, y, z);
-			}
-
-			for (int i = 0; i < 1; i++)
-			{
-				if (rnd.nextInt(4) == 0)
-				{
-					int x = absX + rnd.nextInt(16) + 8;
-					int z = absZ + rnd.nextInt(16) + 8;
-					int y = this.world.getHeightValue(x, z);
-
-					(new WorldGenFlowers(Blx.yellow_flower)).generate(this.world, rnd, x, y, z);
-				}
-
-				if (rnd.nextInt(8) == 0)
-				{
-					int x = absX + rnd.nextInt(16) + 8;
-					int z = absZ + rnd.nextInt(16) + 8;
-					int y = rnd.nextInt(ModConsts.WORLD_HEIGHT);
-
-					(new WorldGenFlowers(Blx.red_flower)).generate(this.world, rnd, x, y, z);
-				}
-			}
+				if (y > 0)
+					(new WorldGenFlowers(Blocks.brown_mushroom)).generate(world, rnd, x, y, z);
+	        }
+			if (rnd.nextBoolean())
+	        {
+				int x = absX + rnd.nextInt(16) + 8;
+				int z = absZ + rnd.nextInt(16) + 8;
+				int y = this.world.getHeightValue(x, z);
+				if (y > 0)
+					(new WorldGenFlowers(Blocks.red_mushroom)).generate(world, rnd, x, y, z);
+	        }
 		}
-		else if (sphere.biome == BiomeGenBase.taiga || sphere.biome == BiomeGenBase.icePlains)
+		else if (sphere.biome.getEnableSnow())
 		{
 			for (int zo = 0; zo < 16; zo++)
 			{
 				for (int xo = 0; xo < 16; xo++)
 				{
-					int midY = chunk.getChunkBoundSurfaceLevel(xo, zo);
 
 					int x = xo + absX;
 					int z = zo + absZ;
-					int y = midY + 1;
-
-					int distanceSquared = sphere.getMainDistance(x, midY, z);
-
-					if (distanceSquared <= sphere.scaledSphereRadius && this.world.isBlockFreezable(x, y, z))
-					{
-						this.world.setBlock(x, y, z, Blx.snow);
-					}
+					int y = this.world.getHeightValue(x, z) + 16;
+					while (y > 0 && (world.isAirBlock(x, --y, z) || (world.getBlock(x, y, z) instanceof BlockDome))) {}
+					if (y <= 0)
+						continue;
+					if (world.isBlockFreezable(x, y, z))
+						world.setBlock(x, y, z, Blx.ice);
+					else if (world.func_147478_e(x, y, z, false) && 
+						Blocks.snow_layer.canPlaceBlockAt(world, x, y+1, z))
+	                    	world.setBlock(x, y+1, z, Blocks.snow_layer, 0, 2);
 				}
 			}
 		}
+		for (int i = 0; i < sphere.biome.theBiomeDecorator.waterlilyPerChunk; i++) {
+			int x = absX + rnd.nextInt(16) + 8;
+			int z = absZ + rnd.nextInt(16) + 8;
+			int y = this.world.getHeightValue(x, z);
+			if (y <= 0)
+				continue;
+			while (y < world.getActualHeight() && !world.isAirBlock(x, ++y, z)) {}
+			while (y > 0 && (world.isAirBlock(x, --y - 1, z) || world.getBlock(x, y, z) instanceof BlockDome)) {}
+			(new WorldGenWaterlily()).generate(this.world, rnd, x, y+1, z);
+		}
+			
 
 		SpawnerAnimals.performWorldGenSpawning(this.world, sphere.biome, absX + 8, absZ + 8, 16, 16, rnd);
 		BlockSand.fallInstantly = false;
+	}
+
+	private int getBioHeightValue(int x, int z)
+	{
+		return world.getHeightValue(x, z);
+	}
+
+	private int getBioTopSolidOrLiquidBlock(int x, int z)
+	{
+		for (int y = world.getHeightValue(x, z); y > 0; y--) {
+			Block b = world.getBlock(x, y, z);
+			if (!(b instanceof BlockDome) && b.getMaterial().blocksMovement() && b.getMaterial() != Material.leaves && !b.isFoliage(world, x, y, z))
+				return y + 1;
+		}
+		return -1;
 	}
 
 	/**
