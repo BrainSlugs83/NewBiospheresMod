@@ -756,7 +756,10 @@ public class BiosphereChunkProvider implements IChunkProvider
 						else if (world.func_147478_e(x, y, z, false) &&
 							Blx.snow_layer.canPlaceBlockAt(world, x, y + 1, z))
 						{
-							world.setBlock(x, y + 1, z, Blx.snow_layer, 0, 2);
+							if (!(world.getBlock(x, y + 1, z) instanceof BlockDome))
+							{
+								world.setBlock(x, y + 1, z, Blx.snow_layer, 0, 2);
+							}
 						}
 					}
 				}
@@ -798,14 +801,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 			if (!(b instanceof BlockDome) && b.getMaterial().blocksMovement()
 				&& b.getMaterial() != Material.leaves && !b.isFoliage(world, x, y, z))
 			{
-				if (world.getBlock(x, y + 1, z) == Blx.air)
-				{
-					return y + 1;
-				}
-				else
-				{
-					break;
-				}
+				return y + 1;
 			}
 		}
 
