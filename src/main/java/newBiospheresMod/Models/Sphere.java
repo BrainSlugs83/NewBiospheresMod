@@ -138,6 +138,8 @@ public class Sphere
 
 	public final int sphereType;
 
+	public final boolean isDesert;
+
 	// #endregion
 
 	private Sphere(BiosphereChunkProvider chunkProvider, int chunkX, int chunkZ)
@@ -191,8 +193,13 @@ public class Sphere
 		this.scaledLakeEdgeRadius = scaledLakeRadius + 2;
 
 		// Get the biome for the sphere.
-		this.biome = this.chunkProvider.world.getWorldChunkManager().getBiomeGenAt(sphereLocation.posX,
-			sphereLocation.posZ);
+		this.biome = this.chunkProvider.world.getWorldChunkManager().getBiomeGenAt
+		(
+			sphereLocation.posX,
+			sphereLocation.posZ
+		);
+
+		this.isDesert = (biome.getFloatRainfall() <= 0);
 
 		// is it a lava lake?
 		this.lavaLake = this.biome == BiomeGenBase.hell || this.biome != BiomeGenBase.swampland
