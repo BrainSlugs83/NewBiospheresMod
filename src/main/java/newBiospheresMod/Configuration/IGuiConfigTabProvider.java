@@ -1,18 +1,18 @@
 /*
- * This is free software. It comes without any warranty, to the extent permitted by applicable law. You can redistribute
- * it and/or modify it under the terms of the Do What The Fuck You Want To Public License, Version 2, as published by
- * Sam Hocevar. See http://www.wtfpl.net/ for more details.
+ * This is free software. It comes without any warranty, to the extent permitted by applicable law.
+ * You can redistribute it and/or modify it under the terms of the Do What The Fuck You Want To
+ * Public License, Version 2, as published by Sam Hocevar. See http://www.wtfpl.net/ for more
+ * details.
  */
 
-package newBiospheresMod.Configuration;
+package newbiospheresmod.configuration;
 
-public interface IGuiConfigTabProvider
-{
-	String getTitle();
+public interface IGuiConfigTabProvider {
+  boolean getAllRequireMcRestart();
 
-	boolean getAllRequireWorldRestart();
+  boolean getAllRequireWorldRestart();
 
-	boolean getAllRequireMcRestart();
+  Iterable<GuiConfigTabEntry> getTabs();
 
-	Iterable<GuiConfigTabEntry> getTabs();
+  String getTitle();
 }

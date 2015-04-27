@@ -1,72 +1,70 @@
 /*
- * This is free software. It comes without any warranty, to the extent permitted by applicable law. You can redistribute
- * it and/or modify it under the terms of the Do What The Fuck You Want To Public License, Version 2, as published by
- * Sam Hocevar. See http://www.wtfpl.net/ for more details.
+ * This is free software. It comes without any warranty, to the extent permitted by applicable law.
+ * You can redistribute it and/or modify it under the terms of the Do What The Fuck You Want To
+ * Public License, Version 2, as published by Sam Hocevar. See http://www.wtfpl.net/ for more
+ * details.
  */
 
-package newBiospheresMod.Helpers;
+package newbiospheresmod.helpers;
 
 import java.util.concurrent.ConcurrentMap;
 
 import com.googlecode.concurrentlinkedhashmap.ConcurrentLinkedHashMap;
 
-public class LruCacheList<T>
-{
-	// apparently this library doesn't like using "null" as a key, which is stupid. So, let's use this random object
-	// instead.
-	private static final Object nullKeySubstitute = new Object();
+public class LruCacheList<T> {
+  // apparently this library doesn't like using "null" as a key, which is stupid. So, let's use this
+  // random object
+  // instead.
+  private static final Object nullKeySubstitute = new Object();
 
-	public final int TotalItems;
-	public final IKeyProvider<T> KeyProvider;
+  private final ConcurrentMap<Object, T> backingMap;
+  public final IKeyProvider<T> keyProvider;
 
-	private final ConcurrentMap<Object, T> _backingMap;
+  public final int totalItems;
 
-	public LruCacheList(int totalItems, IKeyProvider<T> keyProvider)
-	{
-		this.TotalItems = totalItems;
-		this.KeyProvider = keyProvider;
+  public LruCacheList(final int totalItems, final IKeyProvider<T> keyProvider) {
+    this.totalItems = totalItems;
+    this.keyProvider = keyProvider;
 
-		_backingMap = new ConcurrentLinkedHashMap.Builder<Object, T>().maximumWeightedCapacity(totalItems).build();
-	}
+    this.backingMap = new ConcurrentLinkedHashMap.Builder<Object, T>().maximumWeightedCapacity(totalItems).build();
+  }
 
-	public void Push(T item)
-	{
-		Object key = KeyProvider.provideKey(item);
-		if (key == null) key = nullKeySubstitute;
+  public boolean contains(final T item) {
+    Object key = this.keyProvider.provideKey(item);
+    if (key == null) {
+      key = LruCacheList.nullKeySubstitute;
+    }
 
-		_backingMap.put(key, item);
-	}
+    return this.backingMap.containsKey(key);
+  }
 
-	public boolean Contains(T item)
-	{
-		Object key = KeyProvider.provideKey(item);
-		if (key == null) key = nullKeySubstitute;
+  public T findOrAdd(Object key, final Creator<T> factory) {
+    if (key == null) {
+      key = LruCacheList.nullKeySubstitute;
+    }
 
-		return _backingMap.containsKey(key);
-	}
+    T returnValue = this.backingMap.get(key);
+    if (returnValue == null) {
+      try {
+        returnValue = factory.create();
+      } catch (final Throwable ignore) {
+        // do nothing
+      }
 
-	public T FindOrAdd(Object key, Creator<T> factory)
-	{
-		if (key == null) key = nullKeySubstitute;
+      if (returnValue != null) {
+        this.backingMap.put(key, returnValue);
+      }
+    }
 
-		T returnValue = _backingMap.get(key);
-		if (returnValue == null)
-		{
-			try
-			{
-				returnValue = factory.create();
-			}
-			catch (Throwable ignore)
-			{
-				// do nothing
-			}
+    return returnValue;
+  }
 
-			if (returnValue != null)
-			{
-				_backingMap.put(key, returnValue);
-			}
-		}
+  public void push(final T item) {
+    Object key = this.keyProvider.provideKey(item);
+    if (key == null) {
+      key = LruCacheList.nullKeySubstitute;
+    }
 
-		return returnValue;
-	}
+    this.backingMap.put(key, item);
+  }
 }

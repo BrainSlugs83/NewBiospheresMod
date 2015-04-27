@@ -1,110 +1,110 @@
 /*
- * This is free software. It comes without any warranty, to the extent permitted by applicable law. You can redistribute
- * it and/or modify it under the terms of the Do What The Fuck You Want To Public License, Version 2, as published by
- * Sam Hocevar. See http://www.wtfpl.net/ for more details.
+ * This is free software. It comes without any warranty, to the extent permitted by applicable law.
+ * You can redistribute it and/or modify it under the terms of the Do What The Fuck You Want To
+ * Public License, Version 2, as published by Sam Hocevar. See http://www.wtfpl.net/ for more
+ * details.
  */
 
-package newBiospheresMod;
+package newbiospheresmod;
 
 import net.minecraft.block.Block;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldProviderSurface;
-import newBiospheresMod.Configuration.ModConfig;
-import newBiospheresMod.Helpers.AvgCalc;
-import newBiospheresMod.Helpers.Blx;
-import newBiospheresMod.Helpers.ModConsts;
-import newBiospheresMod.Helpers.Utils;
-import newBiospheresMod.Models.Sphere;
+import newbiospheresmod.configuration.ModConfig;
+import newbiospheresmod.helpers.AvgCalc;
+import newbiospheresmod.helpers.Blx;
+import newbiospheresmod.helpers.ModConsts;
+import newbiospheresmod.helpers.Utils;
 
-public class BiosphereWorldProvider extends WorldProviderSurface
-{
-	private ModConfig config;
+public class BiosphereWorldProvider extends WorldProviderSurface {
+  @SuppressWarnings("unused")
+  private static final AvgCalc avg = new AvgCalc();
 
-	@Override
-	public ChunkCoordinates getRandomizedSpawnPoint()
-	{
-		ChunkCoordinates coords = super.getSpawnPoint();
+  @SuppressWarnings("unused")
+  private static long lastPrintedAt = Long.MIN_VALUE;
 
-		FixSpawnLocation(coords); //, true);
+  private static final double searchGridAngles = 12;
 
-		return coords;
-	}
+  private static final double searchGridSize = 2.5d;
 
-	@Override
-	public ChunkCoordinates getSpawnPoint()
-	{
-		ChunkCoordinates coords = super.getSpawnPoint();
+  private static final double toRadians = Math.PI / (BiosphereWorldProvider.searchGridAngles / 2);
+  @SuppressWarnings("unused")
+  private ModConfig config;
 
-		FixSpawnLocation(coords); //, false);
+  public void fixSpawnLocation(final ChunkCoordinates coords) {
+    final ChunkCoordinates orgCoords = Utils.getCoords(coords);
 
-		return coords;
-	}
+    double angle = 0;
+    double power = 1;
 
-	private boolean ValidSpawnLocation(ChunkCoordinates coords)
-	{
-		if (coords == null) { return true; }
+    while (!this.isValidSpawnLocation(coords)) {
+      angle++;
+      if (angle >= BiosphereWorldProvider.searchGridAngles) {
+        angle -= BiosphereWorldProvider.searchGridAngles;
+        power++;
+      }
 
-		World world = this.worldObj;
-		if (world == null) { return true; }
+      if (power >= 50) {
+        coords.posX = orgCoords.posX;
+        coords.posZ = orgCoords.posZ;
 
-		int x = coords.posX;
-		int z = coords.posZ;
+        if (ModConsts.DEBUG) {
+          System.out.println("WARNING: BIOSPHERE FIX SPAWN LOCATION FAILED!!");
+        }
 
-		for (int y = 0; y < ModConsts.WORLD_HEIGHT; y++)
-		{
-			Block block = world.getBlock(x, y, z);
-			if (block != Blx.air && !block.isAir(world, x, y, z))
-			{
-				return true;
-			}
-		}
+        break;
+      }
 
-		// no solid ground at this location!
-		return false;
-	}
+      final double x = Math.cos(angle * BiosphereWorldProvider.toRadians)
+          * (power * BiosphereWorldProvider.searchGridSize);
+      final double z = Math.sin(angle * BiosphereWorldProvider.toRadians)
+          * (power * BiosphereWorldProvider.searchGridSize);
 
-	private static final double searchGridSize = 2.5d;
-	private static final double searchGridAngles = 12;
-	private static final double toRadians = Math.PI / (searchGridAngles / 2);
+      coords.posX = orgCoords.posX + (int) Math.round(x);
+      coords.posZ = orgCoords.posZ + (int) Math.round(z);
+    }
+  }
 
-	private static final AvgCalc avg = new AvgCalc();
-	private static long lastPrintedAt = Long.MIN_VALUE;
+  @Override
+  public ChunkCoordinates getRandomizedSpawnPoint() {
+    final ChunkCoordinates coords = super.getSpawnPoint();
 
-	public void FixSpawnLocation(ChunkCoordinates coords)
-	{
-		ChunkCoordinates orgCoords = Utils.GetCoords(coords);
+    this.fixSpawnLocation(coords); // , true);
 
-		double angle = 0;
-		double power = 1;
+    return coords;
+  }
 
-		while (!ValidSpawnLocation(coords))
-		{
-			angle++;
-			if (angle >= searchGridAngles)
-			{
-				angle -= searchGridAngles;
-				power++;
-			}
+  @Override
+  public ChunkCoordinates getSpawnPoint() {
+    final ChunkCoordinates coords = super.getSpawnPoint();
 
-			if (power >= 50)
-			{
-				coords.posX = orgCoords.posX;
-				coords.posZ = orgCoords.posZ;
+    this.fixSpawnLocation(coords); // , false);
 
-				if (ModConsts.DEBUG)
-				{
-					System.out.println("WARNING: BIOSPHERE FIX SPAWN LOCATION FAILED!!");
-				}
+    return coords;
+  }
 
-				break;
-			}
+  private boolean isValidSpawnLocation(final ChunkCoordinates coords) {
+    if (coords == null) {
+      return true;
+    }
 
-			double x = Math.cos(angle * toRadians) * (power * searchGridSize);
-			double z = Math.sin(angle * toRadians) * (power * searchGridSize);
+    final World world = this.worldObj;
+    if (world == null) {
+      return true;
+    }
 
-			coords.posX = orgCoords.posX + (int)Math.round(x);
-			coords.posZ = orgCoords.posZ + (int)Math.round(z);
-		}
-	}
+    final int x = coords.posX;
+    final int z = coords.posZ;
+
+    for (int y = 0; y < ModConsts.WORLD_HEIGHT; y++) {
+      final Block block = world.getBlock(x, y, z);
+      if ((block != Blx.air) && !block.isAir(world, x, y, z)) {
+        return true;
+      }
+    }
+
+    // no solid ground at this location!
+    return false;
+  }
 }

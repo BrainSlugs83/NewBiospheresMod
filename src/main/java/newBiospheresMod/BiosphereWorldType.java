@@ -1,119 +1,106 @@
 /*
- * This is free software. It comes without any warranty, to the extent permitted by applicable law. You can redistribute
- * it and/or modify it under the terms of the Do What The Fuck You Want To Public License, Version 2, as published by
- * Sam Hocevar. See http://www.wtfpl.net/ for more details.
+ * This is free software. It comes without any warranty, to the extent permitted by applicable law.
+ * You can redistribute it and/or modify it under the terms of the Do What The Fuck You Want To
+ * Public License, Version 2, as published by Sam Hocevar. See http://www.wtfpl.net/ for more
+ * details.
  */
 
-package newBiospheresMod;
+package newbiospheresmod;
 
 import net.minecraft.world.World;
 import net.minecraft.world.WorldType;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.biome.WorldChunkManager;
 import net.minecraft.world.chunk.IChunkProvider;
-import newBiospheresMod.Configuration.CustomWorldData;
-import newBiospheresMod.Configuration.ModConfig;
-import newBiospheresMod.Helpers.Blx;
-import newBiospheresMod.Helpers.IKeyProvider;
-import newBiospheresMod.Helpers.LruCacheList;
+import newbiospheresmod.configuration.CustomWorldData;
+import newbiospheresmod.configuration.ModConfig;
+import newbiospheresmod.helpers.Blx;
+import newbiospheresmod.helpers.IKeyProvider;
+import newbiospheresmod.helpers.LruCacheList;
 
-public class BiosphereWorldType extends WorldType
-{
-	// #region Ownership Tracking
+public class BiosphereWorldType extends WorldType {
+  // #region Ownership Tracking
 
-	private static final LruCacheList<World> BiosphereWorlds = new LruCacheList<World>(3, new IKeyProvider<World>()
-	{
-		@Override
-		public Object provideKey(World item)
-		{
-			return item;
-		}
-	});
+  private static final LruCacheList<World> BiosphereWorlds = new LruCacheList<World>(3, new IKeyProvider<World>() {
+    @Override
+    public Object provideKey(final World item) {
+      return item;
+    }
+  });
 
-	public static final String IsBiosphereWorldKey = "IsBiosphereWorld";
+  public static final String IsBiosphereWorldKey = "IsBiosphereWorld";
 
-	public static boolean IsBiosphereWorld(World world)
-	{
-		if (world != null)
-		{
-			if (BiosphereWorlds.Contains(world)) { return true; }
+  private static void ensureWorldIsTracked(final World world) {
+    if (world != null) {
+      BiosphereWorldType.BiosphereWorlds.push(world);
 
-			CustomWorldData data = CustomWorldData.FromWorld(world);
-			if (data != null)
-			{
-				if (data.getBool(IsBiosphereWorldKey))
-				{
-					EnsureWorldIsTracked(world);
-					return true;
-				}
-			}
-		}
+      final CustomWorldData data = CustomWorldData.fromWorld(world);
+      if (data != null) {
+        data.put(BiosphereWorldType.IsBiosphereWorldKey, true);
+      }
 
-		return false;
-	}
+      ModConfig.get(world).update();
+    }
+  }
 
-	// #endregion
+  // #endregion
 
-	public BiosphereWorldType(String s)
-	{
-		super(s);
-	}
+  public static boolean isBiosphereWorld(final World world) {
+    if (world != null) {
+      if (BiosphereWorldType.BiosphereWorlds.contains(world)) {
+        return true;
+      }
 
-	@Override
-	public WorldChunkManager getChunkManager(World world)
-	{
-		// TODO: FIND A WAY TO UNREGISTER THIS IF THE PLAYER LOADS ANOTHER WORLD.
-		BiomeGenBase.hell.topBlock = BiomeGenBase.hell.fillerBlock = Blx.netherrack;
-		BiomeGenBase.sky.topBlock = BiomeGenBase.sky.fillerBlock = Blx.end_stone;
+      final CustomWorldData data = CustomWorldData.fromWorld(world);
+      if (data != null) {
+        if (data.getBool(BiosphereWorldType.IsBiosphereWorldKey)) {
+          BiosphereWorldType.ensureWorldIsTracked(world);
+          return true;
+        }
+      }
+    }
 
-		Blx.water.setLightOpacity(0);
-		Blx.flowing_water.setLightOpacity(0);
+    return false;
+  }
 
-		Blx.lava.setLightOpacity(0);
-		Blx.flowing_lava.setLightOpacity(0);
+  public BiosphereWorldType(final String s) {
+    super(s);
+  }
 
-		BiosphereWorlds.Push(world);
-		return new BiosphereChunkManager(world);
-	}
+  @Override
+  public IChunkProvider getChunkGenerator(final World world, final String params) {
+    BiosphereWorldType.BiosphereWorlds.push(world);
+    return BiosphereChunkProvider.get(world);
+  }
 
-	@Override
-	public IChunkProvider getChunkGenerator(World world, String params)
-	{
-		BiosphereWorlds.Push(world);
-		return BiosphereChunkProvider.get(world);
-	}
+  @Override
+  public WorldChunkManager getChunkManager(final World world) {
+    // TODO: FIND A WAY TO UNREGISTER THIS IF THE PLAYER LOADS ANOTHER WORLD.
+    BiomeGenBase.hell.topBlock = BiomeGenBase.hell.fillerBlock = Blx.netherrack;
+    BiomeGenBase.sky.topBlock = BiomeGenBase.sky.fillerBlock = Blx.end_stone;
 
-	@Override
-	public boolean hasVoidParticles(boolean flag)
-	{
-		return false;
-	}
+    Blx.water.setLightOpacity(0);
+    Blx.flowing_water.setLightOpacity(0);
 
-	public int getSeaLevel(World world)
-	{
-		BiosphereWorlds.Push(world);
-		return ModConfig.get(world).getSeaLevel() + 1;
-	}
+    Blx.lava.setLightOpacity(0);
+    Blx.flowing_lava.setLightOpacity(0);
 
-	@Override
-	public double voidFadeMagnitude()
-	{
-		return 1.0D;
-	}
+    BiosphereWorldType.BiosphereWorlds.push(world);
+    return new BiosphereChunkManager(world);
+  }
 
-	private static void EnsureWorldIsTracked(World world)
-	{
-		if (world != null)
-		{
-			BiosphereWorlds.Push(world);
+  public int getSeaLevel(final World world) {
+    BiosphereWorldType.BiosphereWorlds.push(world);
+    return ModConfig.get(world).getSeaLevel() + 1;
+  }
 
-			CustomWorldData data = CustomWorldData.FromWorld(world);
-			if (data != null)
-			{
-				data.put(IsBiosphereWorldKey, true);
-			}
+  @Override
+  public boolean hasVoidParticles(final boolean flag) {
+    return false;
+  }
 
-			ModConfig.get(world).update();
-		}
-	}
+  @Override
+  public double voidFadeMagnitude() {
+    return 1.0D;
+  }
 }

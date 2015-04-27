@@ -1,86 +1,71 @@
 /*
- * This is free software. It comes without any warranty, to the extent permitted by applicable law. You can redistribute
- * it and/or modify it under the terms of the Do What The Fuck You Want To Public License, Version 2, as published by
- * Sam Hocevar. See http://www.wtfpl.net/ for more details.
+ * This is free software. It comes without any warranty, to the extent permitted by applicable law.
+ * You can redistribute it and/or modify it under the terms of the Do What The Fuck You Want To
+ * Public License, Version 2, as published by Sam Hocevar. See http://www.wtfpl.net/ for more
+ * details.
  */
 
-package newBiospheresMod;
+package newbiospheresmod;
 
 import net.minecraft.block.Block;
 import net.minecraft.util.WeightedRandom;
-import newBiospheresMod.Helpers.Blx;
-import newBiospheresMod.Helpers.Utils;
 
-public class BlockEntry extends WeightedRandom.Item
-{
-	public final BlockData Block;
+public class BlockEntry extends WeightedRandom.Item {
+  public static BlockEntry parse(final String input) {
+    if ((input != null) && (input.length() > 0)) {
+      try {
+        final int idx = input.lastIndexOf(",");
 
-	public BlockEntry(Block block, int metadata, int weight)
-	{
-		this(new BlockData(block, metadata), weight);
-	}
+        String blockName = null;
+        String weight = null;
 
-	public BlockEntry(BlockData block, int weight)
-	{
-		super(weight);
+        if (idx > 0) {
+          blockName = input.substring(0, idx).trim();
+          weight = input.substring(idx + 1).trim();
+        } else {
+          blockName = input;
+        }
 
-		if (block == null)
-		{ block = BlockData.Empty; }
+        if ((blockName == null) || (blockName.length() < 1)) {
+          blockName = "air";
+        }
 
-		this.Block = block;
-	}
+        if ((weight == null) || (weight.length() < 1)) {
+          weight = "10";
+        }
 
-	@Override
-	public String toString()
-	{
-		return this.Block + ", " + this.itemWeight;
-	}
+        int iWeight = Integer.parseInt(weight);
+        if (iWeight < 0) {
+          iWeight = 0;
+        }
 
-	public static BlockEntry Parse(String input)
-	{
-		if (input != null && input.length() > 0)
-		{
-			try
-			{
-				int idx = input.lastIndexOf(",");
+        return new BlockEntry(BlockData.parse(blockName), iWeight);
+      } catch (final Throwable ignore) {
+        // do nothing
+      }
+    }
 
-				String blockName = null;
-				String weight = null;
+    return new BlockEntry(BlockData.Empty, 0);
+  }
 
-				if (idx > 0)
-				{
-					blockName = input.substring(0, idx).trim();
-					weight = input.substring(idx + 1).trim();
-				}
-				else
-				{
-					blockName = input;
-				}
+  public final BlockData block;
 
-				if (blockName == null || blockName.length() < 1)
-				{
-					blockName = "air";
-				}
+  public BlockEntry(final Block block, final int metadata, final int weight) {
+    this(new BlockData(block, metadata), weight);
+  }
 
-				if (weight == null || weight.length() < 1)
-				{
-					weight = "10";
-				}
+  public BlockEntry(BlockData block, final int weight) {
+    super(weight);
 
-				int iWeight = Integer.parseInt(weight);
-				if (iWeight < 0)
-				{
-					iWeight = 0;
-				}
+    if (block == null) {
+      block = BlockData.Empty;
+    }
 
-				return new BlockEntry(BlockData.Parse(blockName), iWeight);
-			}
-			catch (Throwable ignore)
-			{
-				// do nothing
-			}
-		}
+    this.block = block;
+  }
 
-		return new BlockEntry(BlockData.Empty, 0);
-	}
+  @Override
+  public String toString() {
+    return this.block + ", " + this.itemWeight;
+  }
 }
