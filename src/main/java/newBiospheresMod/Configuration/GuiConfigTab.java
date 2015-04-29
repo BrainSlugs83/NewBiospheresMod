@@ -1,10 +1,11 @@
 /*
- * This is free software. It comes without any warranty, to the extent permitted by applicable law. You can redistribute
- * it and/or modify it under the terms of the Do What The Fuck You Want To Public License, Version 2, as published by
- * Sam Hocevar. See http://www.wtfpl.net/ for more details.
+ * This is free software. It comes without any warranty, to the extent permitted by applicable law.
+ * You can redistribute it and/or modify it under the terms of the Do What The Fuck You Want To
+ * Public License, Version 2, as published by Sam Hocevar. See http://www.wtfpl.net/ for more
+ * details.
  */
 
-package newBiospheresMod.Configuration;
+package newbiospheresmod.configuration;
 
 import java.util.HashMap;
 import java.util.List;
@@ -13,119 +14,96 @@ import java.util.Random;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import newBiospheresMod.Helpers.ModConsts;
+import newbiospheresmod.helpers.ModConsts;
 import cpw.mods.fml.client.config.GuiConfig;
 import cpw.mods.fml.client.config.IConfigElement;
 
-public class GuiConfigTab extends GuiConfig
-{
-	private static final Random Rnd = new Random(System.currentTimeMillis());
+public class GuiConfigTab extends GuiConfig {
+  private static final Random Rnd = new Random(System.currentTimeMillis());
 
-	private final IGuiConfigTabProvider Provider;
-	private final String Category;
-	private Map<GuiButton, GuiConfigTabEntry> TabMap;
+  private final String category;
+  private final IGuiConfigTabProvider provider;
+  private Map<GuiButton, GuiConfigTabEntry> tabMap;
 
-	public GuiConfigTab(GuiScreen parent, IGuiConfigTabProvider provider, String category,
-			List<IConfigElement> childElements)
-	{
-		super(
-			parent,
-			childElements,
-			ModConsts.ModId, provider.getAllRequireWorldRestart(), provider.getAllRequireMcRestart(),
-			provider.getTitle());
+  public GuiConfigTab(final GuiScreen parent, final IGuiConfigTabProvider provider, final String category,
+      final List<IConfigElement> childElements) {
+    super(parent, childElements, ModConsts.ModId, provider.getAllRequireWorldRestart(), provider
+        .getAllRequireMcRestart(), provider.getTitle());
 
-		this.Provider = provider;
-		this.Category = category;
-	}
+    this.provider = provider;
+    this.category = category;
+  }
 
-	private int getUniqueButtonId()
-	{
-		int id = 0;
-		boolean keepTrying = true;
-		while (keepTrying)
-		{
-			id = 600000 + Math.abs(Rnd.nextInt(400000));
-			keepTrying = false;
+  @Override
+  protected void actionPerformed(final GuiButton guiButton) {
+    super.actionPerformed(guiButton);
 
-			if (this.buttonList != null)
-			{
-				for (Object btn: this.buttonList)
-				{
-					if (btn != null && btn instanceof GuiButton)
-					{
-						if (((GuiButton)btn).id == id)
-						{
-							keepTrying = true;
-							break;
-						}
-					}
-				}
-			}
-		}
-		return id;
-	}
+    if (guiButton != null) {
+      if (this.tabMap.containsKey(guiButton)) {
+        this.navigateTo(this.tabMap.get(guiButton));
+      }
+    }
+  }
 
-	@Override
-	public void initGui()
-	{
-		if (TabMap != null)
-		{
-			this.buttonList.removeAll(TabMap.keySet());
-			TabMap.clear();
-		}
-		else
-		{
-			TabMap = new HashMap<GuiButton, GuiConfigTabEntry>();
-		}
+  private int getUniqueButtonId() {
+    int id = 0;
+    boolean keepTrying = true;
+    while (keepTrying) {
+      id = 600000 + Math.abs(GuiConfigTab.Rnd.nextInt(400000));
+      keepTrying = false;
 
-		int x = 8;
-		int y = 27;
-		int height = 16;
+      if (this.buttonList != null) {
+        for (final Object btn : this.buttonList) {
+          if ((btn != null) && (btn instanceof GuiButton)) {
+            if (((GuiButton) btn).id == id) {
+              keepTrying = true;
+              break;
+            }
+          }
+        }
+      }
+    }
+    return id;
+  }
 
-		for (GuiConfigTabEntry tab: Provider.getTabs())
-		{
-			String text = tab.Title;
-			int width = this.fontRendererObj.getStringWidth(text) + 16;
+  @Override
+  public void initGui() {
+    if (this.tabMap != null) {
+      this.buttonList.removeAll(this.tabMap.keySet());
+      this.tabMap.clear();
+    } else {
+      this.tabMap = new HashMap<GuiButton, GuiConfigTabEntry>();
+    }
 
-			GuiButton button = new GuiButton(getUniqueButtonId(), x, y, width, height, text);
-			if (tab.Category.equals(this.Category))
-			{
-				button.packedFGColour = 255 << 8;
-			}
+    int x = 8;
+    final int y = 27;
+    final int height = 16;
 
-			this.TabMap.put(button, tab);
-			this.buttonList.add(button);
+    for (final GuiConfigTabEntry tab : this.provider.getTabs()) {
+      final String text = tab.title;
+      final int width = this.fontRendererObj.getStringWidth(text) + 16;
 
-			x += (width + 8);
-		}
+      final GuiButton button = new GuiButton(this.getUniqueButtonId(), x, y, width, height, text);
+      if (tab.category.equals(this.category)) {
+        button.packedFGColour = 255 << 8;
+      }
 
-		super.initGui();
-		this.entryList.top = y + height;
-	}
+      this.tabMap.put(button, tab);
+      this.buttonList.add(button);
 
-	@Override
-	protected void actionPerformed(GuiButton guiButton)
-	{
-		super.actionPerformed(guiButton);
+      x += (width + 8);
+    }
 
-		if (guiButton != null)
-		{
-			if (TabMap.containsKey(guiButton))
-			{
-				NavigateTo(TabMap.get(guiButton));
-			}
-		}
-	}
+    super.initGui();
+    this.entryList.top = y + height;
+  }
 
-	public void NavigateTo(GuiConfigTabEntry entry)
-	{
-		if (entry != null && this.Provider != null)
-		{
-			if (!entry.Category.equals(this.Category))
-			{
-				this.entryList.saveConfigElements();
-				mc.displayGuiScreen(entry.getScreen.func(this.parentScreen, this.Provider));
-			}
-		}
-	}
+  public void navigateTo(final GuiConfigTabEntry entry) {
+    if ((entry != null) && (this.provider != null)) {
+      if (!entry.category.equals(this.category)) {
+        this.entryList.saveConfigElements();
+        this.mc.displayGuiScreen(entry.getScreen.func(this.parentScreen, this.provider));
+      }
+    }
+  }
 }

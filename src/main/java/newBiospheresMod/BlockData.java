@@ -1,213 +1,186 @@
 /*
- * This is free software. It comes without any warranty, to the extent permitted by applicable law. You can redistribute
- * it and/or modify it under the terms of the Do What The Fuck You Want To Public License, Version 2, as published by
- * Sam Hocevar. See http://www.wtfpl.net/ for more details.
+ * This is free software. It comes without any warranty, to the extent permitted by applicable law.
+ * You can redistribute it and/or modify it under the terms of the Do What The Fuck You Want To
+ * Public License, Version 2, as published by Sam Hocevar. See http://www.wtfpl.net/ for more
+ * details.
  */
 
-package newBiospheresMod;
+package newbiospheresmod;
 
-import net.minecraft.block.*;
-import newBiospheresMod.Helpers.Blx;
-import newBiospheresMod.Helpers.Utils;
+import net.minecraft.block.Block;
+import newbiospheresmod.helpers.Blx;
+import newbiospheresmod.helpers.Utils;
 
-public final class BlockData
-{
-	// #region Static Utilities
+public final class BlockData {
+  // #region Static Utilities
 
-	public static final BlockData Empty = new BlockData(null, 0);
+  public static final BlockData Empty = new BlockData(null, 0);
 
-	public static boolean IsNullOrEmpty(BlockData input)
-	{
-		return (input == null) ? true : input.IsEmpty();
-	}
+  private static byte fixMetadata(final int value) {
+    // Detect Issues
+    Utils.assertTrue((0 <= value) && (value < 16), "metadata out of range.", 1);
 
-	private static byte FixMetadata(int value)
-	{
-		// Detect Issues
-		Utils.Assert(0 <= value && value < 16, "metadata out of range.", 1);
+    // Clamp the Value
+    return (byte) (value & 0x0F);
+  }
 
-		// Clamp the Value
-		return (byte)(value & 0x0F);
-	}
+  public static Block[] getBlockArray(final BlockData[] input) {
+    if (input == null) {
+      return null;
+    }
 
-	public static Block[] getBlockArray(BlockData[] input)
-	{
-		if (input == null) { return null; }
+    final Block[] output = new Block[input.length];
+    for (int i = 0; i < input.length; i++) {
+      if (input[i] != null) {
+        output[i] = input[i].block;
+      }
+    }
 
-		Block[] output = new Block[input.length];
-		for (int i = 0; i < input.length; i++)
-		{
-			if (input[i] != null)
-			{
-				output[i] = input[i].Block;
-			}
-		}
+    return output;
+  }
 
-		return output;
-	}
+  public static byte[] getMetadataArray(final BlockData[] input) {
+    if (input == null) {
+      return null;
+    }
 
-	public static byte[] getMetadataArray(BlockData[] input)
-	{
-		if (input == null) { return null; }
+    final byte[] output = new byte[input.length];
+    for (int i = 0; i < input.length; i++) {
+      if (input[i] != null) {
+        output[i] = input[i].metadata;
+      }
+    }
 
-		byte[] output = new byte[input.length];
-		for (int i = 0; i < input.length; i++)
-		{
-			if (input[i] != null)
-			{
-				output[i] = input[i].Metadata;
-			}
-		}
+    return output;
+  }
 
-		return output;
-	}
+  public static boolean isNullOrEmpty(final BlockData input) {
+    return (input == null) ? true : input.isEmpty();
+  }
 
-	// #endregion
+  // #endregion
 
-	// #region Instance Data
+  // #region Instance Data
 
-	public final Block Block;
-	public final byte Metadata;
+  public static BlockData parse(final String value) {
+    return BlockData.parse(value, BlockData.Empty);
+  }
 
-	// #endregion
+  public static BlockData parse(final String value, final BlockData fallbackBlock) {
+    Block block = net.minecraft.block.Block.getBlockFromName(value);
 
-	// #region Properties
+    if (block != null) {
+      // block was parsable, it does not contain metadata.
+      return new BlockData(block, 0);
+    } else {
+      final int sIndex = value.lastIndexOf(':');
+      if (sIndex >= 0) {
+        try {
+          final String blockString = value.substring(0, sIndex);
+          final String metaString = value.substring(sIndex + 1);
 
-	public boolean IsEmpty()
-	{
-		return (this.Block == Blx.air || this.Block == null) && this.Metadata == 0;
-	}
+          block = net.minecraft.block.Block.getBlockFromName(blockString);
+          final int metadata = Integer.parseInt(metaString);
 
-	// #endregion
+          if (block != null) {
+            return new BlockData(block, metadata);
+          }
+        } catch (final Throwable ignore) { /* do nothing */
+        }
+      }
 
-	// #region Constructors
+      Utils.assertTrue(false, "Unable to parse BlockData: " + value, 1);
+      return fallbackBlock;
+    }
+  }
 
-	public BlockData(Block block)
-	{
-		this(block, 0);
-	}
+  // #endregion
 
-	public BlockData(Block block, int metadata)
-	{
-		this(block, FixMetadata(metadata));
-	}
+  // #region Properties
 
-	public BlockData(Block block, byte metadata)
-	{
-		if (block == null)
-		{
-			block = Blx.air;
-		}
+  public static String toString(final Block block, int metadata) {
+    String ret = null;
 
-		this.Block = block;
-		this.Metadata = FixMetadata(metadata);
-	}
+    try {
+      ret = net.minecraft.block.Block.blockRegistry.getNameForObject(block);
+    } catch (final Exception ignore) { /* do nothing */
+    }
 
-	// #endregion
+    if ((ret == null) || (ret.length() < 1)) {
+      ret = Integer.toString(net.minecraft.block.Block.getIdFromBlock(block));
+    }
 
-	// #region Methods
+    if ((ret != null) && ret.toLowerCase().startsWith("minecraft:")) {
+      ret = ret.substring(10);
+    }
 
-	public BlockData setBlock(Block block)
-	{
-		return new BlockData(block, this.Metadata);
-	}
+    metadata = BlockData.fixMetadata(metadata);
 
-	public BlockData setMetadata(int metadata)
-	{
-		return new BlockData(this.Block, metadata);
-	}
+    if (metadata != 0) {
+      ret += ":" + metadata;
+    }
 
-	// #endregion
+    return ret;
+  }
 
-	// #region ToString Support
+  public final Block block;
 
-	@Override
-	public String toString()
-	{
-		return toString(this.Block, this.Metadata);
-	}
+  // #endregion
 
-	public static String toString(Block block, int metadata)
-	{
-		String ret = null;
+  // #region Constructors
 
-		try
-		{
-			ret = net.minecraft.block.Block.blockRegistry.getNameForObject(block);
-		}
-		catch (Exception ignore)
-		{ /* do nothing */}
+  public final byte metadata;
 
-		if (ret == null || ret.length() < 1)
-		{
-			ret = Integer.toString(net.minecraft.block.Block.getIdFromBlock(block));
-		}
+  public BlockData(final Block block) {
+    this(block, 0);
+  }
 
-		if (ret != null && ret.toLowerCase().startsWith("minecraft:"))
-		{
-			ret = ret.substring(10);
-		}
+  public BlockData(Block block, final byte metadata) {
+    if (block == null) {
+      block = Blx.air;
+    }
 
-		metadata = FixMetadata(metadata);
+    this.block = block;
+    this.metadata = BlockData.fixMetadata(metadata);
+  }
 
-		if (metadata != 0)
-		{
-			ret += ":" + metadata;
-		}
+  // #endregion
 
-		return ret;
-	}
+  // #region Methods
 
-	@Override
-	public int hashCode()
-	{
-		return toString().hashCode();
-	}
+  public BlockData(final Block block, final int metadata) {
+    this(block, BlockData.fixMetadata(metadata));
+  }
 
-	// #endregion
+  @Override
+  public int hashCode() {
+    return this.toString().hashCode();
+  }
 
-	// #region Parse Support
+  // #endregion
 
-	public static BlockData Parse(String value)
-	{
-		return Parse(value, BlockData.Empty);
-	}
+  // #region ToString Support
 
-	public static BlockData Parse(String value, BlockData fallbackBlock)
-	{
-		Block block = net.minecraft.block.Block.getBlockFromName(value);
+  public boolean isEmpty() {
+    return ((this.block == Blx.air) || (this.block == null)) && (this.metadata == 0);
+  }
 
-		if (block != null)
-		{
-			// Block was parsable, it does not contain metadata.
-			return new BlockData(block, 0);
-		}
-		else
-		{
-			int sIndex = value.lastIndexOf(':');
-			if (sIndex >= 0)
-			{
-				try
-				{
-					String blockString = value.substring(0, sIndex);
-					String metaString = value.substring(sIndex + 1);
+  public BlockData setBlock(final Block block) {
+    return new BlockData(block, this.metadata);
+  }
 
-					block = net.minecraft.block.Block.getBlockFromName(blockString);
-					int metadata = Integer.parseInt(metaString);
+  public BlockData setMetadata(final int metadata) {
+    return new BlockData(this.block, metadata);
+  }
 
-					if (block != null)
-					{
-						return new BlockData(block, metadata);
-					}
-				}
-				catch (Throwable ignore)
-				{ /* do nothing */ }
-			}
+  // #endregion
 
-			Utils.Assert(false, "Unable to parse BlockData: " + value, 1);
-			return fallbackBlock;
-		}
-	}
+  // #region Parse Support
 
-	// #endregion
+  @Override
+  public String toString() {
+    return BlockData.toString(this.block, this.metadata);
+  }
+
+  // #endregion
 }

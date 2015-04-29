@@ -1,10 +1,11 @@
 /*
- * This is free software. It comes without any warranty, to the extent permitted by applicable law. You can redistribute
- * it and/or modify it under the terms of the Do What The Fuck You Want To Public License, Version 2, as published by
- * Sam Hocevar. See http://www.wtfpl.net/ for more details.
+ * This is free software. It comes without any warranty, to the extent permitted by applicable law.
+ * You can redistribute it and/or modify it under the terms of the Do What The Fuck You Want To
+ * Public License, Version 2, as published by Sam Hocevar. See http://www.wtfpl.net/ for more
+ * details.
  */
 
-package newBiospheresMod.Configuration;
+package newbiospheresmod.configuration;
 
 import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 
@@ -13,297 +14,236 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldSavedData;
 import net.minecraft.world.storage.MapStorage;
-import newBiospheresMod.BlockData;
-import newBiospheresMod.Helpers.Blx;
-import newBiospheresMod.Helpers.ModConsts;
-import newBiospheresMod.Helpers.Utils;
+import newbiospheresmod.BlockData;
+import newbiospheresmod.helpers.ModConsts;
 
-public class CustomWorldData extends WorldSavedData
-{
-	public final String ContainerName;
-	private final Map<String, String> Data = new ConcurrentHashMapV8<String, String>();
+public class CustomWorldData extends WorldSavedData {
+  public static CustomWorldData fromWorld(final World world) {
+    return CustomWorldData.fromWorld(world, ModConsts.ModId.toLowerCase().replace(" ", ""));
+  }
 
-	private boolean isNew = true;
-	private boolean makeNotNewTriggered = false;
+  public static CustomWorldData fromWorld(final World world, final String containerName) {
+    // Retrieves the CustomWorldData instance for the given world, creating it if necessary
+    final MapStorage storage = world.mapStorage;
+    CustomWorldData result = (CustomWorldData) storage.loadData(CustomWorldData.class, containerName);
+    if (result == null) {
+      result = new CustomWorldData(containerName);
+      storage.setData(containerName, result);
+    } else {
+      // returned object is not new, it was loaded.
+      result.makeNotNew();
+    }
 
-	public boolean getIsNew()
-	{
-		return isNew;
-	}
+    return result;
+  }
 
-	public void MakeNotNew()
-	{
-		makeNotNewTriggered = true;
-	}
+  private static List<String> getNbtTagKeys(final NBTTagCompound nbtTag) {
+    final List<String> keys = new ArrayList<String>();
 
-	public Set<String> Keys()
-	{
-		return Data.keySet();
-	}
+    if (nbtTag != null) {
+      for (final Object key : nbtTag.func_150296_c()) {
+        String keyToAdd = null;
 
-	public boolean ContainsKey(String keyName)
-	{
-		return Data.containsKey(keyName);
-	}
+        if (key != null) {
+          if (key instanceof String) {
+            keyToAdd = (String) key;
+          } else {
+            keyToAdd = key.toString();
+          }
+        }
 
-	public void put(String keyName, String value)
-	{
-		String prevValue = Data.put(keyName, value);
+        if (keyToAdd != null) {
+          keys.add(keyToAdd);
+        }
+      }
+    }
 
-		if (prevValue == null ? value != null : !prevValue.equals(value))
-		{
-			markDirty();
-		}
-	}
+    return keys;
+  }
 
-	public String get(String keyName)
-	{
-		if (ContainsKey(keyName)) { return Data.get(keyName); }
+  public final String containerName;
 
-		return null;
-	}
+  private final Map<String, String> data = new ConcurrentHashMapV8<String, String>();
 
-	public String RemoveKey(String keyName)
-	{
-		String returnValue = Data.remove(keyName);
+  private boolean isNew = true;
 
-		if (returnValue != null)
-		{
-			markDirty();
-		}
+  private boolean makeNotNewTriggered = false;
 
-		return returnValue;
-	}
+  public CustomWorldData(final String containerName) {
+    super(containerName);
+    this.containerName = containerName;
+  }
 
-	public CustomWorldData(String containerName)
-	{
-		super(containerName);
-		this.ContainerName = containerName;
-	}
+  public boolean containsKey(final String keyName) {
+    return this.data.containsKey(keyName);
+  }
 
-	public static CustomWorldData FromWorld(World world)
-	{
-		return FromWorld(world, ModConsts.ModId.toLowerCase().replace(" ", ""));
-	}
+  public String get(final String keyName) {
+    if (this.containsKey(keyName)) {
+      return this.data.get(keyName);
+    }
 
-	public static CustomWorldData FromWorld(World world, String containerName)
-	{
-		// Retrieves the CustomWorldData instance for the given world, creating it if necessary
-		MapStorage storage = world.mapStorage;
-		CustomWorldData result = (CustomWorldData)storage.loadData(CustomWorldData.class, containerName);
-		if (result == null)
-		{
-			result = new CustomWorldData(containerName);
-			storage.setData(containerName, result);
-		}
-		else
-		{
-			// returned object is not new, it was loaded.
-			result.MakeNotNew();
-		}
+    return null;
+  }
 
-		return result;
-	}
+  public BlockData getBlock(final String key) {
+    return this.getBlock(key, BlockData.Empty);
+  }
 
-	private static List<String> GetNbtTagKeys(NBTTagCompound nbtTag)
-	{
-		List<String> keys = new ArrayList<String>();
+  public BlockData getBlock(final String key, final BlockData defaultValue) {
+    if (this.containsKey(key)) {
+      try {
+        return BlockData.parse(this.get(key), defaultValue);
+      } catch (final Throwable ignore) { /* do nothing */
+      }
+    }
 
-		if (nbtTag != null)
-		{
-			for (Object _key: nbtTag.func_150296_c())
-			{
-				String key = null;
+    return defaultValue;
+  }
 
-				if (_key != null)
-				{
-					if (_key instanceof String)
-					{
-						key = (String)_key;
-					}
-					else
-					{
-						key = _key.toString();
-					}
-				}
+  public boolean getBool(final String key) {
+    return this.getBool(key, false);
+  }
 
-				if (key != null)
-				{
-					keys.add(key);
-				}
-			}
-		}
+  public boolean getBool(final String key, final boolean defaultValue) {
+    if (this.containsKey(key)) {
+      try {
+        return Boolean.parseBoolean(this.get(key));
+      } catch (final Throwable ignore) { /* do nothing */
+      }
+    }
 
-		return keys;
-	}
+    return defaultValue;
+  }
 
-	@Override
-	public void readFromNBT(NBTTagCompound nbtTag)
-	{
-		Data.clear();
+  public double getDouble(final String key) {
+    return this.getDouble(key, 0);
+  }
 
-		if (nbtTag != null)
-		{
-			for (String key: GetNbtTagKeys(nbtTag))
-			{
-				// System.out.println("LOADING: " + key);
-				this.put(key, nbtTag.getString(key));
-			}
-		}
-	}
+  public double getDouble(final String key, final double defaultValue) {
+    if (this.containsKey(key)) {
+      try {
+        return Double.parseDouble(this.get(key));
+      } catch (final Throwable ignore) { /* do nothing */
+      }
+    }
 
-	@Override
-	public void writeToNBT(NBTTagCompound nbtTag)
-	{
-		if (nbtTag != null)
-		{
-			for (String key: GetNbtTagKeys(nbtTag))
-			{
-				nbtTag.removeTag(key);
-			}
+    return defaultValue;
+  }
 
-			for (String key: Keys())
-			{
-				// System.out.println("SAVING: " + key);
-				nbtTag.setString(key, Data.get(key));
-			}
+  public float getFloat(final String key) {
+    return this.getFloat(key, 0);
+  }
 
-			if (makeNotNewTriggered)
-			{
-				isNew = false;
-				makeNotNewTriggered = false;
-			}
-		}
-	}
+  public float getFloat(final String key, final float defaultValue) {
+    if (this.containsKey(key)) {
+      try {
+        return Float.parseFloat(this.get(key));
+      } catch (final Throwable ignore) { /* do nothing */
+      }
+    }
 
-	public void put(String key, boolean value)
-	{
-		put(key, Boolean.toString(value));
-	}
+    return defaultValue;
+  }
 
-	public void put(String key, int value)
-	{
-		put(key, Integer.toString(value));
-	}
+  public int getInt(final String key) {
+    return this.getInt(key, 0);
+  }
 
-	public void put(String key, float value)
-	{
-		put(key, Float.toString(value));
-	}
+  public int getInt(final String key, final int defaultValue) {
+    if (this.containsKey(key)) {
+      try {
+        return Integer.parseInt(this.get(key));
+      } catch (final Throwable ignore) { /* do nothing */
+      }
+    }
 
-	public void put(String key, double value)
-	{
-		put(key, Double.toString(value));
-	}
+    return defaultValue;
+  }
 
-	public void put(String key, BlockData value)
-	{
-		put(key, value.toString());
-	}
+  public boolean getIsNew() {
+    return this.isNew;
+  }
 
-	public boolean getBool(String key)
-	{
-		return getBool(key, false);
-	}
+  public Set<String> keys() {
+    return this.data.keySet();
+  }
 
-	public boolean getBool(String key, boolean defaultValue)
-	{
-		if (ContainsKey(key))
-		{
-			try
-			{
-				return Boolean.parseBoolean(get(key));
-			}
-			catch (Throwable ignore)
-			{ /* do nothing */}
-		}
+  public void makeNotNew() {
+    this.makeNotNewTriggered = true;
+  }
 
-		return defaultValue;
-	}
+  public void put(final String key, final BlockData value) {
+    this.put(key, value.toString());
+  }
 
-	public int getInt(String key)
-	{
-		return getInt(key, 0);
-	}
+  public void put(final String key, final boolean value) {
+    this.put(key, Boolean.toString(value));
+  }
 
-	public int getInt(String key, int defaultValue)
-	{
-		if (ContainsKey(key))
-		{
-			try
-			{
-				return Integer.parseInt(get(key));
-			}
-			catch (Throwable ignore)
-			{ /* do nothing */}
-		}
+  public void put(final String key, final double value) {
+    this.put(key, Double.toString(value));
+  }
 
-		return defaultValue;
-	}
+  public void put(final String key, final float value) {
+    this.put(key, Float.toString(value));
+  }
 
-	public double getDouble(String key)
-	{
-		return getDouble(key, 0);
-	}
+  public void put(final String key, final int value) {
+    this.put(key, Integer.toString(value));
+  }
 
-	public double getDouble(String key, double defaultValue)
-	{
-		if (ContainsKey(key))
-		{
-			try
-			{
-				return Double.parseDouble(get(key));
-			}
-			catch (Throwable ignore)
-			{ /* do nothing */}
-		}
+  public void put(final String keyName, final String value) {
+    final String prevValue = this.data.put(keyName, value);
 
-		return defaultValue;
-	}
+    if (prevValue == null ? value != null : !prevValue.equals(value)) {
+      this.markDirty();
+    }
+  }
 
-	public float getFloat(String key)
-	{
-		return getFloat(key, 0);
-	}
+  @Override
+  public void readFromNBT(final NBTTagCompound nbtTag) {
+    this.data.clear();
 
-	public float getFloat(String key, float defaultValue)
-	{
-		if (ContainsKey(key))
-		{
-			try
-			{
-				return Float.parseFloat(get(key));
-			}
-			catch (Throwable ignore)
-			{ /* do nothing */}
-		}
+    if (nbtTag != null) {
+      for (final String key : CustomWorldData.getNbtTagKeys(nbtTag)) {
+        // System.out.println("LOADING: " + key);
+        this.put(key, nbtTag.getString(key));
+      }
+    }
+  }
 
-		return defaultValue;
-	}
+  public String removeKey(final String keyName) {
+    final String returnValue = this.data.remove(keyName);
 
-	public BlockData getBlock(String key)
-	{
-		return getBlock(key, BlockData.Empty);
-	}
+    if (returnValue != null) {
+      this.markDirty();
+    }
 
-	public BlockData getBlock(String key, BlockData defaultValue)
-	{
-		if (ContainsKey(key))
-		{
-			try
-			{
-				return BlockData.Parse(get(key), defaultValue);
-			}
-			catch (Throwable ignore)
-			{ /* do nothing */}
-		}
+    return returnValue;
+  }
 
-		return defaultValue;
-	}
+  @Override
+  public void writeToNBT(final NBTTagCompound nbtTag) {
+    if (nbtTag != null) {
+      for (final String key : CustomWorldData.getNbtTagKeys(nbtTag)) {
+        nbtTag.removeTag(key);
+      }
+
+      for (final String key : this.keys()) {
+        // System.out.println("SAVING: " + key);
+        nbtTag.setString(key, this.data.get(key));
+      }
+
+      if (this.makeNotNewTriggered) {
+        this.isNew = false;
+        this.makeNotNewTriggered = false;
+      }
+    }
+  }
 
 }
