@@ -47,6 +47,9 @@
 	x:\foo\bar\NewBiospheresMod\> gradlew setupDecompWorkspace --refresh-dependencies
 	x:\foo\bar\NewBiospheresMod\> gradlew eclipse
 
+	-- OR --
+	gradlew clean && gradlew cleanCache && gradlew setupDecompWorkspace --refresh-dependencies && gradlew eclipse
+
 + Delete the "src" folder.
 
 	x:\foo\bar\NewBiospheresMod\> rd /s /q src
