@@ -39,7 +39,8 @@ public class NewBiospheresMod
 		File configFile = event.getSuggestedConfigurationFile();
 		if (!configFile.exists())
 		{
-			File oldConfigFile = new File(configFile.getParent() + File.separator + ModConsts.OldModId + "." + Utils.GetFileExtension(configFile.getPath()));
+			File oldConfigFile = new File(configFile.getParent() + File.separator + ModConsts.OldModId + "."
+				+ Utils.GetFileExtension(configFile.getPath()));
 			if (oldConfigFile.exists())
 			{
 				try

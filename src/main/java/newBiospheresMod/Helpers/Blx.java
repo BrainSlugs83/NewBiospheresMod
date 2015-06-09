@@ -7,6 +7,7 @@
 package newBiospheresMod.Helpers;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -2331,8 +2332,9 @@ public class Blx
 		// But that's an implementation detail, and we want to be safe as
 		// otherwise we could (in principle) load something as the wrong block
 		// due to load order changes.
-		allBlocks.sort
+		Collections.sort
 		(
+			allBlocks,
 			new Comparator<Block>()
 			{
 				@Override
