@@ -25,7 +25,10 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 
-@Mod(modid = ModConsts.ModId, version = ModConsts.ModVersion, guiFactory = "newBiospheresMod.Configuration.ModConfigGuiFactory")
+@Mod(
+	modid = ModConsts.ModId,
+	version = ModConsts.ModVersion,
+	guiFactory = "newBiospheresMod.Configuration.ModConfigGuiFactory")
 public class NewBiospheresMod
 {
 	public static WorldType biosphereWorldType;
@@ -39,7 +42,8 @@ public class NewBiospheresMod
 		File configFile = event.getSuggestedConfigurationFile();
 		if (!configFile.exists())
 		{
-			File oldConfigFile = new File(configFile.getParent() + File.separator + ModConsts.OldModId + "."
+			File oldConfigFile = new File(configFile.getParent() + File.separator
+				+ ModConsts.OldModId + "."
 				+ Utils.GetFileExtension(configFile.getPath()));
 			if (oldConfigFile.exists())
 			{
@@ -49,7 +53,8 @@ public class NewBiospheresMod
 				}
 				catch (Exception e)
 				{
-					System.out.println("Unable to move config file; attempting to use old config file in place.");
+					System.out
+						.println("Unable to move config file; attempting to use old config file in place.");
 					configFile = oldConfigFile;
 				}
 			}
