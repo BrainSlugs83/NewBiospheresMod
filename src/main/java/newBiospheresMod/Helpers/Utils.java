@@ -337,6 +337,62 @@ public class Utils
 		};
 	}
 
+	public static <T> double Average(final Iterable<T> input, final Func<T, Double> func)
+	{
+		double output = 0;
+		double count = 0;
+		
+		if (input != null && func != null)
+		{
+			for(T item: input)
+			{
+				if (item != null)
+				{
+					output += func.func(item);
+					count++;
+				}
+			}
+		}
+		
+		return (output / count);
+	}
+	
+	public static <T> double SumDouble(final Iterable<T> input, final Func<T, Double> func)
+	{
+		double output = 0;
+		
+		if (input != null && func != null)
+		{
+			for(T item: input)
+			{
+				if (item != null)
+				{
+					output += func.func(item);
+				}
+			}
+		}
+		
+		return output;
+	}
+	
+	public static <T> Integer SumInt(final Iterable<T> input, final Func<T, Integer> func)
+	{
+		int output = 0;
+		
+		if (input != null && func != null)
+		{
+			for(T item: input)
+			{
+				if (item != null)
+				{
+					output += func.func(item);
+				}
+			}
+		}
+		
+		return output;
+	}
+	
 	public static <T> Iterable<T> Where(final Iterable<T> input, final Predicate<T> predicate)
 	{
 		if (predicate == null && input != null) { return input; }
