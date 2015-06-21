@@ -58,8 +58,7 @@ public final class BlockDome extends Block
 	{
 		if (BlockData.IsNullOrEmpty(baseBlock)) { return BlockData.Empty; }
 		if (baseBlock.Block instanceof BlockDome) { return baseBlock; }
-		if (baseBlock.Block == Blx.anvil) { return baseBlock; } // Quick hack to fixes issue #15.
-
+		
 		try
 		{
 			BlockData ret = InitializedBlocks.get(baseBlock.Block);
@@ -105,6 +104,7 @@ public final class BlockDome extends Block
 	private final Block baseBlock;
 	private boolean blockInitialized = false;
 	private Object lock = new Object();
+	private boolean shouldRenderIn3D;
 
 	// #endregion
 
@@ -139,6 +139,8 @@ public final class BlockDome extends Block
 		this.enableStats = baseBlock.getEnableStats();
 
 		this.setBlockName(getRegularBlockName(baseBlock));
+		
+		this.shouldRenderIn3D = RenderBlocks.renderItemIn3d(baseBlock.getRenderType());
 
 		synchronized(NewBiospheresMod.biosphereWorldType)
 		{
@@ -348,7 +350,10 @@ public final class BlockDome extends Block
 	public int getRenderType()
 	{
 		if (baseBlock == null) { return super.getRenderType(); }
-		return baseBlock.getRenderType();
+		if (shouldRenderIn3D)
+			return RenderHandler.get3dRenderId();
+		else
+			return RenderHandler.get2dRenderId();
 	}
 
 	@Override
@@ -1410,6 +1415,14 @@ public final class BlockDome extends Block
 		if (baseBlock == null) { return super.isToolEffective(type, metadata); }
 		return baseBlock.isToolEffective(type, metadata);
 	}
+
+	public Block getProxiedBlock()
+	{
+		if (baseBlock == null) { return Blocks.air; }
+		return baseBlock;
+	}
+	
+	
 
 	// #endregion
 }

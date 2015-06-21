@@ -20,6 +20,7 @@ import cpw.mods.fml.client.event.ConfigChangedEvent;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
+import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
@@ -32,6 +33,9 @@ import cpw.mods.fml.common.registry.LanguageRegistry;
 public class NewBiospheresMod
 {
 	public static WorldType biosphereWorldType;
+	
+	@SidedProxy(clientSide="newBiospheresMod.ClientProxy", serverSide="newBiospheresMod.CommonProxy")
+	public static CommonProxy proxy;
 
 	@EventHandler
 	public void PreInit(FMLPreInitializationEvent event)
@@ -75,6 +79,8 @@ public class NewBiospheresMod
 
 		DimensionManager.unregisterProviderType(0);
 		DimensionManager.registerProviderType(0, BiosphereWorldProvider.class, true);
+		
+		proxy.initRenderHandler();
 
 		FMLCommonHandler.instance().bus().register(this);
 	}
