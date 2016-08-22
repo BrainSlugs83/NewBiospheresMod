@@ -310,8 +310,7 @@ public class BiosphereChunkProvider implements IChunkProvider
 					{
 						block = new BlockData(Blx.stone);
 					}
-					else if (sphere.hasLake && sphere.isDesert
-						&& lakeDistance <= sphere.scaledLakeRadius)
+					else if (sphere.hasLake && lakeDistance <= sphere.scaledLakeRadius)
 					{
 						if (rawY == sphere.lakeLocation.posY && sphere.biome == BiomeGenBase.icePlains)
 						{
